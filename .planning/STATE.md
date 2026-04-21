@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-01-PLAN.md — toolchain scaffold complete
-last_updated: "2026-04-21T10:04:35.433Z"
+stopped_at: Completed 01-02-PLAN.md — wire protocol framing layer complete
+last_updated: "2026-04-21T10:10:23.566Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-21)
 ## Current Position
 
 Phase: 01 (Scaffold + Wire Protocol Foundation) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-04-21
 
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01 P01 | 9min | 3 tasks | 15 files |
+| Phase 01 P02 | 3min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,9 @@ Recent decisions affecting current work:
 - [Phase 01]: publint requires types condition before import in exports map; exports order is type-resolution-sensitive
 - [Phase 01]: Vitest 4 needs passWithNoTests: true to exit 0 before any test files exist
 - [Phase 01]: WebKit on Arch Linux incompatible with Playwright 1.59.1 (ICU 74 vs 78 ABI); webkit E2E coverage delegated to CI (ubuntu-latest)
+- [Phase 01]: encode() is identity function in Phase 1 — frames are plain objects; function is a seam for future binary encoding
+- [Phase 01]: FRAME_MARKER is the string '__ibf_v1__' (not Symbol) — Symbols are silently dropped by structured-clone in postMessage
+- [Phase 01]: All 8 frame types included (not 7): CAPABILITY required by PROTO-04/05; doc count discrepancy is a documentation error
 
 ### Pending Todos
 
@@ -83,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T10:04:35.430Z
-Stopped at: Completed 01-01-PLAN.md — toolchain scaffold complete
+Last session: 2026-04-21T10:10:23.564Z
+Stopped at: Completed 01-02-PLAN.md — wire protocol framing layer complete
 Resume file: None

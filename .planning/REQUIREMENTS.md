@@ -16,11 +16,11 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 
 ### Wire protocol
 
-- [ ] **PROTO-01**: Frame protocol defines exactly seven frame types — `OPEN`, `OPEN_ACK`, `DATA`, `CREDIT`, `CLOSE`, `CANCEL`, `RESET`, `CAPABILITY`
-- [ ] **PROTO-02**: Every frame carries a channel ID, a stream ID, and a sequence number; sequence comparisons use wraparound-safe modular arithmetic
-- [ ] **PROTO-03**: `DATA` frames include a `chunkType` tag distinguishing `BINARY_TRANSFER`, `STRUCTURED_CLONE`, `STREAM_REF`, `SAB_SIGNAL`
-- [ ] **PROTO-04**: `CAPABILITY` handshake runs once on channel open; both sides compute `min(local, remote)` capabilities and cache the result for the channel lifetime (no per-chunk fast-path switching)
-- [ ] **PROTO-05**: Protocol version is included in the `CAPABILITY` frame and mismatches surface a deterministic error (`PROTOCOL_MISMATCH`) rather than a silent hang
+- [x] **PROTO-01**: Frame protocol defines exactly seven frame types — `OPEN`, `OPEN_ACK`, `DATA`, `CREDIT`, `CLOSE`, `CANCEL`, `RESET`, `CAPABILITY`
+- [x] **PROTO-02**: Every frame carries a channel ID, a stream ID, and a sequence number; sequence comparisons use wraparound-safe modular arithmetic
+- [x] **PROTO-03**: `DATA` frames include a `chunkType` tag distinguishing `BINARY_TRANSFER`, `STRUCTURED_CLONE`, `STREAM_REF`, `SAB_SIGNAL`
+- [x] **PROTO-04**: `CAPABILITY` handshake runs once on channel open; both sides compute `min(local, remote)` capabilities and cache the result for the channel lifetime (no per-chunk fast-path switching)
+- [x] **PROTO-05**: Protocol version is included in the `CAPABILITY` frame and mismatches surface a deterministic error (`PROTOCOL_MISMATCH`) rather than a silent hang
 
 ### Session core
 
@@ -168,11 +168,11 @@ Explicitly excluded. Documented to prevent scope creep.
 | ENDP-02 | Phase 1 | Pending |
 | ENDP-03 | Phase 1 | Pending |
 | ENDP-04 | Phase 1 | Pending |
-| PROTO-01 | Phase 1 | Pending |
-| PROTO-02 | Phase 1 | Pending |
-| PROTO-03 | Phase 1 | Pending |
-| PROTO-04 | Phase 1 | Pending |
-| PROTO-05 | Phase 1 | Pending |
+| PROTO-01 | Phase 1 | Complete |
+| PROTO-02 | Phase 1 | Complete |
+| PROTO-03 | Phase 1 | Complete |
+| PROTO-04 | Phase 1 | Complete |
+| PROTO-05 | Phase 1 | Complete |
 | FAST-05 | Phase 1 | Pending |
 | SESS-01 | Phase 2 | Pending |
 | SESS-02 | Phase 2 | Pending |
