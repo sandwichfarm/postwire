@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-21)
 Phase: 10
 Plan: Not started
 Status: Phase complete — ready for verification
-Last activity: 2026-04-21 - Completed quick task 260421-u6w: Raise JSR score to 100%
+Last activity: 2026-04-21 - Completed quick task 260421-ukg: Benchmark-into-README script wired to publish hooks
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -178,6 +178,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260421-u6w | Raise JSR score to 100% | 2026-04-21 | 040b51a | [260421-u6w-raise-jsr-score-to-100](./quick/260421-u6w-raise-jsr-score-to-100/) |
+| 260421-ukg | Benchmark-into-README script wired to publish hooks | 2026-04-21 | 0910063 | [260421-ukg-benchmark-into-readme-script-wired-to-pu](./quick/260421-ukg-benchmark-into-readme-script-wired-to-pu/) |
 
 ## Session Continuity
 
