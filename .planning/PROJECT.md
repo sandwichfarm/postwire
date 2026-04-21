@@ -123,4 +123,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-21 after Phase 2 completion (session protocol core — reorder, credit, chunker, FSM)*
+*Last updated: 2026-04-21 after Phase 3 completion (three API adapters + single-hop integration over real postMessage)*
