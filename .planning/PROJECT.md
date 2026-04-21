@@ -123,4 +123,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-21 after Phase 9 completion (cross-browser E2E: chromium+firefox+webkit, three-hop, strict-CSP)*
+*Last updated: 2026-04-21 after Phase 10 completion — all 69 v1 requirements shipped. Examples, docs, publish pipeline ready.*
