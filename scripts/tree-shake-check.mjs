@@ -24,11 +24,11 @@
  * / "TypedEmitter" text is live runtime code.
  */
 
-import { exec } from "child_process";
-import fs from "fs";
-import os from "os";
-import path from "path";
-import { promisify } from "util";
+import { exec } from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { promisify } from "node:util";
 
 const execAsync = promisify(exec);
 

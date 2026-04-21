@@ -2,7 +2,7 @@
 // TDD RED → GREEN: Session.close(finalSeq?) optional parameter
 // Requirements: Phase 3 scaffold — patch known finalSeq stub from Phase 2.
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { CloseFrame, Frame } from "../../../src/framing/types.js";
 import { FRAME_MARKER } from "../../../src/framing/types.js";
 import { Session } from "../../../src/session/index.js";
@@ -17,7 +17,9 @@ function makeOpenSession(): Session {
   });
   // Feed an OPEN frame to advance responder to OPEN state
   const outFrames: Frame[] = [];
-  responder.onFrameOut((frame) => { outFrames.push(frame); });
+  responder.onFrameOut((frame) => {
+    outFrames.push(frame);
+  });
   responder.receiveFrame({
     [FRAME_MARKER]: 1,
     channelId: "ch1",
@@ -33,7 +35,9 @@ describe("Session.close() finalSeq parameter", () => {
   it("close() with no argument sends CLOSE frame with finalSeq: 0 (backward compat)", () => {
     const session = makeOpenSession();
     const outFrames: Frame[] = [];
-    session.onFrameOut((frame) => { outFrames.push(frame); });
+    session.onFrameOut((frame) => {
+      outFrames.push(frame);
+    });
 
     session.close();
 
@@ -45,7 +49,9 @@ describe("Session.close() finalSeq parameter", () => {
   it("close(42) sends CLOSE frame with finalSeq: 42", () => {
     const session = makeOpenSession();
     const outFrames: Frame[] = [];
-    session.onFrameOut((frame) => { outFrames.push(frame); });
+    session.onFrameOut((frame) => {
+      outFrames.push(frame);
+    });
 
     session.close(42);
 
@@ -57,7 +63,9 @@ describe("Session.close() finalSeq parameter", () => {
   it("close(0xFFFFFFFF) sends CLOSE frame with finalSeq: 0xFFFFFFFF (large value OK)", () => {
     const session = makeOpenSession();
     const outFrames: Frame[] = [];
-    session.onFrameOut((frame) => { outFrames.push(frame); });
+    session.onFrameOut((frame) => {
+      outFrames.push(frame);
+    });
 
     session.close(0xffffffff);
 
@@ -69,7 +77,9 @@ describe("Session.close() finalSeq parameter", () => {
   it("close(0) explicitly is same as close() — finalSeq: 0", () => {
     const session = makeOpenSession();
     const outFrames: Frame[] = [];
-    session.onFrameOut((frame) => { outFrames.push(frame); });
+    session.onFrameOut((frame) => {
+      outFrames.push(frame);
+    });
 
     session.close(0);
 

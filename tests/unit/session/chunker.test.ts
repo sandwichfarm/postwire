@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { Chunker } from "../../../src/session/chunker.js";
 import { FRAME_MARKER } from "../../../src/framing/types.js";
+import { Chunker } from "../../../src/session/chunker.js";
 
 describe("Chunker split — BINARY_TRANSFER", () => {
   it("ArrayBuffer of exactly maxChunkSize produces 1 chunk with isFinal=true", () => {

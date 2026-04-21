@@ -11,8 +11,9 @@
 //   LIFE-03: Remote port close → CHANNEL_CLOSED emitted on channel
 //   LIFE-03: No zombie session remains after teardown (#session === null)
 //   LIFE-05: endpoint.onmessage set to null after channel.close()
-import { MessageChannel } from "node:worker_threads";
+
 import type { MessagePort } from "node:worker_threads";
+import { MessageChannel } from "node:worker_threads";
 import { afterEach, describe, expect, it } from "vitest";
 import { createChannel } from "../../src/channel/channel.js";
 import type { PostMessageEndpoint } from "../../src/transport/endpoint.js";

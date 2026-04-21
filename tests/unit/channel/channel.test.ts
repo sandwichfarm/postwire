@@ -127,7 +127,7 @@ describe("Channel — error event routing (OBS-02)", () => {
     });
 
     expect(errors).toHaveLength(1);
-    expect(errors[0]!.code).toBe("PROTOCOL_MISMATCH");
+    expect(errors[0]?.code).toBe("PROTOCOL_MISMATCH");
     expect(errors[0]).toBeInstanceOf(StreamError);
   });
 
@@ -159,7 +159,7 @@ describe("Channel — error event routing (OBS-02)", () => {
     ch.openStream();
 
     expect(errors).toHaveLength(1);
-    expect(errors[0]!.code).toBe("DataCloneError");
+    expect(errors[0]?.code).toBe("DataCloneError");
     expect(errors[0]).toBeInstanceOf(StreamError);
   });
 

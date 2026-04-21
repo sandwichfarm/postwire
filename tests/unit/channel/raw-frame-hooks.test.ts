@@ -2,7 +2,7 @@
 // Unit tests for Phase 7 raw-frame hooks: onRawDataFrame, onRawControlFrame, sendRawFrame.
 // These hooks let relay bridges observe and forward frames without reassembly.
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { createChannel } from "../../../src/channel/channel.js";
 import { decode } from "../../../src/framing/encode-decode.js";
 import type { DataFrame, Frame } from "../../../src/framing/types.js";

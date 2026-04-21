@@ -18,28 +18,33 @@ If everything else gets cut, these three properties must hold: (1) it works wher
 
 <!-- Shipped and confirmed valuable. -->
 
-(None yet — ship to validate)
+- ✓ Stream primitive wrapping any caller-provided postMessage endpoint — v1.0
+- ✓ Reliable, ordered delivery (TCP-like) for arbitrary chunks — v1.0
+- ✓ Binary + stream + structured-clone payload handling with fast-path selection — v1.0
+- ✓ End-to-end stream semantics across relay hops (TOPO-02..04) — v1.0
+- ✓ Feature-detected SharedArrayBuffer fast path with transparent fallback — v1.0
+- ✓ WHATWG Streams API surface — v1.0
+- ✓ Node-style EventEmitter API surface — v1.0
+- ✓ Low-level send/onChunk API surface — v1.0
+- ✓ Optional multiplexing with per-stream credit windows — v1.0
+- ✓ Benchmark harness (Node-mode) with throughput/latency/CPU + naive comparison — v1.0
+- ✓ Five runnable examples under `examples/` — v1.0
+- ✓ Works in Chromium + Firefox (CI also covers WebKit) — v1.0
+- ✓ Publish pipeline ready for npm + jsr via OIDC dry-run — v1.0 (actual publish human-gated)
+- ✓ Documentation (README + docs/) covering all API surfaces, endpoints, errors, topology, benchmarks — v1.0
+- ✓ Cross-context Playwright E2E suite — v1.0
 
 ### Active
 
 <!-- Current scope. Building toward these. -->
 
-- [ ] Stream primitive that wraps any caller-provided postMessage endpoint (iframe, worker, service worker, MessageChannel port)
-- [ ] Reliable, ordered delivery (TCP-like semantics) for arbitrary chunks
-- [ ] Handles binary (ArrayBuffer/TypedArray), streams (ReadableStream), and structured-clone payloads — fast path chosen per data type
-- [ ] End-to-end stream semantics across proxy hops (worker → main-thread relay → sandboxed iframe presents as one logical stream)
-- [ ] Feature-detected SharedArrayBuffer fast path, with postMessage-transferable fallback when cross-origin isolation / sandbox prevents SAB
-- [ ] WHATWG Streams API surface (`{ readable, writable }`) as the primary ergonomics
-- [ ] Node-style EventEmitter API surface as an alternate wrapper
-- [ ] Low-level `send` / `onChunk` API surface for callers who want to build their own abstractions
-- [ ] Optional multiplexing — multiple concurrent logical streams over one channel, with per-stream framing IDs
-- [ ] Benchmark harness comparing the library against naive postMessage across data types, sizes, and topologies
-- [ ] Example: basic two-party stream (iframe ↔ parent, worker ↔ main)
-- [ ] Example: three-hop proxy (worker ingests live stream → main-thread relay → strict-CSP sandboxed iframe)
-- [ ] Works across Chrome, Firefox, Safari (latest-2 evergreen)
-- [ ] Shipped to npm and jsr under a short, available, catchy name *(name TBD — `iframebuffer` is a working placeholder)*
-- [ ] Documentation covering API surfaces, topology patterns, and benchmark results
-- [ ] Cross-context test suite (Playwright driving real iframes + workers)
+(No active v1.x work. Next milestone TBD — run `/gsd:new-milestone` to plan v1.1.)
+
+Candidate v1.1+ themes observed during v1.0 execution (not yet committed):
+- Browser-mode benchmarks under real COOP/COEP for SAB-vs-transferable data (documented gap from Phase 6)
+- Three-browser benchmark matrix (currently Node-only)
+- VitePress docs site wrapper over the markdown pages
+- Actual v1.0 publish to npm + jsr
 
 ### Out of Scope
 
@@ -123,4 +128,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-21 after Phase 10 completion — all 69 v1 requirements shipped. Examples, docs, publish pipeline ready.*
+*Last updated: 2026-04-21 after v1.0 milestone completion. Full study shipped: library + benchmarks + examples + docs + publish pipeline.*

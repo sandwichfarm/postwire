@@ -16,7 +16,7 @@
 //   In a two-party pair, one side must be initiator, one must be responder.
 
 import type { Channel } from "../channel/channel.js";
-import { StreamError, type ErrorCode } from "../types.js";
+import { type ErrorCode, StreamError } from "../types.js";
 
 // ---------------------------------------------------------------------------
 // Typed EventEmitter base (~40 LoC, zero deps, browser-safe)

@@ -52,7 +52,7 @@ describe("Channel — stats() (OBS-01)", () => {
     const stats = chA.stats();
     expect(stats.streams).toHaveLength(1);
     // OPEN frame was sent outbound
-    expect(stats.streams[0]!.frameCountsByType["OPEN"]).toBeGreaterThanOrEqual(1);
+    expect(stats.streams[0]?.frameCountsByType.OPEN).toBeGreaterThanOrEqual(1);
 
     port1.close();
     port2.close();
@@ -92,7 +92,7 @@ describe("Channel — stats() (OBS-01)", () => {
     // All frames delivered in order — buffer should be empty
     const stats = chA.stats();
     if (stats.streams.length > 0) {
-      expect(stats.streams[0]!.reorderBufferDepth).toBe(0);
+      expect(stats.streams[0]?.reorderBufferDepth).toBe(0);
     }
 
     port1.close();
@@ -108,7 +108,7 @@ describe("Channel — stats() (OBS-01)", () => {
 
     const stats = chA.stats();
     if (stats.streams.length > 0) {
-      expect(stats.streams[0]!.creditWindowAvailable).toBeGreaterThanOrEqual(0);
+      expect(stats.streams[0]?.creditWindowAvailable).toBeGreaterThanOrEqual(0);
     }
 
     port1.close();
