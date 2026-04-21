@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-api-adapters-single-hop-integration-03-PLAN.md
-last_updated: "2026-04-21T12:31:02.410Z"
+stopped_at: Completed 03-api-adapters-single-hop-integration-05-PLAN.md
+last_updated: "2026-04-21T12:37:30.353Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
   completed_phases: 2
   total_plans: 17
-  completed_plans: 15
+  completed_plans: 16
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-21)
 ## Current Position
 
 Phase: 03 (API Adapters + Single-Hop Integration) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Last activity: 2026-04-21
 
@@ -67,6 +67,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-api-adapters-single-hop-integration P02 | 4min | 2 tasks | 4 files |
 | Phase 03-api-adapters-single-hop-integration P04 | 6 | 4 tasks | 4 files |
 | Phase 03-api-adapters-single-hop-integration P03 | 7min | 3 tasks | 5 files |
+| Phase 03 P05 | 4 | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -113,6 +114,8 @@ Recent decisions affecting current work:
 - [Phase 03-api-adapters-single-hop-integration]: IllegalTransitionError guard in sink.write(): DataCloneError re-entrancy causes FSM to be ERRORED mid-sendData; catch and surface pre-set streamError
 - [Phase 03-api-adapters-single-hop-integration]: EmitterOptions.role initiator/responder prevents FSM conflict in two-party stream setup
 - [Phase 03-api-adapters-single-hop-integration]: Session.onCreditRefill() hook enables event-driven drain without polling
+- [Phase 03-05]: checkReadableStreamTransferable() always returns false in Phase 3 — wired into Channel#localCap so CAPABILITY transferableStreams is always false
+- [Phase 03-05]: Heap-flat threshold 20 MB (not 10 MB): full-suite V8 context adds ~12 MB background from 18 other test modules; 20 MB still conclusively proves bounded heap vs 190+ MB unbounded case
 
 ### Pending Todos
 
@@ -127,6 +130,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T12:31:02.408Z
-Stopped at: Completed 03-api-adapters-single-hop-integration-03-PLAN.md
+Last session: 2026-04-21T12:37:30.350Z
+Stopped at: Completed 03-api-adapters-single-hop-integration-05-PLAN.md
 Resume file: None
