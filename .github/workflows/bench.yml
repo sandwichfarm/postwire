@@ -1,0 +1,67 @@
+name: Benchmarks
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  bench:
+    if: >
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && contains(github.event.label.name, 'bench-regression'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers (all three)
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+
+      - name: Build library
+        run: pnpm build
+
+      - name: Run benchmarks (all browsers, default payload sizes)
+        run: pnpm bench
+        env:
+          # Workers=1 runs browser projects sequentially — avoids OOM on 256 MB payloads
+          VITEST_MAX_WORKERS: "1"
+
+      - name: Upload results artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results-${{ github.sha }}
+          path: benchmarks/results/
+
+      - name: Compare against baseline (PR bench-regression label only)
+        if: >
+          github.event_name == 'pull_request' &&
+          contains(github.event.label.name, 'bench-regression')
+        run: node benchmarks/compare.mjs benchmarks/results/baseline.json benchmarks/results/latest.json --threshold 10
+
+      - name: Commit updated baseline (nightly + manual only)
+        if: >
+          github.event_name == 'schedule' ||
+          github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add benchmarks/results/baseline.json
+          git diff --cached --quiet || git commit -m "chore(bench): update baseline [skip ci]"
+          git push
