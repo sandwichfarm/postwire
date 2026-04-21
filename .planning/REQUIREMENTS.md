@@ -158,17 +158,85 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Traceability
 
-Filled by the roadmap creation step — each requirement maps to exactly one phase.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (Populated by gsd-roadmapper) | — | Pending |
+| COMP-01 | Phase 1 | Pending |
+| COMP-02 | Phase 1 | Pending |
+| COMP-03 | Phase 9 | Pending |
+| COMP-04 | Phase 1 | Pending |
+| ENDP-01 | Phase 1 | Pending |
+| ENDP-02 | Phase 1 | Pending |
+| ENDP-03 | Phase 1 | Pending |
+| ENDP-04 | Phase 1 | Pending |
+| PROTO-01 | Phase 1 | Pending |
+| PROTO-02 | Phase 1 | Pending |
+| PROTO-03 | Phase 1 | Pending |
+| PROTO-04 | Phase 1 | Pending |
+| PROTO-05 | Phase 1 | Pending |
+| FAST-05 | Phase 1 | Pending |
+| SESS-01 | Phase 2 | Pending |
+| SESS-02 | Phase 2 | Pending |
+| SESS-03 | Phase 2 | Pending |
+| SESS-04 | Phase 2 | Pending |
+| SESS-05 | Phase 2 | Pending |
+| SESS-06 | Phase 2 | Pending |
+| TEST-01 | Phase 2 | Pending |
+| TEST-06 | Phase 2 | Pending |
+| FAST-01 | Phase 3 | Pending |
+| FAST-02 | Phase 3 | Pending |
+| FAST-03 | Phase 3 | Pending |
+| API-01 | Phase 3 | Pending |
+| API-02 | Phase 3 | Pending |
+| API-03 | Phase 3 | Pending |
+| API-04 | Phase 3 | Pending |
+| TOPO-01 | Phase 3 | Pending |
+| TEST-02 | Phase 3 | Pending |
+| LIFE-01 | Phase 4 | Pending |
+| LIFE-02 | Phase 4 | Pending |
+| LIFE-03 | Phase 4 | Pending |
+| LIFE-04 | Phase 4 | Pending |
+| LIFE-05 | Phase 4 | Pending |
+| OBS-01 | Phase 4 | Pending |
+| OBS-02 | Phase 4 | Pending |
+| OBS-03 | Phase 4 | Pending |
+| BENCH-01 | Phase 5 | Pending |
+| BENCH-02 | Phase 5 | Pending |
+| BENCH-03 | Phase 5 | Pending |
+| BENCH-04 | Phase 5 | Pending |
+| BENCH-05 | Phase 5 | Pending |
+| FAST-04 | Phase 6 | Pending |
+| TOPO-02 | Phase 7 | Pending |
+| TOPO-03 | Phase 7 | Pending |
+| TOPO-04 | Phase 7 | Pending |
+| MUX-01 | Phase 8 | Pending |
+| MUX-02 | Phase 8 | Pending |
+| MUX-03 | Phase 8 | Pending |
+| TEST-03 | Phase 9 | Pending |
+| TEST-04 | Phase 9 | Pending |
+| TEST-05 | Phase 9 | Pending |
+| EX-01 | Phase 10 | Pending |
+| EX-02 | Phase 10 | Pending |
+| EX-03 | Phase 10 | Pending |
+| EX-04 | Phase 10 | Pending |
+| EX-05 | Phase 10 | Pending |
+| DOC-01 | Phase 10 | Pending |
+| DOC-02 | Phase 10 | Pending |
+| DOC-03 | Phase 10 | Pending |
+| DOC-04 | Phase 10 | Pending |
+| DOC-05 | Phase 10 | Pending |
+| DOC-06 | Phase 10 | Pending |
+| PUB-01 | Phase 10 | Pending |
+| PUB-02 | Phase 10 | Pending |
+| PUB-03 | Phase 10 | Pending |
+| PUB-04 | Phase 10 | Pending |
 
 **Coverage:**
-- v1 requirements: 53 total
-- Mapped to phases: 0 (pre-roadmap)
-- Unmapped: 53 — to be resolved by roadmap
+- v1 requirements: 69 total
+- Mapped to phases: 69
+- Unmapped: 0
+
+**Note:** The REQUIREMENTS.md file contained 69 v1 requirements across 15 categories (the initial summary of "53" omitted the Examples, Documentation, and Publishing categories from its count; all are present in the requirements body and all are now mapped).
 
 ---
 *Requirements defined: 2026-04-21*
-*Last updated: 2026-04-21 after initial definition*
+*Last updated: 2026-04-21 after roadmap creation — full traceability added*
