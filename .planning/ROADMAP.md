@@ -88,7 +88,7 @@ Plans:
 Plans:
 - [x] 04-00-PLAN.md — Scaffold types, stats interfaces, emitter skeleton, test stubs, REORDER_OVERFLOW catch
 - [x] 04-01-PLAN.md — BFCache detection: pagehide/pageshow listeners → CHANNEL_FROZEN/CLOSED (LIFE-01)
-- [ ] 04-02-PLAN.md — SW heartbeat: CAPABILITY-as-ping, fake-timer tests → CHANNEL_DEAD (LIFE-02)
+- [x] 04-02-PLAN.md — SW heartbeat: CAPABILITY-as-ping, fake-timer tests → CHANNEL_DEAD (LIFE-02)
 - [ ] 04-03-PLAN.md — Teardown: port close → CHANNEL_CLOSED; onOriginRejected hook (LIFE-03, LIFE-04, LIFE-05)
 - [ ] 04-04-PLAN.md — Error taxonomy: all OBS-02 codes through channel TypedEmitter; CREDIT_DEADLOCK rename
 - [ ] 04-05-PLAN.md — stats() snapshot + trace events (OBS-01, OBS-03)
