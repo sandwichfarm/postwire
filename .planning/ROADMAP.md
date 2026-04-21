@@ -103,7 +103,12 @@ Plans:
   3. Library throughput measurably beats naive single `postMessage` for binary payloads of 1 MB and above; the comparison is published in `benchmarks/results/baseline.json`
   4. The WASM decision is documented in the project decision log: either "transferable path shows headroom, WASM deferred" or "ceiling reached, WASM fast path added to Phase 6"
   5. A 10% regression in any benchmark dimension blocks CI on subsequent PRs
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 05-00-PLAN.md — Harness scaffold: vitest.bench.config.ts, helpers (payloads, iframe/worker harness, JSON reporter), compare.mjs, bench.yml CI workflow
+- [ ] 05-01-PLAN.md — Benchmark scenarios: binary-transfer, structured-clone, naive-baseline across 1KB/64KB/1MB/16MB (+ 256MB heavy)
+- [ ] 05-02-PLAN.md — Baseline run: execute local bench (Chromium + Firefox), commit baseline.json, verify comparator
+- [ ] 05-03-PLAN.md — WASM decision: analyze baseline.json, write .planning/decisions/05-wasm-decision.md
 
 ### Phase 6: SAB Fast Path
 **Goal**: The SharedArrayBuffer + Atomics ring-buffer transport is available as a feature-detected, opt-in fast path that activates only when cross-origin isolation is confirmed and ServiceWorker endpoints are excluded
