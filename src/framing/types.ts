@@ -64,6 +64,8 @@ export interface CapabilityFrame extends BaseFrame {
   protocolVersion: number;
   sab: boolean;
   transferableStreams: boolean;
+  /** Phase 8: opt-in multiplex mode. Both sides must advertise true for merged=true. */
+  multiplex?: boolean;
 }
 
 /** Discriminated union of all eight wire protocol frame types */

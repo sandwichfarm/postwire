@@ -175,6 +175,21 @@ export interface ChannelOptions {
    * Default: 1_048_576 (1 MB). Must fit the largest individual data chunk.
    */
   sabBufferSize?: number;
+  /**
+   * Opt-in to multiplex mode (Phase 8, MUX-01).
+   * When true on BOTH sides, the channel hosts multiple concurrent Sessions keyed by
+   * unique stream IDs. A stalled stream's credit window cannot block other streams.
+   * If only one side opts in, the channel falls back to single-stream mode (default false).
+   * Default: false.
+   */
+  multiplex?: boolean;
+  /**
+   * Role for stream ID allocation in multiplex mode (Phase 8, MUX-01).
+   * 'initiator' allocates odd IDs (1, 3, 5, ...); 'responder' allocates even IDs (2, 4, 6, ...).
+   * Mirrors HTTP/2 stream ID rules — avoids collision without an extra per-stream handshake.
+   * Default: 'initiator'.
+   */
+  role?: "initiator" | "responder";
 }
 
 /** Internal stream handle — NOT part of the public API. */
@@ -192,8 +207,8 @@ export class Channel {
   // Capability negotiation — probe is evaluated once at channel construction.
   // checkReadableStreamTransferable() always returns false in Phase 3 (FAST-02).
   // SAB local capability: true only when caller opts in AND isSabCapable() probe passes.
-  #localCap: { sab: boolean; transferableStreams: boolean };
-  #remoteCap: { sab: boolean; transferableStreams: boolean } | null = null;
+  #localCap: { sab: boolean; transferableStreams: boolean; multiplex: boolean };
+  #remoteCap: { sab: boolean; transferableStreams: boolean; multiplex: boolean } | null = null;
   readonly #capabilityReady: Promise<void>;
   #resolveCapability!: () => void;
   #rejectCapability!: (err: StreamError) => void;
@@ -205,12 +220,26 @@ export class Channel {
   #sabInitAckPending = false; // true on the initiator side while waiting for SAB_INIT_ACK
   #remoteChannelId: string | null = null; // stored when CAPABILITY arrives, used for SAB tiebreaker
 
-  // Stream registry — one session per logical stream (Phase 8 mux adds more)
-  #session: Session | null = null;
-  #streamIdCounter = 1; // monotonically increasing, never reset (PITFALLS P15)
+  // Stream registry — Map<streamId, Session> supports both single-stream and multiplex modes.
+  // In single-stream mode (#multiplexActive=false) at most one entry exists (streamId=0 for
+  // responder-opened streams or streamId=1 for initiator-opened streams, whichever openStream
+  // allocates first — the historical default was streamIdCounter starting at 1).
+  // In multiplex mode (#multiplexActive=true) multiple concurrent sessions coexist.
+  readonly #sessions: Map<number, Session> = new Map();
 
-  // Last DATA frame seqNum emitted outbound — passed to session.close(finalSeq)
-  #lastDataSeqOut = -1;
+  // Multiplex mode: activated only when BOTH sides advertise multiplex:true in CAPABILITY.
+  // Starts false; set to true in #handleCapability when merged capability resolves.
+  #multiplexActive = false;
+
+  // Stream ID allocator for openStream() (Phase 8, MUX-01).
+  // Initiator allocates odd IDs (1, 3, 5, ...); responder allocates even IDs (2, 4, 6, ...).
+  // In single-stream mode this starts at 1 and is only used once (historical behaviour).
+  // Initialized in constructor from options.role; defaults to 'initiator' (odd, starting at 1).
+  #nextStreamId: number;
+
+  // Per-stream last DATA seqNum map — used by close() to pass the correct finalSeq.
+  // Key: streamId. In single-stream mode only one key is ever present.
+  readonly #lastDataSeqByStream: Map<number, number> = new Map();
 
   // inbound stream callback (onStream)
   #onStreamCb: ((stream: StreamHandle) => void) | null = null;
@@ -254,7 +283,13 @@ export class Channel {
     this.#localCap = {
       sab: options.sab === true && isSabCapable(endpoint),
       transferableStreams: checkReadableStreamTransferable(),
+      multiplex: options.multiplex === true,
     };
+
+    // Phase 8: Initialize stream ID allocator based on role.
+    // Initiator allocates odd IDs starting at 1; responder allocates even IDs starting at 2.
+    // This mirrors HTTP/2 stream ID rules and avoids collision in multiplex mode.
+    this.#nextStreamId = (options.role ?? "initiator") === "initiator" ? 1 : 2;
 
     // Capability ready promise — resolves on remote CAPABILITY, rejects on PROTOCOL_MISMATCH
     this.#capabilityReady = new Promise<void>((resolve, reject) => {
@@ -357,19 +392,33 @@ export class Channel {
         }
       }
 
-      // Responder path: if an OPEN frame arrives with no active session, create one.
-      if (frame.type === "OPEN" && this.#session === null) {
-        const session = this.#createSession(frame.streamId, "responder");
-        this.#session = session;
-        session.receiveFrame(frame);
-        if (this.#onStreamCb !== null) {
-          this.#onStreamCb({ session, channel: this });
+      // Responder path: OPEN frame creates a new session on demand.
+      // Single-stream mode: only one session allowed; if one exists, route to it (shouldn't happen
+      // since OPEN is sent once, but be defensive).
+      // Multiplex mode: each distinct streamId in the incoming OPEN gets its own Session.
+      if (frame.type === "OPEN") {
+        const existingOnOpen = this.#sessions.get(frame.streamId);
+        if (existingOnOpen === undefined) {
+          // Guard: in single-stream mode, reject a second OPEN while a session is active.
+          if (!this.#multiplexActive && this.#sessions.size > 0) {
+            // Silently drop — peer sent a second OPEN on a non-multiplex channel. Protocol error
+            // would be the strict response but graceful degradation is safer here.
+            return;
+          }
+          const session = this.#createSession(frame.streamId, "responder");
+          this.#sessions.set(frame.streamId, session);
+          session.receiveFrame(frame);
+          if (this.#onStreamCb !== null) {
+            this.#onStreamCb({ session, channel: this });
+          }
+        } else {
+          existingOnOpen.receiveFrame(frame);
         }
         return;
       }
 
-      // All other frames go to the active session
-      this.#session?.receiveFrame(frame);
+      // All other frames are routed to the session matching the frame's streamId.
+      this.#sessions.get(frame.streamId)?.receiveFrame(frame);
     };
 
     // LIFE-05: push a disposer to null out onmessage on close.
@@ -419,6 +468,7 @@ export class Channel {
       protocolVersion: PROTOCOL_VERSION,
       sab: this.#localCap.sab,
       transferableStreams: this.#localCap.transferableStreams,
+      multiplex: this.#localCap.multiplex,
     };
     // Track outbound CAPABILITY frame counts and trace (OBS-01, OBS-03)
     this.#frameCountsSent.set("CAPABILITY", (this.#frameCountsSent.get("CAPABILITY") ?? 0) + 1);
@@ -451,9 +501,14 @@ export class Channel {
     this.#remoteCap = {
       sab: frame.sab && this.#localCap.sab,
       transferableStreams: frame.transferableStreams && this.#localCap.transferableStreams,
+      // Phase 8: multiplex is only active when BOTH sides opt in (logical AND).
+      // frame.multiplex may be absent (undefined) on older/non-multiplex channels — treat as false.
+      multiplex: frame.multiplex === true && this.#localCap.multiplex,
     };
     if (!isPostHandshake) {
       // Initial handshake — resolve the capabilityReady promise.
+      // Phase 8: activate multiplex mode if both sides agreed.
+      this.#multiplexActive = this.#remoteCap.multiplex;
       this.#resolveCapability();
       // Phase 6: if both sides negotiated SAB, initiate the SAB ring handshake.
       // The "initiator" role is determined by alphabetical channel ID order —
@@ -481,10 +536,11 @@ export class Channel {
 
   /**
    * Negotiated capabilities. Available after capabilityReady resolves.
-   * Phase 3: both flags always false.
+   * Phase 3: sab and transferableStreams always false.
+   * Phase 8: multiplex is true only when both sides opted in.
    */
-  get capabilities(): { sab: boolean; transferableStreams: boolean } {
-    return this.#remoteCap ?? { sab: false, transferableStreams: false };
+  get capabilities(): { sab: boolean; transferableStreams: boolean; multiplex: boolean } {
+    return this.#remoteCap ?? { sab: false, transferableStreams: false, multiplex: false };
   }
 
   /**
@@ -503,11 +559,25 @@ export class Channel {
    * Initiator side: open a new outbound stream.
    * Waits for capability negotiation before allowing the session to open.
    * Returns a StreamHandle that adapters wrap (not part of public API).
+   *
+   * Single-stream mode: only one stream is allowed. Throws if called a second time
+   * while a session is still active (mirrors historical behaviour).
+   * Multiplex mode: allocates unique stream IDs (odd for initiator, even for responder).
    */
   openStream(sessionOpts?: Partial<SessionOptions>): StreamHandle {
-    const streamId = this.#streamIdCounter++;
+    if (!this.#multiplexActive && this.#sessions.size > 0) {
+      throw new Error(
+        "iframebuffer: openStream() called twice in single-stream mode. " +
+          "Enable multiplex:true on both sides to support concurrent streams.",
+      );
+    }
+    // Allocate stream ID. In single-stream mode this is always #nextStreamId (starts at 1).
+    // In multiplex mode increment by 2 to stay within the odd/even partition.
+    const streamId = this.#nextStreamId;
+    this.#nextStreamId += this.#multiplexActive ? 2 : 1;
+
     const session = this.#createSession(streamId, "initiator", sessionOpts);
-    this.#session = session;
+    this.#sessions.set(streamId, session);
     // Open the session — sends OPEN frame (responder will reply with OPEN_ACK)
     session.open();
     return { session, channel: this };
@@ -628,25 +698,26 @@ export class Channel {
   stats(): ChannelStats {
     const streams: StreamStats[] = [];
 
-    if (this.#session !== null) {
-      // Combine sent + received counts into a single frameCountsByType map
-      const combined = new Map<string, number>();
-      for (const [k, v] of this.#frameCountsSent) {
-        combined.set(k, (combined.get(k) ?? 0) + v);
-      }
-      for (const [k, v] of this.#frameCountsRecv) {
-        combined.set(k, (combined.get(k) ?? 0) + v);
-      }
+    // Combine sent + received frame counts (channel-level, shared across all streams).
+    const combined = new Map<string, number>();
+    for (const [k, v] of this.#frameCountsSent) {
+      combined.set(k, (combined.get(k) ?? 0) + v);
+    }
+    for (const [k, v] of this.#frameCountsRecv) {
+      combined.set(k, (combined.get(k) ?? 0) + v);
+    }
+    const frameCountsByType = Object.fromEntries(combined) as StreamStats["frameCountsByType"];
 
+    for (const session of this.#sessions.values()) {
       streams.push({
-        streamId: this.#session.streamId,
+        streamId: session.streamId,
         bytesSent: this.#bytesSent,
         bytesReceived: this.#bytesReceived,
-        frameCountsByType: Object.fromEntries(combined) as StreamStats["frameCountsByType"],
-        creditWindowAvailable: this.#session.creditWindowAvailable,
-        reorderBufferDepth: this.#session.reorderBufferDepth,
-        chunkerChunksSent: this.#session.chunkerChunksSent,
-        chunkerChunksReceived: this.#session.chunkerChunksReceived,
+        frameCountsByType,
+        creditWindowAvailable: session.creditWindowAvailable,
+        reorderBufferDepth: session.reorderBufferDepth,
+        chunkerChunksSent: session.chunkerChunksSent,
+        chunkerChunksReceived: session.chunkerChunksReceived,
       });
     }
 
@@ -672,7 +743,8 @@ export class Channel {
    */
   sendFrame(frame: Frame, transfer?: ArrayBuffer[]): void {
     if (frame.type === "DATA") {
-      this.#lastDataSeqOut = frame.seqNum;
+      // Track last DATA seqNum per stream for close(finalSeq) wiring (RESEARCH.md Pitfall 6).
+      this.#lastDataSeqByStream.set(frame.streamId, frame.seqNum);
       // Track bytes for BINARY_TRANSFER path (exact); STRUCTURED_CLONE is not counted
       // because payload byteLength is unavailable at this layer without serializing.
       const df = frame as DataFrame;
@@ -731,29 +803,55 @@ export class Channel {
     this.#sendRaw(encode(frame), transfer ?? []);
   }
 
+  /**
+   * The seqNum of the last DATA frame emitted on the most-recently-used stream.
+   * Used by adapters that track finalSeq for session.close().
+   * In multiplex mode, use channel.stats().streams to get per-stream values.
+   * @deprecated Prefer per-stream tracking via channel.stats().streams[].
+   */
   get lastDataSeqOut(): number {
-    return this.#lastDataSeqOut;
+    if (this.#lastDataSeqByStream.size === 0) return -1;
+    // Return the last inserted value (Map preserves insertion order).
+    let last = -1;
+    for (const v of this.#lastDataSeqByStream.values()) {
+      last = v;
+    }
+    return last;
   }
 
   /**
-   * True if there is an active (non-null) session.
+   * True if there is at least one active session in the channel.
    * Used by lifecycle integration tests (LIFE-03) to assert no zombie sessions remain.
    */
   get hasActiveSession(): boolean {
-    return this.#session !== null;
+    return this.#sessions.size > 0;
   }
 
   /**
-   * Gracefully close the channel: close the active session with correct finalSeq.
+   * Gracefully close the channel: close all active sessions with correct finalSeq values.
+   * Sessions in states that accept CLOSE_SENT (OPEN, LOCAL_HALF_CLOSED, REMOTE_HALF_CLOSED,
+   * CLOSING) are closed gracefully. Sessions in IDLE/OPENING (pre-handshake) or terminal
+   * states are reset or skipped — they cannot accept CLOSE_SENT.
    * Idempotent — calling close() on an already-closed channel is a no-op.
    */
   close(): void {
     if (this.#isClosed) return;
-    if (this.#session !== null) {
-      const finalSeq = this.#lastDataSeqOut >= 0 ? this.#lastDataSeqOut : 0;
-      this.#session.close(finalSeq);
-      this.#session = null;
+    for (const [streamId, session] of this.#sessions) {
+      const s = session.state;
+      // CLOSE_SENT is only valid from OPEN, LOCAL_HALF_CLOSED (already locally closed — no-op),
+      // and REMOTE_HALF_CLOSED. IDLE/OPENING have not completed handshake; terminal states throw.
+      // For IDLE/OPENING sessions we reset them instead (abort pre-handshake).
+      if (s === "OPEN" || s === "REMOTE_HALF_CLOSED") {
+        const lastSeq = this.#lastDataSeqByStream.get(streamId) ?? -1;
+        const finalSeq = lastSeq >= 0 ? lastSeq : 0;
+        session.close(finalSeq);
+      } else if (s === "IDLE" || s === "OPENING") {
+        // Pre-handshake — abort gracefully without sending CLOSE (peer hasn't ACKed yet).
+        // No outbound frame needed; just let the session be GC'd.
+      }
+      // LOCAL_HALF_CLOSED / CLOSING / terminal states: already closing or done — skip.
     }
+    this.#sessions.clear();
     this.#runDisposers();
     this.#emitter.removeAllListeners();
     this.#isClosed = true;
@@ -773,8 +871,8 @@ export class Channel {
   #freezeAllStreams(code: "CHANNEL_FROZEN" | "CHANNEL_DEAD" | "CHANNEL_CLOSED"): void {
     if (this.#isClosed) return;
     this.#isClosed = true;
-    if (this.#session !== null) {
-      const s = this.#session.state;
+    for (const session of this.#sessions.values()) {
+      const s = session.state;
       // RESET_SENT is only valid from OPEN, LOCAL_HALF_CLOSED, REMOTE_HALF_CLOSED, CLOSING.
       // IDLE and OPENING have not completed the handshake and do not accept RESET_SENT.
       // Terminal states (CLOSED, ERRORED, CANCELLED) throw on any event.
@@ -785,10 +883,10 @@ export class Channel {
         s === "REMOTE_HALF_CLOSED" ||
         s === "CLOSING"
       ) {
-        this.#session.reset(code);
+        session.reset(code);
       }
     }
-    this.#session = null;
+    this.#sessions.clear();
     this.#emitter.emit("error", new StreamError(code, undefined));
     this.#emitter.emit("close");
     this.#runDisposers();
@@ -854,15 +952,16 @@ export class Channel {
         const streamErr = new StreamError("DataCloneError", err);
         // Guard: only call reset() from states that accept RESET_SENT (same as #freezeAllStreams).
         // OPENING and IDLE do not accept RESET_SENT in the FSM transition table.
-        if (this.#session !== null) {
-          const s = this.#session.state;
+        // DataCloneError resets ALL active sessions since the channel-level postMessage failed.
+        for (const session of this.#sessions.values()) {
+          const s = session.state;
           if (
             s === "OPEN" ||
             s === "LOCAL_HALF_CLOSED" ||
             s === "REMOTE_HALF_CLOSED" ||
             s === "CLOSING"
           ) {
-            this.#session.reset("DataCloneError");
+            session.reset("DataCloneError");
           }
         }
         this.#emitter.emit("error", streamErr); // OBS-02: route through typed emitter
@@ -1035,7 +1134,11 @@ export class Channel {
    * route it to the active session for reassembly + credit accounting.
    */
   #dispatchSabFrame(msg: { payload: Uint8Array; seq: number; chunkType: number }): void {
-    if (this.#session === null) return;
+    // SAB ring is single-stream — route to the first (and in practice only) active session.
+    // Phase 8 note: SAB + multiplex is a deferred combination (see CONTEXT.md deferred section).
+    if (this.#sessions.size === 0) return;
+    const session = this.#sessions.values().next().value;
+    if (session === undefined) return;
 
     // Decode isFinal from bit 31 of the chunkType field (encoded by sendFrame).
     // (ctEncoded & 0x7FFFFFFF) = actual chunkType; (ctEncoded >>> 31) = isFinal
@@ -1055,7 +1158,7 @@ export class Channel {
     const frame = {
       [FRAME_MARKER]: 1 as const,
       channelId: this.#channelId,
-      streamId: this.#session.streamId,
+      streamId: session.streamId,
       seqNum: msg.seq,
       type: "DATA" as const,
       chunkType: chunkTypeStr,
@@ -1070,7 +1173,7 @@ export class Channel {
     this.#bytesReceived += msg.payload.byteLength;
 
     // Route to session
-    this.#session.receiveFrame(frame);
+    session.receiveFrame(frame);
   }
 }
 
