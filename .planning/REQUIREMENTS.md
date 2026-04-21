@@ -44,7 +44,7 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 - [x] **API-01**: Low-level `send(chunk) / onChunk(cb) / close()` API — the underlying primitive all higher-level wrappers compose on
 - [x] **API-02**: Node-style `EventEmitter` wrapper (`stream.on('data' | 'end' | 'error' | 'close', ...)`, `stream.write(chunk)`, `stream.end()`) — thin layer over the low-level API
 - [x] **API-03**: WHATWG Streams wrapper returning `{ readable: ReadableStream, writable: WritableStream }` pair; `desiredSize` is wired to the credit window so `pipeTo`/`pipeThrough` respect backpressure end-to-end
-- [ ] **API-04**: API surfaces are independent entry points — consumers can import the low-level primitive without pulling in the EventEmitter or Streams wrappers (tree-shakeable)
+- [x] **API-04**: API surfaces are independent entry points — consumers can import the low-level primitive without pulling in the EventEmitter or Streams wrappers (tree-shakeable)
 
 ### Topology
 
@@ -188,7 +188,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | API-01 | Phase 3 | Complete |
 | API-02 | Phase 3 | Complete |
 | API-03 | Phase 3 | Complete |
-| API-04 | Phase 3 | Pending |
+| API-04 | Phase 3 | Complete |
 | TOPO-01 | Phase 3 | Complete |
 | TEST-02 | Phase 3 | Complete |
 | LIFE-01 | Phase 4 | Pending |
