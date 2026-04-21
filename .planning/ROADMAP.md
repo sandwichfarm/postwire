@@ -84,7 +84,14 @@ Plans:
   3. Closing the underlying port (iframe unload simulation, worker `terminate()`) propagates `CHANNEL_CLOSED` to all active streams on that channel; no zombie streams remain after teardown
   4. `channel.stats()` returns correct bytes-sent, bytes-received, credit-window, and reorder-buffer-depth values after a completed stream
   5. All named error types (`ORIGIN_REJECTED`, `CREDIT_DEADLOCK`, `REORDER_OVERFLOW`, `PROTOCOL_MISMATCH`, `CHANNEL_FROZEN`, `CHANNEL_DEAD`, `CHANNEL_CLOSED`) are surfaced as typed events, not generic `Error` instances
-**Plans**: TBD
+**Plans**: 6 plans
+Plans:
+- [ ] 04-00-PLAN.md — Scaffold types, stats interfaces, emitter skeleton, test stubs, REORDER_OVERFLOW catch
+- [ ] 04-01-PLAN.md — BFCache detection: pagehide/pageshow listeners → CHANNEL_FROZEN/CLOSED (LIFE-01)
+- [ ] 04-02-PLAN.md — SW heartbeat: CAPABILITY-as-ping, fake-timer tests → CHANNEL_DEAD (LIFE-02)
+- [ ] 04-03-PLAN.md — Teardown: port close → CHANNEL_CLOSED; onOriginRejected hook (LIFE-03, LIFE-04, LIFE-05)
+- [ ] 04-04-PLAN.md — Error taxonomy: all OBS-02 codes through channel TypedEmitter; CREDIT_DEADLOCK rename
+- [ ] 04-05-PLAN.md — stats() snapshot + trace events (OBS-01, OBS-03)
 
 ### Phase 5: Benchmark Harness
 **Goal**: A reproducible benchmark suite runs in real browsers and publishes throughput, latency, and CPU data that drives all subsequent optimization decisions
