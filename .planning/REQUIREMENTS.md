@@ -28,7 +28,7 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 - [x] **SESS-02**: Credit-based flow control issues initial credits on `OPEN_ACK`, refreshes credits when the receiver's queue drains below half the high-water mark (QUIC WINDOW_UPDATE-style), and never allows the sender to write past available credit
 - [x] **SESS-03**: Credit refresh is driven by consumer reads, not frame arrivals — applying backpressure through the entire WHATWG Streams chain rather than only at the transport
 - [ ] **SESS-04**: Chunker splits oversized payloads into protocol-sized chunks and reassembles them on the receiving side before surfacing to the consumer
-- [ ] **SESS-05**: Stream lifecycle FSM covers `idle → open → data → half-closed → closed` with explicit `CANCEL` and `RESET` transitions and well-defined behavior for every source/destination pair
+- [x] **SESS-05**: Stream lifecycle FSM covers `idle → open → data → half-closed → closed` with explicit `CANCEL` and `RESET` transitions and well-defined behavior for every source/destination pair
 - [x] **SESS-06**: Sequence number wraparound is handled correctly — library passes a fuzz test that drives sequences through the wrap point
 
 ### Fast-path selection
@@ -87,7 +87,7 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 - [ ] **TEST-03**: E2E tests via Vitest browser mode + Playwright exercise real iframe, worker, and service-worker contexts in Chromium, Firefox, and WebKit
 - [ ] **TEST-04**: E2E suite includes the three-hop topology scenario (worker → main-thread relay → strict-CSP sandboxed iframe) as a first-class test
 - [ ] **TEST-05**: E2E suite asserts baseline (postMessage-only, no SAB) works inside a sandboxed iframe under strict CSP — no `unsafe-eval`, no `wasm-unsafe-eval`
-- [ ] **TEST-06**: Property/fuzz tests for the session FSM and sequence-number wraparound
+- [x] **TEST-06**: Property/fuzz tests for the session FSM and sequence-number wraparound
 
 ### Benchmarks
 
@@ -178,10 +178,10 @@ Explicitly excluded. Documented to prevent scope creep.
 | SESS-02 | Phase 2 | Complete |
 | SESS-03 | Phase 2 | Complete |
 | SESS-04 | Phase 2 | Pending |
-| SESS-05 | Phase 2 | Pending |
+| SESS-05 | Phase 2 | Complete |
 | SESS-06 | Phase 2 | Complete |
 | TEST-01 | Phase 2 | Complete |
-| TEST-06 | Phase 2 | Pending |
+| TEST-06 | Phase 2 | Complete |
 | FAST-01 | Phase 3 | Pending |
 | FAST-02 | Phase 3 | Pending |
 | FAST-03 | Phase 3 | Pending |

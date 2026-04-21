@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-02-PLAN.md — CreditWindow implementation
-last_updated: "2026-04-21T10:51:24.336Z"
+stopped_at: Completed 02-session-protocol-core-04-PLAN.md
+last_updated: "2026-04-21T10:52:33.188Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 10
-  completed_plans: 7
+  completed_plans: 9
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-21)
 ## Current Position
 
 Phase: 02 (Session Protocol Core) — EXECUTING
-Plan: 4 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-04-21
 
@@ -59,6 +59,8 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-session-protocol-core P00 | 5min | 1 tasks | 12 files |
 | Phase 02-session-protocol-core P01 | ~2min | 1 tasks | 2 files |
 | Phase 02-session-protocol-core P02 | 2min | 2 tasks | 2 files |
+| Phase 02-session-protocol-core P04 | 5 | 2 tasks | 2 files |
+| Phase 02-session-protocol-core P03 | 131s | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -88,6 +90,8 @@ Recent decisions affecting current work:
 - [Phase 02-session-protocol-core]: seqLT used for all ReorderBuffer comparisons to handle 32-bit wraparound correctly
 - [Phase 02-session-protocol-core]: Map<number, DataFrame> chosen over Array for O(1) insert/lookup in reorder buffer
 - [Phase 02-session-protocol-core]: consumeSendCredit guard before decrement prevents negative credit; notifyRead drives CREDIT refresh (not frame arrival); stallTimeoutMs<=0 disables timer entirely
+- [Phase 02-session-protocol-core]: ReadonlySet<StreamState> for TERMINAL_STATES — stronger type signal than Set<StreamState>, isolatedDeclarations compatible
+- [Phase 02-session-protocol-core]: IllegalTransitionError exposes .state and .eventType readonly fields for structured error handling in Session without string parsing
 
 ### Pending Todos
 
@@ -102,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T10:51:24.333Z
-Stopped at: Completed 02-02-PLAN.md — CreditWindow implementation
+Last session: 2026-04-21T10:52:26.882Z
+Stopped at: Completed 02-session-protocol-core-04-PLAN.md
 Resume file: None

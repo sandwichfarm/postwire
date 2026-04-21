@@ -57,8 +57,8 @@ Plans:
 - [x] 02-00-PLAN.md — Dependency install (fast-check) + directory scaffolding (src/session/, tests/unit/session/ stubs)
 - [x] 02-01-PLAN.md — ReorderBuffer: Map-backed in-order delivery, REORDER_OVERFLOW, seqLT wraparound fuzz (SESS-01, SESS-06)
 - [x] 02-02-PLAN.md — CreditWindow: QUIC WINDOW_UPDATE credit accounting, stall timer, desiredSize seam (SESS-02, SESS-03)
-- [ ] 02-03-PLAN.md — Chunker: metadata-before-transfer invariant, split/reassemble (SESS-04)
-- [ ] 02-04-PLAN.md — FSM: pure reducer, 28-row transition table, fast-check property suite (SESS-05, TEST-06)
+- [x] 02-03-PLAN.md — Chunker: metadata-before-transfer invariant, split/reassemble (SESS-04)
+- [x] 02-04-PLAN.md — FSM: pure reducer, 28-row transition table, fast-check property suite (SESS-05, TEST-06)
 - [ ] 02-05-PLAN.md — Session integration: wire all four modules, full lifecycle tests, cross-module wraparound fuzz (SESS-06, TEST-01, TEST-06)
 
 ### Phase 3: API Adapters + Single-Hop Integration
@@ -161,7 +161,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold + Wire Protocol Foundation | 4/4 | Complete | 2026-04-21 |
-| 2. Session Protocol Core | 1/6 | In Progress|  |
+| 2. Session Protocol Core | 5/6 | In Progress|  |
 | 3. API Adapters + Single-Hop Integration | 0/? | Not started | - |
 | 4. Lifecycle Safety + Observability | 0/? | Not started | - |
 | 5. Benchmark Harness | 0/? | Not started | - |
