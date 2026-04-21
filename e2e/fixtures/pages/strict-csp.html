@@ -3,15 +3,13 @@
 <head><meta charset="utf-8"><title>strict-csp</title></head>
 <body>
 <!--
-  This page is served with a strict Content-Security-Policy header:
+  The sandboxed iframe (sandbox-inner.html) is served with a strict CSP header:
     default-src 'self'; script-src 'self'
   No unsafe-eval, no wasm-unsafe-eval.
 
-  The library (/dist/index.js) is loaded via script-src 'self' from the same origin.
-  This test verifies the library baseline path is eval-free (CSP-safe).
-
-  Communication: parent ↔ iframe using MessageChannel (MessagePort-based).
-  No createWindowEndpoint needed — MessagePorts are origin-agnostic.
+  sandbox-inner.html uses an external module script (no inline), so
+  script-src 'self' allows loading /dist/index.js from the same origin.
+  This tests that the library baseline path is eval-free (CSP-safe).
 -->
 <iframe id="consumer" src="/sandbox-inner.html"
         sandbox="allow-scripts allow-same-origin"

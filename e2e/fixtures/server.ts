@@ -15,6 +15,15 @@ export interface FixtureServer {
   close(): Promise<void>;
 }
 
+function mimeType(filePath: string): string {
+  const ext = path.extname(filePath).toLowerCase();
+  if (ext === ".js" || ext === ".mjs") return "application/javascript";
+  if (ext === ".html") return "text/html";
+  if (ext === ".css") return "text/css";
+  if (ext === ".json") return "application/json";
+  return "application/octet-stream";
+}
+
 export async function startFixtureServer(opts: FixtureServerOptions = {}): Promise<FixtureServer> {
   const cspByPath = opts.cspByPath ?? {};
   const headersByPath = opts.headersByPath ?? {};
@@ -33,7 +42,7 @@ export async function startFixtureServer(opts: FixtureServerOptions = {}): Promi
       return res.end(fs.readFileSync(file));
     }
 
-    // Serve fixture HTML pages
+    // Serve fixture pages and modules
     const pageName = url === "/" ? "index.html" : url.slice(1);
     const pagePath = path.join(process.cwd(), "e2e/fixtures/pages", pageName);
     if (!fs.existsSync(pagePath)) {
@@ -41,8 +50,9 @@ export async function startFixtureServer(opts: FixtureServerOptions = {}): Promi
       return res.end(`Not found: ${pageName}`);
     }
 
+    const contentType = mimeType(pagePath);
     const headers: Record<string, string> = {
-      "Content-Type": "text/html",
+      "Content-Type": contentType,
       ...(headersByPath[url] ?? {}),
     };
     if (cspByPath[url]) {

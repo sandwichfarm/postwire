@@ -44,5 +44,5 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
-      - name: Playwright smoke tests
+      - name: Playwright E2E tests (chromium + firefox + webkit)
         run: pnpm test:e2e
