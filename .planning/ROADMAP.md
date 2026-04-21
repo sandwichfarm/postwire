@@ -35,7 +35,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The two-entry-point `exports` map (`"."` and `"./wasm"`) is in place and `publint` reports no errors against it; the baseline `"."` entry requires neither `unsafe-eval` nor `wasm-unsafe-eval`
   4. `encode(frame)` and `decode(msg)` handle all seven frame types in a Node unit test; unknown messages return `null` without throwing
   5. `createWindowEndpoint(win, expectedOrigin)` exists as a named export and rejects messages from non-matching origins in a unit test
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 01-01-PLAN.md — Toolchain scaffold (package.json, tsconfig, tsdown, biome, vitest, playwright, changesets, jsr.json)
+- [ ] 01-02-PLAN.md — Wire protocol framing (Frame types discriminated union, encode/decode, seq arithmetic + wraparound tests)
+- [ ] 01-03-PLAN.md — Transport endpoint adapters (PostMessageEndpoint interface, four adapters, origin validation)
+- [ ] 01-04-PLAN.md — CI workflows, final exports wiring, full Phase 1 gate check
 
 ### Phase 2: Session Protocol Core
 **Goal**: All per-stream state components are implemented in pure TypeScript, exhaustively unit-tested without a browser, and proven correct through the sequence-number wraparound boundary
@@ -148,7 +153,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Scaffold + Wire Protocol Foundation | 0/? | Not started | - |
+| 1. Scaffold + Wire Protocol Foundation | 0/4 | In progress | - |
 | 2. Session Protocol Core | 0/? | Not started | - |
 | 3. API Adapters + Single-Hop Integration | 0/? | Not started | - |
 | 4. Lifecycle Safety + Observability | 0/? | Not started | - |
