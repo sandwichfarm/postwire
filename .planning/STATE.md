@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-02-PLAN.md (SW heartbeat LIFE-02)
-last_updated: "2026-04-21T13:20:21.076Z"
+stopped_at: Completed 04-lifecycle-safety-observability plan 03 (04-03-PLAN.md)
+last_updated: "2026-04-21T13:25:45.776Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 23
-  completed_plans: 20
+  completed_plans: 21
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-21)
 ## Current Position
 
 Phase: 04 (Lifecycle Safety + Observability) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-04-21
 
@@ -72,6 +72,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04-lifecycle-safety-observability P00 | 4min | 3 tasks | 9 files |
 | Phase 04-lifecycle-safety-observability P01 | 3 | 1 tasks | 2 files |
 | Phase 04-lifecycle-safety-observability P02 | 5min | 1 tasks | 2 files |
+| Phase 04-lifecycle-safety-observability P03 | 3 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -128,6 +129,7 @@ Recent decisions affecting current work:
 - [Phase 04-lifecycle-safety-observability]: Test polyfills globalThis with EventTarget in beforeAll — Node 22 globalThis is not an EventTarget, polyfill mirrors browser environment
 - [Phase 04-lifecycle-safety-observability]: Ping-pong loop prevention via #heartbeatTimeout null-check: non-null = pong (clear timeout); null = remote ping (echo once, do not arm timeout)
 - [Phase 04-lifecycle-safety-observability]: Heartbeat timers registered in #disposers for LIFE-05 — both clearInterval and clearTimeout called atomically when channel closes
+- [Phase 04-lifecycle-safety-observability]: endpoint.onmessage=null in #disposers for LIFE-05; 'close' event listener via typeof guard for LIFE-03; #freezeAllStreams guards against OPENING/IDLE states; WindowEndpointOptions.onOriginRejected for OBS-02 boundary
 
 ### Pending Todos
 
@@ -142,6 +144,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T13:20:21.073Z
-Stopped at: Completed 04-02-PLAN.md (SW heartbeat LIFE-02)
+Last session: 2026-04-21T13:25:45.773Z
+Stopped at: Completed 04-lifecycle-safety-observability plan 03 (04-03-PLAN.md)
 Resume file: None
