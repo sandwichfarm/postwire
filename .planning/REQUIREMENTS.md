@@ -49,9 +49,9 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 ### Topology
 
 - [x] **TOPO-01**: Two-party topology (one endpoint ↔ one endpoint) is the default and simplest case; all other topologies compose from it
-- [ ] **TOPO-02**: Relay helper exposes a routing table — it forwards frames between two endpoints **without** reassembling payloads, without using `pipeTo`/`pipeThrough` across the postMessage boundary, and without unbounded buffering
-- [ ] **TOPO-03**: Credits propagate end-to-end across a relay: the relay only issues upstream credits equal to what the downstream has granted, bounding relay memory to `downstreamCreditWindow × maxChunkSize`
-- [ ] **TOPO-04**: Multi-hop stream identity is preserved end-to-end — the worker and the iframe see one logical stream with consistent stream IDs (or remapped IDs that present as a single logical stream to the caller)
+- [x] **TOPO-02**: Relay helper exposes a routing table — it forwards frames between two endpoints **without** reassembling payloads, without using `pipeTo`/`pipeThrough` across the postMessage boundary, and without unbounded buffering
+- [x] **TOPO-03**: Credits propagate end-to-end across a relay: the relay only issues upstream credits equal to what the downstream has granted, bounding relay memory to `downstreamCreditWindow × maxChunkSize`
+- [x] **TOPO-04**: Multi-hop stream identity is preserved end-to-end — the worker and the iframe see one logical stream with consistent stream IDs (or remapped IDs that present as a single logical stream to the caller)
 
 ### Multiplexing (opt-in)
 
@@ -205,9 +205,9 @@ Explicitly excluded. Documented to prevent scope creep.
 | BENCH-04 | Phase 5 | Complete |
 | BENCH-05 | Phase 5 | Complete |
 | FAST-04 | Phase 6 | Complete |
-| TOPO-02 | Phase 7 | Pending |
-| TOPO-03 | Phase 7 | Pending |
-| TOPO-04 | Phase 7 | Pending |
+| TOPO-02 | Phase 7 | Complete |
+| TOPO-03 | Phase 7 | Complete |
+| TOPO-04 | Phase 7 | Complete |
 | MUX-01 | Phase 8 | Pending |
 | MUX-02 | Phase 8 | Pending |
 | MUX-03 | Phase 8 | Pending |

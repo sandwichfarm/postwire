@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 06-sab-fast-path-06-01-PLAN.md
-last_updated: "2026-04-21T17:39:35.495Z"
+stopped_at: Completed 07-multi-hop-relay-07-01-PLAN.md
+last_updated: "2026-04-21T17:59:43.601Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
-  completed_phases: 6
-  total_plans: 28
-  completed_plans: 28
+  completed_phases: 7
+  total_plans: 29
+  completed_plans: 29
   percent: 0
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-21)
 
 **Core value:** A high-throughput, reliable, ordered stream abstraction that slots into any existing postMessage boundary with minimal caller-side code.
-**Current focus:** Phase 06 — SAB Fast Path
+**Current focus:** Phase 07 — Multi-Hop Relay
 
 ## Current Position
 
-Phase: 7
-Plan: Not started
+Phase: 07 (Multi-Hop Relay) — EXECUTING
+Plan: 1 of 1
 Status: Phase complete — ready for verification
 Last activity: 2026-04-21
 
@@ -78,6 +78,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 05-benchmark-harness P00 | 6min | 2 tasks | 11 files |
 | Phase 05-benchmark-harness P01 | 25min | 2 tasks | 9 files |
 | Phase 06-sab-fast-path P01 | 16 | 3 tasks | 16 files |
+| Phase 07-multi-hop-relay P01 | 16min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -147,6 +148,9 @@ Recent decisions affecting current work:
 - [Phase 06-sab-fast-path]: SAB is not faster than transferable in Node (0.20x-0.70x); Node MessageChannel has no structured-clone envelope overhead — SAB advantage materializes in browser COOP/COEP contexts (Phase 9)
 - [Phase 06-sab-fast-path]: isFinal encoded as bit 31 of chunkType field in SAB ring frame header to avoid adding a 4th u32 header word
 - [Phase 06-sab-fast-path]: SAB_INIT initiator determined by lexicographic channelId comparison; random sabTiebreaker for equal IDs
+- [Phase 07-multi-hop-relay]: isFinal=true on DataFrame means last chunk of a blob, NOT last frame of the stream; relay cleanup happens only on CLOSE or RESET
+- [Phase 07-multi-hop-relay]: Relay does not transfer ArrayBuffer payloads — onRawDataFrame fires before session delivery so the upstream session still holds the buffer reference; transferring detaches it
+- [Phase 07-multi-hop-relay]: vitest.config.ts includes src/**/*.test.ts for src/relay/bridge.test.ts inline unit tests
 
 ### Pending Todos
 
@@ -161,6 +165,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T17:31:54.981Z
-Stopped at: Completed 06-sab-fast-path-06-01-PLAN.md
+Last session: 2026-04-21T17:59:43.599Z
+Stopped at: Completed 07-multi-hop-relay-07-01-PLAN.md
 Resume file: None
