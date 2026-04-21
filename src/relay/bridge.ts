@@ -204,16 +204,16 @@ export function createRelayBridge(
         payload: frame.payload,
         isFinal: frame.isFinal,
       };
-      // If payload is a transferable ArrayBuffer, transfer it.
-      const transfer: Transferable[] = frame.payload instanceof ArrayBuffer ? [frame.payload] : [];
-      relayFrame(downstream, downDataFrame, transfer);
+      // Do NOT transfer the payload ArrayBuffer — the upstream channel's session layer
+      // still holds a reference to frame.payload after this raw handler fires, and
+      // transferring would detach it before the session can reassemble the chunk.
+      // Relay forwards via structured-clone (no transfer list). The relay is a middle
+      // node; zero-copy doesn't apply across relay hops.
+      relayFrame(downstream, downDataFrame);
       framesForwardedIn++;
-
-      if (frame.isFinal) {
-        // Stream complete — clean up mapping
-        upstreamToDown.delete(frame.streamId);
-        downToUpstream.delete(downId);
-      }
+      // NOTE: isFinal=true means "final chunk of this particular item (blob/object)",
+      // NOT "final frame of the stream". Multiple items can be sent over one stream.
+      // Stream-level cleanup happens on CLOSE or RESET — not on isFinal.
     }),
   );
 
