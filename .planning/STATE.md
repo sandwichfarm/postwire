@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-00-PLAN.md — fast-check devDep + session scaffold
-last_updated: "2026-04-21T10:47:50.304Z"
+stopped_at: Completed 02-session-protocol-core/02-01-PLAN.md
+last_updated: "2026-04-21T10:50:51.522Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 10
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-21)
 ## Current Position
 
 Phase: 02 (Session Protocol Core) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-04-21
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P03 | 7min | 2 tasks | 8 files |
 | Phase 01-scaffold-wire-protocol-foundation P04 | 5min | 2 tasks | 3 files |
 | Phase 02-session-protocol-core P00 | 5min | 1 tasks | 12 files |
+| Phase 02-session-protocol-core P01 | ~2min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,8 @@ Recent decisions affecting current work:
 - [Phase 01-scaffold-wire-protocol-foundation]: [Phase 01]: publish.yml trigger is push:tags:v* only — no accidental publish on normal branch commits
 - [Phase 01-scaffold-wire-protocol-foundation]: [Phase 01]: npm publish uses --provenance --access public with NODE_AUTH_TOKEN; JSR publish uses id-token:write exclusively with no secret
 - [Phase 02-session-protocol-core]: fast-check added as devDependency at ^4.7.0 per COMP-02 (zero runtime deps); TERMINAL_STATES exported with explicit Set<StreamState> annotation for isolatedDeclarations
+- [Phase 02-session-protocol-core]: seqLT used for all ReorderBuffer comparisons to handle 32-bit wraparound correctly
+- [Phase 02-session-protocol-core]: Map<number, DataFrame> chosen over Array for O(1) insert/lookup in reorder buffer
 
 ### Pending Todos
 
@@ -97,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T10:47:50.302Z
-Stopped at: Completed 02-00-PLAN.md — fast-check devDep + session scaffold
+Last session: 2026-04-21T10:50:51.520Z
+Stopped at: Completed 02-session-protocol-core/02-01-PLAN.md
 Resume file: None

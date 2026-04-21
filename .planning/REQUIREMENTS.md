@@ -24,12 +24,12 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 
 ### Session core
 
-- [ ] **SESS-01**: Reorder buffer delivers chunks in sequence-number order even under out-of-order arrivals, bounded by a configurable `maxReorderBuffer` with a clear error on overflow
+- [x] **SESS-01**: Reorder buffer delivers chunks in sequence-number order even under out-of-order arrivals, bounded by a configurable `maxReorderBuffer` with a clear error on overflow
 - [ ] **SESS-02**: Credit-based flow control issues initial credits on `OPEN_ACK`, refreshes credits when the receiver's queue drains below half the high-water mark (QUIC WINDOW_UPDATE-style), and never allows the sender to write past available credit
 - [ ] **SESS-03**: Credit refresh is driven by consumer reads, not frame arrivals — applying backpressure through the entire WHATWG Streams chain rather than only at the transport
 - [ ] **SESS-04**: Chunker splits oversized payloads into protocol-sized chunks and reassembles them on the receiving side before surfacing to the consumer
 - [ ] **SESS-05**: Stream lifecycle FSM covers `idle → open → data → half-closed → closed` with explicit `CANCEL` and `RESET` transitions and well-defined behavior for every source/destination pair
-- [ ] **SESS-06**: Sequence number wraparound is handled correctly — library passes a fuzz test that drives sequences through the wrap point
+- [x] **SESS-06**: Sequence number wraparound is handled correctly — library passes a fuzz test that drives sequences through the wrap point
 
 ### Fast-path selection
 
@@ -174,12 +174,12 @@ Explicitly excluded. Documented to prevent scope creep.
 | PROTO-04 | Phase 1 | Complete |
 | PROTO-05 | Phase 1 | Complete |
 | FAST-05 | Phase 1 | Complete |
-| SESS-01 | Phase 2 | Pending |
+| SESS-01 | Phase 2 | Complete |
 | SESS-02 | Phase 2 | Pending |
 | SESS-03 | Phase 2 | Pending |
 | SESS-04 | Phase 2 | Pending |
 | SESS-05 | Phase 2 | Pending |
-| SESS-06 | Phase 2 | Pending |
+| SESS-06 | Phase 2 | Complete |
 | TEST-01 | Phase 2 | Complete |
 | TEST-06 | Phase 2 | Pending |
 | FAST-01 | Phase 3 | Pending |
