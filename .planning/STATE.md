@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 07-multi-hop-relay-07-01-PLAN.md
-last_updated: "2026-04-21T18:00:42.152Z"
+stopped_at: Completed 08-multiplexing 08-01-PLAN.md
+last_updated: "2026-04-21T18:16:40.756Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
-  completed_phases: 7
-  total_plans: 29
-  completed_plans: 29
+  completed_phases: 8
+  total_plans: 30
+  completed_plans: 30
   percent: 0
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-21)
 
 **Core value:** A high-throughput, reliable, ordered stream abstraction that slots into any existing postMessage boundary with minimal caller-side code.
-**Current focus:** Phase 07 — Multi-Hop Relay
+**Current focus:** Phase 08 — Multiplexing
 
 ## Current Position
 
-Phase: 8
-Plan: Not started
+Phase: 08 (Multiplexing) — EXECUTING
+Plan: 1 of 1
 Status: Phase complete — ready for verification
 Last activity: 2026-04-21
 
@@ -79,6 +79,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 05-benchmark-harness P01 | 25min | 2 tasks | 9 files |
 | Phase 06-sab-fast-path P01 | 16 | 3 tasks | 16 files |
 | Phase 07-multi-hop-relay P01 | 16min | 3 tasks | 9 files |
+| Phase 08-multiplexing P01 | 12min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -151,6 +152,7 @@ Recent decisions affecting current work:
 - [Phase 07-multi-hop-relay]: isFinal=true on DataFrame means last chunk of a blob, NOT last frame of the stream; relay cleanup happens only on CLOSE or RESET
 - [Phase 07-multi-hop-relay]: Relay does not transfer ArrayBuffer payloads — onRawDataFrame fires before session delivery so the upstream session still holds the buffer reference; transferring detaches it
 - [Phase 07-multi-hop-relay]: vitest.config.ts includes src/**/*.test.ts for src/relay/bridge.test.ts inline unit tests
+- [Phase 08-multiplexing]: Map<number, Session> replaces Session|null; odd/even stream ID partitioning (HTTP/2 convention); close() guards FSM state for OPENING sessions; credit-dropping endpoint wrapper proves HoL independence without modifying Session
 
 ### Pending Todos
 
@@ -165,6 +167,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T17:59:43.599Z
-Stopped at: Completed 07-multi-hop-relay-07-01-PLAN.md
+Last session: 2026-04-21T18:16:40.753Z
+Stopped at: Completed 08-multiplexing 08-01-PLAN.md
 Resume file: None

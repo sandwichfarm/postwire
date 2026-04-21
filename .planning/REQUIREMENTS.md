@@ -55,9 +55,9 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 
 ### Multiplexing (opt-in)
 
-- [ ] **MUX-01**: Single-stream mode is the default; no stream IDs or extra headers in the common path
-- [ ] **MUX-02**: Explicit multiplex mode allows many concurrent logical streams over one endpoint, distinguished by stream ID in the frame header
-- [ ] **MUX-03**: Multiplexer enforces per-stream credit windows independently — one stalled stream does not block others on the same channel
+- [x] **MUX-01**: Single-stream mode is the default; no stream IDs or extra headers in the common path
+- [x] **MUX-02**: Explicit multiplex mode allows many concurrent logical streams over one endpoint, distinguished by stream ID in the frame header
+- [x] **MUX-03**: Multiplexer enforces per-stream credit windows independently — one stalled stream does not block others on the same channel
 
 ### Lifecycle safety
 
@@ -208,9 +208,9 @@ Explicitly excluded. Documented to prevent scope creep.
 | TOPO-02 | Phase 7 | Complete |
 | TOPO-03 | Phase 7 | Complete |
 | TOPO-04 | Phase 7 | Complete |
-| MUX-01 | Phase 8 | Pending |
-| MUX-02 | Phase 8 | Pending |
-| MUX-03 | Phase 8 | Pending |
+| MUX-01 | Phase 8 | Complete |
+| MUX-02 | Phase 8 | Complete |
+| MUX-03 | Phase 8 | Complete |
 | TEST-03 | Phase 9 | Pending |
 | TEST-04 | Phase 9 | Pending |
 | TEST-05 | Phase 9 | Pending |
