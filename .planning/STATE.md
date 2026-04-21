@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-session-protocol-core-04-PLAN.md
-last_updated: "2026-04-21T10:52:33.188Z"
+stopped_at: Completed 02-session-protocol-core-03-PLAN.md
+last_updated: "2026-04-21T10:52:41.795Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
@@ -92,6 +92,8 @@ Recent decisions affecting current work:
 - [Phase 02-session-protocol-core]: consumeSendCredit guard before decrement prevents negative credit; notifyRead drives CREDIT refresh (not frame arrival); stallTimeoutMs<=0 disables timer entirely
 - [Phase 02-session-protocol-core]: ReadonlySet<StreamState> for TERMINAL_STATES — stronger type signal than Set<StreamState>, isolatedDeclarations compatible
 - [Phase 02-session-protocol-core]: IllegalTransitionError exposes .state and .eventType readonly fields for structured error handling in Session without string parsing
+- [Phase 02-session-protocol-core]: Chunker: ab.slice() per chunk so original is never in transfer list; Transport transfers each slice independently
+- [Phase 02-session-protocol-core]: Chunker reassembly map keyed by streamId (not seqNum) for future multi-stream support without API change
 
 ### Pending Todos
 
@@ -106,6 +108,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T10:52:26.882Z
-Stopped at: Completed 02-session-protocol-core-04-PLAN.md
+Last session: 2026-04-21T10:52:41.792Z
+Stopped at: Completed 02-session-protocol-core-03-PLAN.md
 Resume file: None
