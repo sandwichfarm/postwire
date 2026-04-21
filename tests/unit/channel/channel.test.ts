@@ -1,5 +1,5 @@
 // tests/unit/channel/channel.test.ts
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createChannel } from "../../../src/channel/channel.js";
 import { decode } from "../../../src/framing/encode-decode.js";
 import { FRAME_MARKER, PROTOCOL_VERSION } from "../../../src/framing/types.js";
@@ -103,5 +103,90 @@ describe("Channel — CAPABILITY negotiated caps", () => {
     await ch.capabilityReady;
     expect(ch.capabilities.sab).toBe(false);
     expect(ch.capabilities.transferableStreams).toBe(false);
+  });
+});
+
+describe("Channel — SW heartbeat (LIFE-02)", () => {
+  afterEach(() => vi.useRealTimers());
+
+  it("emits CHANNEL_DEAD after timeoutMs when no CAPABILITY pong arrives", () => {
+    vi.useFakeTimers();
+    const ep = makeFakeEndpoint();
+    const ch = createChannel(ep, {
+      channelId: "hb-1",
+      heartbeat: { intervalMs: 10_000, timeoutMs: 30_000 },
+    });
+    const errors: unknown[] = [];
+    ch.on("error", (e) => errors.push(e));
+
+    // Advance past one heartbeat interval to trigger the ping
+    vi.advanceTimersByTime(10_001);
+    // Initial CAPABILITY (sent on construction) + heartbeat ping CAPABILITY
+    expect(ep.sent.length).toBeGreaterThanOrEqual(2);
+
+    // Advance past the timeout without any pong arriving
+    vi.advanceTimersByTime(30_001);
+    expect(errors).toHaveLength(1);
+    expect((errors[0] as { code: string }).code).toBe("CHANNEL_DEAD");
+  });
+
+  it("does NOT emit CHANNEL_DEAD when CAPABILITY pong arrives before timeout", () => {
+    vi.useFakeTimers();
+    const ep = makeFakeEndpoint();
+    const ch = createChannel(ep, {
+      channelId: "hb-2",
+      heartbeat: { intervalMs: 10_000, timeoutMs: 30_000 },
+    });
+    const errors: unknown[] = [];
+    ch.on("error", (e) => errors.push(e));
+
+    // Complete the initial handshake so #remoteCap is set (isPostHandshake check works)
+    ep.simulateMessage({
+      [FRAME_MARKER]: 1,
+      channelId: "hb-2",
+      streamId: 0,
+      seqNum: 0,
+      type: "CAPABILITY",
+      protocolVersion: PROTOCOL_VERSION,
+      sab: false,
+      transferableStreams: false,
+    });
+
+    // Advance past one interval so the ping is sent and timeout is armed
+    vi.advanceTimersByTime(10_001);
+
+    // Simulate pong: a second CAPABILITY frame arriving from the remote before timeout.
+    // Because #remoteCap is now set, this is recognized as a post-handshake pong.
+    ep.simulateMessage({
+      [FRAME_MARKER]: 1,
+      channelId: "hb-2",
+      streamId: 0,
+      seqNum: 0,
+      type: "CAPABILITY",
+      protocolVersion: PROTOCOL_VERSION,
+      sab: false,
+      transferableStreams: false,
+    });
+
+    // Advance well past what the timeout would have been — no CHANNEL_DEAD expected
+    vi.advanceTimersByTime(30_001);
+    expect(errors).toHaveLength(0);
+    ch.close();
+  });
+
+  it("heartbeat timers are cleared after channel.close()", () => {
+    vi.useFakeTimers();
+    const ep = makeFakeEndpoint();
+    const ch = createChannel(ep, {
+      channelId: "hb-3",
+      heartbeat: { intervalMs: 10_000, timeoutMs: 30_000 },
+    });
+    const errors: unknown[] = [];
+    ch.on("error", (e) => errors.push(e));
+
+    ch.close();
+    // Advance well past any interval + timeout combination
+    vi.advanceTimersByTime(200_000);
+    expect(errors).toHaveLength(0);
   });
 });

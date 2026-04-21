@@ -177,6 +177,15 @@ export class Channel {
   readonly #frameCountsSent: Map<string, number> = new Map();
   readonly #frameCountsRecv: Map<string, number> = new Map();
 
+  // Phase 4: SW heartbeat timers (LIFE-02)
+  // #heartbeatInterval drives the periodic CAPABILITY ping.
+  // #heartbeatTimeout arms after each ping; cleared by the pong.
+  // The null-check on #heartbeatTimeout is the ping-pong loop prevention:
+  //   non-null  → we sent a ping, this CAPABILITY is the pong → clear timeout
+  //   null      → remote sent a ping → echo once (do NOT arm a new timeout)
+  #heartbeatInterval: ReturnType<typeof setInterval> | null = null;
+  #heartbeatTimeout: ReturnType<typeof setTimeout> | null = null;
+
   constructor(endpoint: PostMessageEndpoint, options: ChannelOptions = {}) {
     this.#endpoint = endpoint;
     this.#channelId = options.channelId ?? crypto.randomUUID();
@@ -244,6 +253,13 @@ export class Channel {
 
     // Send our CAPABILITY frame immediately
     this.#sendCapability();
+
+    // Start heartbeat if configured (opt-in for SW endpoints — LIFE-02).
+    // Must be called AFTER #sendCapability() so the initial CAPABILITY ping
+    // (if fired on the very first interval) follows the handshake CAPABILITY.
+    if (options.heartbeat) {
+      this.#startHeartbeat();
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -271,11 +287,29 @@ export class Channel {
       this.#onErrorCb?.(err);
       return;
     }
+    const isPostHandshake = this.#remoteCap !== null;
     this.#remoteCap = {
       sab: frame.sab && this.#localCap.sab,
       transferableStreams: frame.transferableStreams && this.#localCap.transferableStreams,
     };
-    this.#resolveCapability();
+    if (!isPostHandshake) {
+      // Initial handshake — resolve the capabilityReady promise.
+      this.#resolveCapability();
+    } else {
+      // Post-handshake CAPABILITY: heartbeat ping/pong discrimination (LIFE-02).
+      // RESEARCH.md Pitfall 3: prevent infinite ping-pong loop.
+      // #heartbeatTimeout non-null  → WE sent the ping and are waiting; this is the pong.
+      //                               Clear the timeout. Do NOT echo back (that would restart the loop).
+      // #heartbeatTimeout null      → REMOTE sent the ping (or unsolicited CAPABILITY).
+      //                               Echo once as a pong. Do NOT arm a timeout on our side.
+      if (this.#heartbeatTimeout !== null) {
+        clearTimeout(this.#heartbeatTimeout);
+        this.#heartbeatTimeout = null;
+      } else {
+        // Remote-initiated ping — echo once as pong.
+        this.#sendCapability();
+      }
+    }
   }
 
   /**
@@ -417,6 +451,39 @@ export class Channel {
       this.#disposers[i]!();
     }
     this.#disposers.length = 0;
+  }
+
+  /**
+   * Start the SW heartbeat (LIFE-02). Called once from the constructor when
+   * options.heartbeat is present. Sends a CAPABILITY ping every intervalMs;
+   * if no pong arrives within timeoutMs, emits CHANNEL_DEAD.
+   *
+   * Cleanup is registered in #disposers — both the interval and any pending
+   * timeout are cleared when channel.close() runs (Pitfall 6 prevention).
+   */
+  #startHeartbeat(): void {
+    const { intervalMs, timeoutMs } = this.#options.heartbeat!;
+    this.#heartbeatInterval = setInterval(() => {
+      if (this.#isClosed) return;
+      this.#sendCapability(); // ping
+      // Arm timeout: if no pong arrives within timeoutMs, declare CHANNEL_DEAD.
+      // The pong path (in #handleCapability) clears this via the null check.
+      this.#heartbeatTimeout = setTimeout(() => {
+        this.#heartbeatTimeout = null;
+        this.#freezeAllStreams("CHANNEL_DEAD");
+      }, timeoutMs);
+    }, intervalMs);
+    // Register cleanup in disposers (LIFE-05 + Pitfall 6)
+    this.#disposers.push(() => {
+      if (this.#heartbeatInterval !== null) {
+        clearInterval(this.#heartbeatInterval);
+        this.#heartbeatInterval = null;
+      }
+      if (this.#heartbeatTimeout !== null) {
+        clearTimeout(this.#heartbeatTimeout);
+        this.#heartbeatTimeout = null;
+      }
+    });
   }
 
   // ---------------------------------------------------------------------------
