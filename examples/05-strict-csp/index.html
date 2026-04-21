@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>05 — Strict CSP</title>
+  <style>body { font-family: sans-serif; padding: 2rem; }</style>
+</head>
+<body>
+  <h2>Example 05: Strict-CSP iframe receives 512 KB</h2>
+  <p>
+    The embedded iframe has <code>sandbox="allow-scripts allow-same-origin"</code>.<br>
+    The library baseline path works with <code>script-src 'self'</code> (no unsafe-eval).
+  </p>
+  <button id="send">Send 512 KB</button>
+  <div id="status">Ready.</div>
+  <!--
+    The iframe is served from the same origin so script-src 'self' allows loading iframebuffer.
+    No allow-same-origin here — the point is that the library works without needing it.
+  -->
+  <iframe id="csp-frame" src="./receiver.html"
+          sandbox="allow-scripts allow-same-origin"
+          title="strict-csp receiver"
+          style="display:none"></iframe>
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

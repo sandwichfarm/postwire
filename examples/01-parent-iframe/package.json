@@ -1,0 +1,14 @@
+{
+  "name": "example-01-parent-iframe",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "iframebuffer": "file:../.."
+  },
+  "devDependencies": {
+    "vite": "^8.0.0"
+  }
+}

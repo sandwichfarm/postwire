@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>03 — Three-hop relay</title>
+  <style>body { font-family: sans-serif; padding: 2rem; }</style>
+</head>
+<body>
+  <h2>Example 03: Worker → Main relay → Iframe</h2>
+  <p>Worker produces a live stream → main thread relays via <code>createRelayBridge</code> → iframe consumes.</p>
+  <button id="start">Start</button>
+  <div>Chunks received by iframe: <span id="count">0</span></div>
+  <iframe id="consumer" src="./consumer.html" style="display:none" sandbox="allow-scripts" title="consumer"></iframe>
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

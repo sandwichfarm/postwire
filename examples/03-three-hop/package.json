@@ -1,0 +1,14 @@
+{
+  "name": "example-03-three-hop",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "iframebuffer": "file:../.."
+  },
+  "devDependencies": {
+    "vite": "^8.0.0"
+  }
+}

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>strict-csp receiver</title>
+  <!--
+    This page intentionally uses no inline scripts and no eval.
+    The Content-Security-Policy meta tag below simulates strict-CSP.
+    In production, set this via HTTP response header instead.
+  -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+</head>
+<body>
+<script type="module" src="./receiver.js"></script>
+</body>
+</html>

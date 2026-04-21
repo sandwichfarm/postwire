@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>01 — Parent ↔ Iframe</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    progress { width: 300px; }
+    #status { margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h2>Example 01: Parent sends 1 MB blob to iframe</h2>
+  <button id="send">Send 1 MB</button>
+  <br><br>
+  <progress id="prog" max="100" value="0"></progress>
+  <div id="status">Ready.</div>
+  <iframe id="child" src="./iframe.html" style="display:none" title="receiver"></iframe>
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

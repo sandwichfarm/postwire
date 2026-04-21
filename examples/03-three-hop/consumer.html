@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>consumer</title></head>
+<body>
+<script type="module">
+import { createChannel, createEmitterStream, createMessagePortEndpoint } from "iframebuffer";
+
+let count = 0;
+
+window.addEventListener("message", (ev) => {
+  if (ev.data?.type !== "PORT") return;
+  const ch = createChannel(createMessagePortEndpoint(ev.ports[0]));
+  const stream = createEmitterStream(ch, { role: "responder" });
+
+  stream.on("data", (_chunk) => {
+    count++;
+    window.parent.postMessage({ type: "COUNT", count }, "*");
+  });
+});
+</script>
+</body>
+</html>
