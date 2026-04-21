@@ -1,11 +1,11 @@
-import { describe, expect, it } from "vitest";
 import * as fc from "fast-check";
+import { describe, expect, it } from "vitest";
 import {
   IllegalTransitionError,
   isTerminalState,
-  transition,
   type StreamEvent,
   type StreamState,
+  transition,
 } from "../../../src/session/fsm.js";
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -75,21 +75,15 @@ describe("FSM valid transitions", () => {
 
   // OPENING
   it("OPENING + OPEN_ACK_SENT → OPEN", () => {
-    expect(
-      transition("OPENING", { type: "OPEN_ACK_SENT", initCredit: 16 }),
-    ).toBe("OPEN");
+    expect(transition("OPENING", { type: "OPEN_ACK_SENT", initCredit: 16 })).toBe("OPEN");
   });
 
   it("OPENING + OPEN_ACK_RECEIVED → OPEN", () => {
-    expect(
-      transition("OPENING", { type: "OPEN_ACK_RECEIVED", initCredit: 16 }),
-    ).toBe("OPEN");
+    expect(transition("OPENING", { type: "OPEN_ACK_RECEIVED", initCredit: 16 })).toBe("OPEN");
   });
 
   it("OPENING + RESET_RECEIVED → ERRORED", () => {
-    expect(
-      transition("OPENING", { type: "RESET_RECEIVED", reason: "refused" }),
-    ).toBe("ERRORED");
+    expect(transition("OPENING", { type: "RESET_RECEIVED", reason: "refused" })).toBe("ERRORED");
   });
 
   // OPEN
@@ -106,33 +100,25 @@ describe("FSM valid transitions", () => {
   });
 
   it("OPEN + CLOSE_RECEIVED → REMOTE_HALF_CLOSED", () => {
-    expect(transition("OPEN", { type: "CLOSE_RECEIVED" })).toBe(
-      "REMOTE_HALF_CLOSED",
-    );
+    expect(transition("OPEN", { type: "CLOSE_RECEIVED" })).toBe("REMOTE_HALF_CLOSED");
   });
 
   it("OPEN + CANCEL_SENT → CANCELLED", () => {
-    expect(
-      transition("OPEN", { type: "CANCEL_SENT", reason: "user abort" }),
-    ).toBe("CANCELLED");
+    expect(transition("OPEN", { type: "CANCEL_SENT", reason: "user abort" })).toBe("CANCELLED");
   });
 
   it("OPEN + CANCEL_RECEIVED → CANCELLED", () => {
-    expect(
-      transition("OPEN", { type: "CANCEL_RECEIVED", reason: "remote abort" }),
-    ).toBe("CANCELLED");
-  });
-
-  it("OPEN + RESET_SENT → ERRORED", () => {
-    expect(transition("OPEN", { type: "RESET_SENT", reason: "io error" })).toBe(
-      "ERRORED",
+    expect(transition("OPEN", { type: "CANCEL_RECEIVED", reason: "remote abort" })).toBe(
+      "CANCELLED",
     );
   });
 
+  it("OPEN + RESET_SENT → ERRORED", () => {
+    expect(transition("OPEN", { type: "RESET_SENT", reason: "io error" })).toBe("ERRORED");
+  });
+
   it("OPEN + RESET_RECEIVED → ERRORED", () => {
-    expect(
-      transition("OPEN", { type: "RESET_RECEIVED", reason: "remote error" }),
-    ).toBe("ERRORED");
+    expect(transition("OPEN", { type: "RESET_RECEIVED", reason: "remote error" })).toBe("ERRORED");
   });
 
   it("OPEN + STALL_TIMEOUT → ERRORED", () => {
@@ -141,15 +127,11 @@ describe("FSM valid transitions", () => {
 
   // LOCAL_HALF_CLOSED
   it("LOCAL_HALF_CLOSED + DATA_RECEIVED → LOCAL_HALF_CLOSED", () => {
-    expect(transition("LOCAL_HALF_CLOSED", { type: "DATA_RECEIVED" })).toBe(
-      "LOCAL_HALF_CLOSED",
-    );
+    expect(transition("LOCAL_HALF_CLOSED", { type: "DATA_RECEIVED" })).toBe("LOCAL_HALF_CLOSED");
   });
 
   it("LOCAL_HALF_CLOSED + CLOSE_RECEIVED → CLOSING", () => {
-    expect(transition("LOCAL_HALF_CLOSED", { type: "CLOSE_RECEIVED" })).toBe(
-      "CLOSING",
-    );
+    expect(transition("LOCAL_HALF_CLOSED", { type: "CLOSE_RECEIVED" })).toBe("CLOSING");
   });
 
   it("LOCAL_HALF_CLOSED + RESET_SENT → ERRORED", () => {
@@ -181,15 +163,11 @@ describe("FSM valid transitions", () => {
 
   // REMOTE_HALF_CLOSED
   it("REMOTE_HALF_CLOSED + DATA_SENT → REMOTE_HALF_CLOSED", () => {
-    expect(transition("REMOTE_HALF_CLOSED", { type: "DATA_SENT" })).toBe(
-      "REMOTE_HALF_CLOSED",
-    );
+    expect(transition("REMOTE_HALF_CLOSED", { type: "DATA_SENT" })).toBe("REMOTE_HALF_CLOSED");
   });
 
   it("REMOTE_HALF_CLOSED + CLOSE_SENT → CLOSING", () => {
-    expect(transition("REMOTE_HALF_CLOSED", { type: "CLOSE_SENT" })).toBe(
-      "CLOSING",
-    );
+    expect(transition("REMOTE_HALF_CLOSED", { type: "CLOSE_SENT" })).toBe("CLOSING");
   });
 
   it("REMOTE_HALF_CLOSED + RESET_SENT → ERRORED", () => {
@@ -221,21 +199,17 @@ describe("FSM valid transitions", () => {
 
   // CLOSING
   it("CLOSING + FINAL_SEQ_DELIVERED → CLOSED", () => {
-    expect(transition("CLOSING", { type: "FINAL_SEQ_DELIVERED" })).toBe(
-      "CLOSED",
-    );
+    expect(transition("CLOSING", { type: "FINAL_SEQ_DELIVERED" })).toBe("CLOSED");
   });
 
   it("CLOSING + RESET_SENT → ERRORED", () => {
-    expect(
-      transition("CLOSING", { type: "RESET_SENT", reason: "drain error" }),
-    ).toBe("ERRORED");
+    expect(transition("CLOSING", { type: "RESET_SENT", reason: "drain error" })).toBe("ERRORED");
   });
 
   it("CLOSING + RESET_RECEIVED → ERRORED", () => {
-    expect(
-      transition("CLOSING", { type: "RESET_RECEIVED", reason: "remote error" }),
-    ).toBe("ERRORED");
+    expect(transition("CLOSING", { type: "RESET_RECEIVED", reason: "remote error" })).toBe(
+      "ERRORED",
+    );
   });
 });
 
@@ -248,27 +222,23 @@ describe("FSM terminal states throw on any event", () => {
 
   for (const state of terminalStates) {
     it(`${state} + OPEN_SENT → throws`, () => {
-      expect(() => transition(state, { type: "OPEN_SENT" })).toThrow(
-        IllegalTransitionError,
-      );
+      expect(() => transition(state, { type: "OPEN_SENT" })).toThrow(IllegalTransitionError);
     });
 
     it(`${state} + DATA_SENT → throws`, () => {
-      expect(() => transition(state, { type: "DATA_SENT" })).toThrow(
+      expect(() => transition(state, { type: "DATA_SENT" })).toThrow(IllegalTransitionError);
+    });
+
+    it(`${state} + RESET_RECEIVED → throws`, () => {
+      expect(() => transition(state, { type: "RESET_RECEIVED", reason: "x" })).toThrow(
         IllegalTransitionError,
       );
     });
 
-    it(`${state} + RESET_RECEIVED → throws`, () => {
-      expect(() =>
-        transition(state, { type: "RESET_RECEIVED", reason: "x" }),
-      ).toThrow(IllegalTransitionError);
-    });
-
     it(`${state} + FINAL_SEQ_DELIVERED → throws`, () => {
-      expect(() =>
-        transition(state, { type: "FINAL_SEQ_DELIVERED" }),
-      ).toThrow(IllegalTransitionError);
+      expect(() => transition(state, { type: "FINAL_SEQ_DELIVERED" })).toThrow(
+        IllegalTransitionError,
+      );
     });
   }
 });
@@ -279,51 +249,39 @@ describe("FSM terminal states throw on any event", () => {
 
 describe("FSM invalid transitions", () => {
   it("IDLE + DATA_SENT → throws IllegalTransitionError", () => {
-    expect(() => transition("IDLE", { type: "DATA_SENT" })).toThrow(
-      IllegalTransitionError,
-    );
+    expect(() => transition("IDLE", { type: "DATA_SENT" })).toThrow(IllegalTransitionError);
   });
 
   it("IDLE + CLOSE_RECEIVED → throws IllegalTransitionError", () => {
-    expect(() => transition("IDLE", { type: "CLOSE_RECEIVED" })).toThrow(
-      IllegalTransitionError,
-    );
+    expect(() => transition("IDLE", { type: "CLOSE_RECEIVED" })).toThrow(IllegalTransitionError);
   });
 
   it("OPENING + DATA_SENT → throws IllegalTransitionError", () => {
-    expect(() => transition("OPENING", { type: "DATA_SENT" })).toThrow(
-      IllegalTransitionError,
-    );
+    expect(() => transition("OPENING", { type: "DATA_SENT" })).toThrow(IllegalTransitionError);
   });
 
   it("OPENING + CLOSE_SENT → throws IllegalTransitionError", () => {
-    expect(() => transition("OPENING", { type: "CLOSE_SENT" })).toThrow(
-      IllegalTransitionError,
-    );
+    expect(() => transition("OPENING", { type: "CLOSE_SENT" })).toThrow(IllegalTransitionError);
   });
 
   it("LOCAL_HALF_CLOSED + DATA_SENT → throws IllegalTransitionError", () => {
-    expect(() =>
-      transition("LOCAL_HALF_CLOSED", { type: "DATA_SENT" }),
-    ).toThrow(IllegalTransitionError);
+    expect(() => transition("LOCAL_HALF_CLOSED", { type: "DATA_SENT" })).toThrow(
+      IllegalTransitionError,
+    );
   });
 
   it("REMOTE_HALF_CLOSED + DATA_RECEIVED → throws IllegalTransitionError", () => {
-    expect(() =>
-      transition("REMOTE_HALF_CLOSED", { type: "DATA_RECEIVED" }),
-    ).toThrow(IllegalTransitionError);
+    expect(() => transition("REMOTE_HALF_CLOSED", { type: "DATA_RECEIVED" })).toThrow(
+      IllegalTransitionError,
+    );
   });
 
   it("CLOSING + DATA_SENT → throws IllegalTransitionError", () => {
-    expect(() => transition("CLOSING", { type: "DATA_SENT" })).toThrow(
-      IllegalTransitionError,
-    );
+    expect(() => transition("CLOSING", { type: "DATA_SENT" })).toThrow(IllegalTransitionError);
   });
 
   it("IDLE + STALL_TIMEOUT → throws IllegalTransitionError", () => {
-    expect(() => transition("IDLE", { type: "STALL_TIMEOUT" })).toThrow(
-      IllegalTransitionError,
-    );
+    expect(() => transition("IDLE", { type: "STALL_TIMEOUT" })).toThrow(IllegalTransitionError);
   });
 
   it("IllegalTransitionError has correct .state and .eventType properties", () => {
@@ -346,21 +304,17 @@ describe("FSM invalid transitions", () => {
 
 describe("CANCEL vs RESET semantics", () => {
   it("CANCEL_SENT from OPEN → CANCELLED (consumer abort, not error)", () => {
-    expect(
-      transition("OPEN", { type: "CANCEL_SENT", reason: "user abort" }),
-    ).toBe("CANCELLED");
+    expect(transition("OPEN", { type: "CANCEL_SENT", reason: "user abort" })).toBe("CANCELLED");
   });
 
   it("RESET_SENT from OPEN → ERRORED (producer abort = error)", () => {
-    expect(
-      transition("OPEN", { type: "RESET_SENT", reason: "fatal error" }),
-    ).toBe("ERRORED");
+    expect(transition("OPEN", { type: "RESET_SENT", reason: "fatal error" })).toBe("ERRORED");
   });
 
   it("CANCEL_RECEIVED from OPEN → CANCELLED (remote consumer aborted)", () => {
-    expect(
-      transition("OPEN", { type: "CANCEL_RECEIVED", reason: "remote abort" }),
-    ).toBe("CANCELLED");
+    expect(transition("OPEN", { type: "CANCEL_RECEIVED", reason: "remote abort" })).toBe(
+      "CANCELLED",
+    );
   });
 
   it("CANCEL_RECEIVED from LOCAL_HALF_CLOSED → CANCELLED", () => {
@@ -450,34 +404,24 @@ describe("property: FSM — TEST-06", () => {
   it("terminal state throws on any subsequent event (TEST-06)", () => {
     const terminalStates: StreamState[] = ["CLOSED", "ERRORED", "CANCELLED"];
     fc.assert(
-      fc.property(
-        fc.constantFrom(...terminalStates),
-        eventArb,
-        (terminalState, event) => {
-          expect(() => transition(terminalState, event)).toThrow(
-            IllegalTransitionError,
-          );
-        },
-      ),
+      fc.property(fc.constantFrom(...terminalStates), eventArb, (terminalState, event) => {
+        expect(() => transition(terminalState, event)).toThrow(IllegalTransitionError);
+      }),
       { numRuns: 500 },
     );
   });
 
   it("transition result is always a known StreamState value when valid (TEST-06)", () => {
     fc.assert(
-      fc.property(
-        fc.constantFrom(...VALID_STATES),
-        eventArb,
-        (state, event) => {
-          try {
-            const next = transition(state, event);
-            expect(VALID_STATES).toContain(next);
-          } catch (e) {
-            if (e instanceof IllegalTransitionError) return; // expected
-            throw e;
-          }
-        },
-      ),
+      fc.property(fc.constantFrom(...VALID_STATES), eventArb, (state, event) => {
+        try {
+          const next = transition(state, event);
+          expect(VALID_STATES).toContain(next);
+        } catch (e) {
+          if (e instanceof IllegalTransitionError) return; // expected
+          throw e;
+        }
+      }),
       { numRuns: 500 },
     );
   });
