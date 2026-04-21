@@ -76,3 +76,6 @@ export type Frame =
   | CancelFrame
   | ResetFrame
   | CapabilityFrame;
+
+/** String discriminant union of all frame type values. */
+export type FrameType = Frame["type"];
