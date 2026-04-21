@@ -125,6 +125,63 @@ export async function sendStructuredViaLibrary(bytes: number): Promise<void> {
 }
 
 /**
+ * Send `bytes` bytes of random binary data via the library's SAB fast path.
+ *
+ * Constructs Channels with { sab: true } and a ring buffer sized to 2× the payload.
+ * Waits for CAPABILITY + SAB_INIT handshake before sending, then measures the
+ * full transfer time including SAB ring write + async consumer dispatch.
+ *
+ * Fresh channel pair per call — no state leak between bench iterations.
+ */
+export async function sendBinaryViaLibrarySab(bytes: number): Promise<void> {
+  const { port1, port2 } = new MessageChannel();
+
+  // Size the ring buffer to 4× the payload so large payloads don't block.
+  // Each 64 KB chunk (default maxChunkSize) fits in the ring before the consumer reads it.
+  const sabBufferSize = Math.max(4 * 1024 * 1024, bytes * 2);
+
+  const chA = createChannel(asEndpoint(port1), { sab: true, sabBufferSize });
+  const chB = createChannel(asEndpoint(port2), { sab: true, sabBufferSize });
+
+  // Wait for CAPABILITY + SAB_INIT handshake.
+  // CAPABILITY resolves quickly, but SAB_INIT requires an additional postMessage round-trip.
+  // Poll stats() until both sides are sabActive=true (or timeout after 5 s).
+  await Promise.all([chA.capabilityReady, chB.capabilityReady]);
+  const sabDeadline = Date.now() + 5000;
+  while ((!chA.stats().sabActive || !chB.stats().sabActive) && Date.now() < sabDeadline) {
+    await new Promise<void>((res) => setImmediate(res));
+  }
+
+  // Receiver: resolve when all bytes arrive
+  let resolve!: () => void;
+  const receiverDone = new Promise<void>((res) => {
+    resolve = res;
+  });
+
+  let bytesReceived = 0;
+  chB.onStream((handle) => {
+    handle.session.onChunk((chunk) => {
+      if (chunk instanceof ArrayBuffer) {
+        bytesReceived += chunk.byteLength;
+      }
+      if (bytesReceived >= bytes) {
+        resolve();
+      }
+    });
+  });
+
+  // Open stream and queue the send (held by session until OPEN_ACK delivers credit)
+  const handle = chA.openStream();
+  const buf = createBinaryPayload(bytes);
+  handle.session.sendData(buf, "BINARY_TRANSFER");
+
+  await receiverDone;
+
+  port1.close();
+  port2.close();
+}
+
+/**
  * Send `bytes` bytes via raw postMessage — naive baseline without library framing.
  * Uses direct port.postMessage(buf, [buf]) + ack pattern.
  *
