@@ -26,6 +26,9 @@ importers:
       '@vitest/browser':
         specifier: 4.1.4
         version: 4.1.4(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))(vitest@4.1.4)
+      '@vitest/browser-playwright':
+        specifier: 4.1.4
+        version: 4.1.4(playwright@1.59.1)(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))(vitest@4.1.4)
       '@vitest/coverage-v8':
         specifier: 4.1.4
         version: 4.1.4(@vitest/browser@4.1.4)(vitest@4.1.4)
@@ -49,7 +52,7 @@ importers:
         version: 6.0.3
       vitest:
         specifier: 4.1.4
-        version: 4.1.4(@types/node@25.6.0)(@vitest/coverage-v8@4.1.4)(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))
+        version: 4.1.4(@types/node@25.6.0)(@vitest/browser-playwright@4.1.4)(@vitest/coverage-v8@4.1.4)(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))
 
 packages:
 
@@ -590,6 +593,12 @@ packages:
 
   '@types/node@25.6.0':
     resolution: {integrity: sha512-+qIYRKdNYJwY3vRCZMdJbPLJAtGjQBudzZzdzwQYkEPQd+PJGixUL5QfvCLDaULoLv+RhT3LDkwEfKaAkgSmNQ==}
+
+  '@vitest/browser-playwright@4.1.4':
+    resolution: {integrity: sha512-q3PchVhZINX23Pv+RERgAtDlp6wzVkID/smOPnZ5YGWpeWUe3jMNYppeVh15j4il3G7JIJty1d1Kicpm0HSMig==}
+    peerDependencies:
+      playwright: '*'
+      vitest: 4.1.4
 
   '@vitest/browser@4.1.4':
     resolution: {integrity: sha512-TrNaY/yVOwxtrxNsDUC/wQ56xSwplpytTeRAqF/197xV/ZddxxulBsxR6TrhVMyniJmp9in8d5u0AcDaNRY30w==}
@@ -2074,6 +2083,19 @@ snapshots:
     dependencies:
       undici-types: 7.19.2
 
+  '@vitest/browser-playwright@4.1.4(playwright@1.59.1)(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))(vitest@4.1.4)':
+    dependencies:
+      '@vitest/browser': 4.1.4(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))(vitest@4.1.4)
+      '@vitest/mocker': 4.1.4(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))
+      playwright: 1.59.1
+      tinyrainbow: 3.1.0
+      vitest: 4.1.4(@types/node@25.6.0)(@vitest/browser-playwright@4.1.4)(@vitest/coverage-v8@4.1.4)(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))
+    transitivePeerDependencies:
+      - bufferutil
+      - msw
+      - utf-8-validate
+      - vite
+
   '@vitest/browser@4.1.4(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))(vitest@4.1.4)':
     dependencies:
       '@blazediff/core': 1.9.1
@@ -2083,7 +2105,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.0
-      vitest: 4.1.4(@types/node@25.6.0)(@vitest/coverage-v8@4.1.4)(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))
+      vitest: 4.1.4(@types/node@25.6.0)(@vitest/browser-playwright@4.1.4)(@vitest/coverage-v8@4.1.4)(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))
       ws: 8.20.0
     transitivePeerDependencies:
       - bufferutil
@@ -2103,7 +2125,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.1.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.4(@types/node@25.6.0)(@vitest/coverage-v8@4.1.4)(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))
+      vitest: 4.1.4(@types/node@25.6.0)(@vitest/browser-playwright@4.1.4)(@vitest/coverage-v8@4.1.4)(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))
     optionalDependencies:
       '@vitest/browser': 4.1.4(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))(vitest@4.1.4)
 
@@ -2877,7 +2899,7 @@ snapshots:
       fsevents: 2.3.3
       tsx: 4.21.0
 
-  vitest@4.1.4(@types/node@25.6.0)(@vitest/coverage-v8@4.1.4)(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0)):
+  vitest@4.1.4(@types/node@25.6.0)(@vitest/browser-playwright@4.1.4)(@vitest/coverage-v8@4.1.4)(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0)):
     dependencies:
       '@vitest/expect': 4.1.4
       '@vitest/mocker': 4.1.4(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))
@@ -2901,6 +2923,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 25.6.0
+      '@vitest/browser-playwright': 4.1.4(playwright@1.59.1)(vite@8.0.9(@types/node@25.6.0)(esbuild@0.27.7)(tsx@4.21.0))(vitest@4.1.4)
       '@vitest/coverage-v8': 4.1.4(@vitest/browser@4.1.4)(vitest@4.1.4)
     transitivePeerDependencies:
       - msw
