@@ -162,7 +162,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 |-------|----------------|--------|-----------|
 | 1. Scaffold + Wire Protocol Foundation | 4/4 | Complete | 2026-04-21 |
 | 2. Session Protocol Core | 5/6 | In Progress|  |
-| 3. API Adapters + Single-Hop Integration | 3/7 | In Progress|  |
+| 3. API Adapters + Single-Hop Integration | 5/7 | In Progress|  |
 | 4. Lifecycle Safety + Observability | 0/? | Not started | - |
 | 5. Benchmark Harness | 0/? | Not started | - |
 | 6. SAB Fast Path | 0/? | Not started | - |

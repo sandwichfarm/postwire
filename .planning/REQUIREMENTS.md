@@ -35,7 +35,7 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 
 - [x] **FAST-01**: Transferable `ArrayBuffer` / `TypedArray` path transfers ownership (zero-copy) when the caller provides typed binary; the post-transfer source is treated as detached, not read again
 - [x] **FAST-02**: Transferable `ReadableStream` path is used when feature-detected (modern Chrome/Firefox); falls back to library-native chunked delivery where unavailable (Safari stable as of v1 release is assumed absent)
-- [ ] **FAST-03**: Structured-clone path handles arbitrary cloneable payloads and surfaces `DataCloneError` as a named, typed error — never swallowed
+- [x] **FAST-03**: Structured-clone path handles arbitrary cloneable payloads and surfaces `DataCloneError` as a named, typed error — never swallowed
 - [ ] **FAST-04**: `SharedArrayBuffer` + `Atomics` fast path activates when cross-origin-isolated AND not cross-agent-cluster AND caller opts in; falls back transparently to the postMessage-transferable path otherwise
 - [x] **FAST-05**: Feature detection runs once at channel open, not per chunk; the path stays fixed for the channel lifetime
 
@@ -43,7 +43,7 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 
 - [x] **API-01**: Low-level `send(chunk) / onChunk(cb) / close()` API — the underlying primitive all higher-level wrappers compose on
 - [ ] **API-02**: Node-style `EventEmitter` wrapper (`stream.on('data' | 'end' | 'error' | 'close', ...)`, `stream.write(chunk)`, `stream.end()`) — thin layer over the low-level API
-- [ ] **API-03**: WHATWG Streams wrapper returning `{ readable: ReadableStream, writable: WritableStream }` pair; `desiredSize` is wired to the credit window so `pipeTo`/`pipeThrough` respect backpressure end-to-end
+- [x] **API-03**: WHATWG Streams wrapper returning `{ readable: ReadableStream, writable: WritableStream }` pair; `desiredSize` is wired to the credit window so `pipeTo`/`pipeThrough` respect backpressure end-to-end
 - [ ] **API-04**: API surfaces are independent entry points — consumers can import the low-level primitive without pulling in the EventEmitter or Streams wrappers (tree-shakeable)
 
 ### Topology
@@ -184,10 +184,10 @@ Explicitly excluded. Documented to prevent scope creep.
 | TEST-06 | Phase 2 | Complete |
 | FAST-01 | Phase 3 | Complete |
 | FAST-02 | Phase 3 | Complete |
-| FAST-03 | Phase 3 | Pending |
+| FAST-03 | Phase 3 | Complete |
 | API-01 | Phase 3 | Complete |
 | API-02 | Phase 3 | Pending |
-| API-03 | Phase 3 | Pending |
+| API-03 | Phase 3 | Complete |
 | API-04 | Phase 3 | Pending |
 | TOPO-01 | Phase 3 | Complete |
 | TEST-02 | Phase 3 | Complete |
