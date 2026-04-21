@@ -192,8 +192,20 @@ export function createStream(channel: Channel, options?: StreamsOptions): Stream
         //
         // DataCloneError path: Channel.#sendRaw wraps postMessage in try/catch.
         // On DataCloneError, Channel calls session.reset('DataCloneError').
-        // session.onError fires → streamError is set (above) → next write() rejects.
-        session.sendData(chunk, "STRUCTURED_CLONE");
+        // This fires session.onError (→ streamError set) synchronously inside the
+        // sendData() call, and then #applyTransition({type:'DATA_SENT'}) is called
+        // on an already-ERRORED session, throwing IllegalTransitionError.
+        // We catch that here and surface as streamError (which onError already set),
+        // or wrap as a new StreamError if onError hasn't fired yet.
+        try {
+          session.sendData(chunk, "STRUCTURED_CLONE");
+        } catch {
+          // If onError fired synchronously (DataCloneError path), streamError is set.
+          // Otherwise wrap as CHANNEL_DEAD.
+          const err = streamError ?? new StreamError("CHANNEL_DEAD", undefined);
+          streamError = err;
+          return Promise.reject(err);
+        }
         return Promise.resolve();
       },
 
