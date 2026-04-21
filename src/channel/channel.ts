@@ -12,6 +12,8 @@
 // Those live in Session (Layer 4).
 
 import { decode, encode } from "../framing/encode-decode.js";
+import { isSabCapable } from "../transport/sab-capability.js";
+import { allocSabRing, SabRingConsumer, SabRingProducer } from "../transport/sab-ring.js";
 import type { ChannelStats, StreamStats, TraceEvent } from "./stats.js";
 
 /**
@@ -60,9 +62,8 @@ import {
   PROTOCOL_VERSION,
 } from "../framing/types.js";
 import { Session, type SessionOptions } from "../session/index.js";
-import { isTerminalState } from "../session/fsm.js";
 import type { PostMessageEndpoint } from "../transport/endpoint.js";
-import { StreamError, type ErrorCode } from "../types.js";
+import { type ErrorCode, StreamError } from "../types.js";
 
 // ---------------------------------------------------------------------------
 // Module-level helper: map session error reason strings to typed ErrorCode
@@ -160,6 +161,18 @@ export interface ChannelOptions {
    * Off by default — no overhead when disabled.
    */
   trace?: boolean;
+  /**
+   * Opt-in to the SAB (SharedArrayBuffer) fast path for DATA frames (Phase 6, FAST-04).
+   * When true and both sides are SAB-capable, DATA frames bypass postMessage entirely.
+   * Falls back transparently to postMessage if either side is not capable.
+   * Default: false.
+   */
+  sab?: boolean;
+  /**
+   * Ring buffer capacity in bytes for the SAB fast path (Phase 6, FAST-04).
+   * Default: 1_048_576 (1 MB). Must fit the largest individual data chunk.
+   */
+  sabBufferSize?: number;
 }
 
 /** Internal stream handle — NOT part of the public API. */
@@ -176,11 +189,19 @@ export class Channel {
 
   // Capability negotiation — probe is evaluated once at channel construction.
   // checkReadableStreamTransferable() always returns false in Phase 3 (FAST-02).
-  #localCap = { sab: false, transferableStreams: checkReadableStreamTransferable() };
+  // SAB local capability: true only when caller opts in AND isSabCapable() probe passes.
+  #localCap: { sab: boolean; transferableStreams: boolean };
   #remoteCap: { sab: boolean; transferableStreams: boolean } | null = null;
   readonly #capabilityReady: Promise<void>;
   #resolveCapability!: () => void;
   #rejectCapability!: (err: StreamError) => void;
+
+  // Phase 6: SAB fast path state (FAST-04)
+  #sabProducer: SabRingProducer | null = null;
+  #sabConsumer: SabRingConsumer | null = null;
+  #sabReady = false; // true once SAB_INIT handshake is complete on both sides
+  #sabInitAckPending = false; // true on the initiator side while waiting for SAB_INIT_ACK
+  #remoteChannelId: string | null = null; // stored when CAPABILITY arrives, used for SAB tiebreaker
 
   // Stream registry — one session per logical stream (Phase 8 mux adds more)
   #session: Session | null = null;
@@ -222,6 +243,13 @@ export class Channel {
     this.#options = options;
     this.#sessionOptions = options.sessionOptions ?? {};
 
+    // Phase 6: Compute local SAB capability.
+    // Caller must opt in via options.sab=true AND the environment must pass the probe.
+    this.#localCap = {
+      sab: options.sab === true && isSabCapable(endpoint),
+      transferableStreams: checkReadableStreamTransferable(),
+    };
+
     // Capability ready promise — resolves on remote CAPABILITY, rejects on PROTOCOL_MISMATCH
     this.#capabilityReady = new Promise<void>((resolve, reject) => {
       this.#resolveCapability = resolve;
@@ -258,6 +286,19 @@ export class Channel {
 
     // Wire inbound message handler BEFORE sending CAPABILITY (avoid race)
     endpoint.onmessage = (evt: MessageEvent): void => {
+      // Phase 6: intercept SAB control messages before normal frame decoding.
+      // These are not wire-protocol frames — they are out-of-band SAB handshake messages.
+      if (evt.data !== null && typeof evt.data === "object") {
+        if ((evt.data as { __ibf_sab_init__?: boolean }).__ibf_sab_init__ === true) {
+          this.#handleSabInit(evt.data as { sab: SharedArrayBuffer; bufferSize: number });
+          return;
+        }
+        if ((evt.data as { __ibf_sab_init_ack__?: boolean }).__ibf_sab_init_ack__ === true) {
+          this.#handleSabInitAck();
+          return;
+        }
+      }
+
       const frame = decode(evt.data);
       if (frame === null) return; // not a library frame — pass through silently
 
@@ -379,6 +420,10 @@ export class Channel {
       return;
     }
     const isPostHandshake = this.#remoteCap !== null;
+    // Store remote channel ID for SAB tiebreaker determination (Phase 6)
+    if (!isPostHandshake) {
+      this.#remoteChannelId = frame.channelId;
+    }
     this.#remoteCap = {
       sab: frame.sab && this.#localCap.sab,
       transferableStreams: frame.transferableStreams && this.#localCap.transferableStreams,
@@ -386,6 +431,13 @@ export class Channel {
     if (!isPostHandshake) {
       // Initial handshake — resolve the capabilityReady promise.
       this.#resolveCapability();
+      // Phase 6: if both sides negotiated SAB, initiate the SAB ring handshake.
+      // The "initiator" role is determined by alphabetical channel ID order —
+      // the side with the lexicographically smaller channel ID sends SAB_INIT.
+      // When IDs are equal (unusual but possible), random tiebreaker is used.
+      if (this.#remoteCap.sab) {
+        this.#initiateSabHandshake();
+      }
     } else {
       // Post-handshake CAPABILITY: heartbeat ping/pong discrimination (LIFE-02).
       // RESEARCH.md Pitfall 3: prevent infinite ping-pong loop.
@@ -517,6 +569,7 @@ export class Channel {
         bytesSent: this.#bytesSent,
         bytesReceived: this.#bytesReceived,
       },
+      sabActive: this.#sabReady,
     };
   }
 
@@ -558,6 +611,34 @@ export class Channel {
             ? ((frame as DataFrame).payload as ArrayBuffer).byteLength
             : undefined,
       });
+    }
+
+    // Phase 6: route DATA frames via SAB ring when the fast path is active.
+    // Control frames (OPEN, OPEN_ACK, CREDIT, CLOSE, etc.) always go via postMessage.
+    if (frame.type === "DATA" && this.#sabReady && this.#sabProducer !== null) {
+      const df = frame as DataFrame;
+      // Only binary payloads can transit via the ring (payload must be an ArrayBuffer)
+      if (df.payload instanceof ArrayBuffer) {
+        const payload = new Uint8Array(df.payload);
+        const chunkTypeNum = [
+          "BINARY_TRANSFER",
+          "STRUCTURED_CLONE",
+          "STREAM_REF",
+          "SAB_SIGNAL",
+        ].indexOf(df.chunkType);
+        const ctNum = chunkTypeNum >= 0 ? chunkTypeNum : 0;
+        // Encode isFinal as bit 31 of the chunkType field.
+        // Consumer decodes: (ctEncoded & 0x7FFFFFFF) = chunkType, (ctEncoded >>> 31) = isFinal
+        const ctEncoded = df.isFinal ? ctNum | 0x8000_0000 : ctNum;
+        // Fire-and-forget write — errors fall back to postMessage silently
+        void this.#sabProducer.write(payload, frame.seqNum, ctEncoded >>> 0).then((ok) => {
+          if (!ok && !this.#isClosed) {
+            // SAB write timed out — ring consumer is dead
+            this.#freezeAllStreams("CHANNEL_DEAD");
+          }
+        });
+        return; // DATA frame sent via SAB — do NOT also send via postMessage
+      }
     }
 
     this.#sendRaw(encode(frame), transfer ?? []);
@@ -732,6 +813,175 @@ export class Channel {
     });
 
     return session;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Phase 6: SAB fast path (FAST-04)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Called after CAPABILITY handshake if merged sab=true.
+   * Determines which side allocates the SAB ring and sends SAB_INIT.
+   * The side whose channel ID is alphabetically smaller acts as initiator
+   * so both sides reach the same decision independently.
+   */
+  #initiateSabHandshake(): void {
+    // Both sides independently decide who is the SAB ring allocator.
+    // Rule: the side whose local channelId is lexicographically LESS THAN the remote
+    // channelId sends SAB_INIT and acts as the producer.
+    // When IDs are equal (edge case), the per-instance random tiebreaker is used.
+    const remoteId = this.#remoteChannelId ?? "";
+    const localId = this.#channelId;
+    const iAmInitiator = localId < remoteId || (localId === remoteId && this.#sabTiebreaker);
+    if (iAmInitiator) {
+      this.#sendSabInit();
+    }
+    // The other side (remote side) will receive SAB_INIT via #handleSabInit.
+  }
+
+  /**
+   * Per-instance random bit set at construction to break SAB_INIT initiator ties.
+   * Used only when both channel IDs are identical (edge case).
+   */
+  readonly #sabTiebreaker: boolean = Math.random() < 0.5;
+
+  /**
+   * Allocate the SAB ring, wire up the producer, and send SAB_INIT to the peer.
+   * Called by the initiator side after merged sab=true.
+   */
+  #sendSabInit(): void {
+    try {
+      const bufferSize = this.#options.sabBufferSize ?? 1_048_576;
+      const view = allocSabRing(bufferSize);
+      this.#sabProducer = new SabRingProducer(view);
+      this.#sabInitAckPending = true;
+
+      // SAB cannot be transferred (it is shared by reference).
+      // Pass an empty transfer list — SharedArrayBuffer sharing is by reference, not transfer.
+      this.#endpoint.postMessage({ __ibf_sab_init__: true, sab: view.sab, bufferSize }, []);
+    } catch (err) {
+      const sabErr = new StreamError("SAB_INIT_FAILED", err);
+      this.#emitter.emit("error", sabErr);
+      // Fall back to postMessage path — sabReady stays false, all data goes via postMessage
+    }
+  }
+
+  /**
+   * Handle incoming SAB_INIT from the initiator side.
+   * Wire up the consumer side on the same SharedArrayBuffer.
+   */
+  #handleSabInit(msg: { sab: SharedArrayBuffer; bufferSize: number }): void {
+    try {
+      const view = { sab: msg.sab, capacity: msg.bufferSize };
+      this.#sabConsumer = new SabRingConsumer(view);
+      // The consumer side is now SAB-active (receiving via ring)
+      this.#sabReady = true;
+      // Register consumer cleanup in disposers
+      this.#disposers.push(() => {
+        if (this.#sabConsumer !== null) {
+          this.#sabConsumer.close();
+          this.#sabConsumer = null;
+        }
+        this.#sabReady = false;
+      });
+      // Start the consumer loop BEFORE sending ACK so we don't miss frames
+      this.#startSabConsumerLoop();
+      // Send ACK to let initiator flip to SAB mode
+      this.#endpoint.postMessage({ __ibf_sab_init_ack__: true }, []);
+    } catch (err) {
+      // SAB init failed on receiver side — send a NACK by not sending ACK.
+      // The initiator will time out and fall back.
+      const sabErr = new StreamError("SAB_INIT_FAILED", err);
+      this.#emitter.emit("error", sabErr);
+    }
+  }
+
+  /**
+   * Handle SAB_INIT_ACK from the responder side.
+   * Flip #sabReady so DATA frames start routing via SAB.
+   */
+  #handleSabInitAck(): void {
+    if (!this.#sabInitAckPending || this.#sabProducer === null) return;
+    this.#sabInitAckPending = false;
+    this.#sabReady = true;
+    // Register producer cleanup in disposers
+    this.#disposers.push(() => {
+      if (this.#sabProducer !== null) {
+        this.#sabProducer.writeTerminator();
+        this.#sabProducer = null;
+      }
+      this.#sabReady = false;
+    });
+  }
+
+  /**
+   * Consumer loop: reads DATA frames from the SAB ring and dispatches them
+   * to the active session. Runs until the ring signals closed or channel closes.
+   */
+  #startSabConsumerLoop(): void {
+    const consumer = this.#sabConsumer;
+    if (consumer === null) return;
+
+    // Run the async loop detached — it will exit when consumer.read() returns null
+    // Consumer cleanup is registered by the caller (handleSabInit).
+    void (async () => {
+      for (;;) {
+        const msg = await consumer.read(30_000);
+        if (msg === null) {
+          // Ring closed or timed out
+          if (!this.#isClosed) {
+            // Timeout on a supposedly-live channel: emit CHANNEL_DEAD
+            this.#freezeAllStreams("CHANNEL_DEAD");
+          }
+          break;
+        }
+        // Reconstruct a minimal DataFrame and dispatch it to the session
+        this.#dispatchSabFrame(msg);
+      }
+    })();
+  }
+
+  /**
+   * Reconstruct a DataFrame-compatible object from a SAB ring message and
+   * route it to the active session for reassembly + credit accounting.
+   */
+  #dispatchSabFrame(msg: { payload: Uint8Array; seq: number; chunkType: number }): void {
+    if (this.#session === null) return;
+
+    // Decode isFinal from bit 31 of the chunkType field (encoded by sendFrame).
+    // (ctEncoded & 0x7FFFFFFF) = actual chunkType; (ctEncoded >>> 31) = isFinal
+    const isFinal = msg.chunkType >>> 31 === 1;
+    const ctRaw = msg.chunkType & 0x7fff_ffff;
+
+    // Map chunkType number to ChunkType string
+    const CHUNK_TYPES = [
+      "BINARY_TRANSFER",
+      "STRUCTURED_CLONE",
+      "STREAM_REF",
+      "SAB_SIGNAL",
+    ] as const;
+    const chunkTypeStr = CHUNK_TYPES[ctRaw] ?? "BINARY_TRANSFER";
+
+    // Build a synthetic DATA frame
+    const frame = {
+      [FRAME_MARKER]: 1 as const,
+      channelId: this.#channelId,
+      streamId: this.#session.streamId,
+      seqNum: msg.seq,
+      type: "DATA" as const,
+      chunkType: chunkTypeStr,
+      payload: msg.payload.buffer.slice(
+        msg.payload.byteOffset,
+        msg.payload.byteOffset + msg.payload.byteLength,
+      ) as ArrayBuffer,
+      isFinal,
+    };
+
+    // Track bytes received (OBS-01)
+    this.#bytesReceived += msg.payload.byteLength;
+
+    // Route to session
+    this.#session.receiveFrame(frame);
   }
 }
 

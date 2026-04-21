@@ -7,6 +7,7 @@
  * Phase 3 codes: DataCloneError, ORIGIN_REJECTED, PROTOCOL_MISMATCH, CONSUMER_STALL
  * Phase 4 codes: CREDIT_DEADLOCK, REORDER_OVERFLOW, CHANNEL_FROZEN, CHANNEL_DEAD, CHANNEL_CLOSED
  *   CONSUMER_STALL kept for backward compat with emitter.ts (renamed to CREDIT_DEADLOCK in Plan 04).
+ * Phase 6 codes: SAB_INIT_FAILED — SAB handshake failed; channel fell back to postMessage.
  */
 export type ErrorCode =
   | "DataCloneError"
@@ -17,7 +18,8 @@ export type ErrorCode =
   | "REORDER_OVERFLOW"
   | "CHANNEL_FROZEN"
   | "CHANNEL_DEAD"
-  | "CHANNEL_CLOSED";
+  | "CHANNEL_CLOSED"
+  | "SAB_INIT_FAILED";
 
 /**
  * Typed error class emitted by all iframebuffer API surfaces.

@@ -32,6 +32,11 @@ export interface ChannelStats {
     bytesSent: number;
     bytesReceived: number;
   };
+  /**
+   * True when the SAB fast path is active on this channel (Phase 6, FAST-04).
+   * False when using the postMessage-transferable path (default, or after fallback).
+   */
+  sabActive: boolean;
 }
 
 /** Direction of a per-frame trace event. */

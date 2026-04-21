@@ -28,6 +28,9 @@ export { createWindowEndpoint } from "./transport/adapters/window.js";
 export { createWorkerEndpoint } from "./transport/adapters/worker.js";
 export type { PostMessageEndpoint } from "./transport/endpoint.js";
 
+// Phase 6: SAB capability probe (exported for callers who want to probe before channel creation)
+export { isSabCapable } from "./transport/sab-capability.js";
+
 // Phase 1: Sequence number arithmetic
 export {
   HALF_WINDOW,
