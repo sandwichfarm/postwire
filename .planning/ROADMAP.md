@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: SAB Fast Path** - SharedArrayBuffer + Atomics ring-buffer transport, feature-detected and gated by benchmark data (completed 2026-04-21)
 - [x] **Phase 7: Multi-Hop Relay** - RelayBridge routing table with credit-forwarding backpressure and bidirectional error propagation (completed 2026-04-21)
 - [x] **Phase 8: Multiplexing** - Opt-in MultiplexLayer with per-stream credit windows; no head-of-line blocking (completed 2026-04-21)
-- [ ] **Phase 9: Cross-Browser E2E Test Suite** - Playwright matrix across Chromium + Firefox + WebKit; three-hop + strict-CSP scenarios
+- [x] **Phase 9: Cross-Browser E2E Test Suite** - Playwright matrix across Chromium + Firefox + WebKit; three-hop + strict-CSP scenarios (completed 2026-04-21)
 - [ ] **Phase 10: Examples + Docs + Publish** - VitePress site, five runnable examples, dual npm/jsr publish via GitHub OIDC
 
 ## Phase Details
@@ -180,5 +180,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 6. SAB Fast Path | 1/1 | Complete   | 2026-04-21 |
 | 7. Multi-Hop Relay | 1/1 | Complete   | 2026-04-21 |
 | 8. Multiplexing | 1/1 | Complete   | 2026-04-21 |
-| 9. Cross-Browser E2E Test Suite | 0/? | Not started | - |
+| 9. Cross-Browser E2E Test Suite | 1/1 | Complete   | 2026-04-21 |
 | 10. Examples + Docs + Publish | 0/? | Not started | - |

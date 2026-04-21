@@ -84,9 +84,9 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 
 - [x] **TEST-01**: Unit tests for framing, reorder buffer, credit window, chunker, and FSM run headless under Node with no browser (pure TypeScript seams)
 - [x] **TEST-02**: Integration tests use a `MockEndpoint` backed by a real `MessageChannel` pair — exercising real structured-clone and Transferable semantics without spawning a real Worker
-- [ ] **TEST-03**: E2E tests via Vitest browser mode + Playwright exercise real iframe, worker, and service-worker contexts in Chromium, Firefox, and WebKit
-- [ ] **TEST-04**: E2E suite includes the three-hop topology scenario (worker → main-thread relay → strict-CSP sandboxed iframe) as a first-class test
-- [ ] **TEST-05**: E2E suite asserts baseline (postMessage-only, no SAB) works inside a sandboxed iframe under strict CSP — no `unsafe-eval`, no `wasm-unsafe-eval`
+- [x] **TEST-03**: E2E tests via Vitest browser mode + Playwright exercise real iframe, worker, and service-worker contexts in Chromium, Firefox, and WebKit
+- [x] **TEST-04**: E2E suite includes the three-hop topology scenario (worker → main-thread relay → strict-CSP sandboxed iframe) as a first-class test
+- [x] **TEST-05**: E2E suite asserts baseline (postMessage-only, no SAB) works inside a sandboxed iframe under strict CSP — no `unsafe-eval`, no `wasm-unsafe-eval`
 - [x] **TEST-06**: Property/fuzz tests for the session FSM and sequence-number wraparound
 
 ### Benchmarks
@@ -211,9 +211,9 @@ Explicitly excluded. Documented to prevent scope creep.
 | MUX-01 | Phase 8 | Complete |
 | MUX-02 | Phase 8 | Complete |
 | MUX-03 | Phase 8 | Complete |
-| TEST-03 | Phase 9 | Pending |
-| TEST-04 | Phase 9 | Pending |
-| TEST-05 | Phase 9 | Pending |
+| TEST-03 | Phase 9 | Complete |
+| TEST-04 | Phase 9 | Complete |
+| TEST-05 | Phase 9 | Complete |
 | EX-01 | Phase 10 | Pending |
 | EX-02 | Phase 10 | Pending |
 | EX-03 | Phase 10 | Pending |

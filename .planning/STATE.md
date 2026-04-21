@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 08-multiplexing 08-01-PLAN.md
-last_updated: "2026-04-21T18:17:51.049Z"
+stopped_at: Completed 09-cross-browser-e2e-01-PLAN.md
+last_updated: "2026-04-21T18:33:01.859Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
-  completed_phases: 8
-  total_plans: 30
-  completed_plans: 30
+  completed_phases: 9
+  total_plans: 31
+  completed_plans: 31
   percent: 0
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-21)
 
 **Core value:** A high-throughput, reliable, ordered stream abstraction that slots into any existing postMessage boundary with minimal caller-side code.
-**Current focus:** Phase 08 — Multiplexing
+**Current focus:** Phase 09 — Cross-Browser E2E Test Suite
 
 ## Current Position
 
-Phase: 9
-Plan: Not started
+Phase: 09 (Cross-Browser E2E Test Suite) — EXECUTING
+Plan: 1 of 1
 Status: Phase complete — ready for verification
 Last activity: 2026-04-21
 
@@ -80,6 +80,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 06-sab-fast-path P01 | 16 | 3 tasks | 16 files |
 | Phase 07-multi-hop-relay P01 | 16min | 3 tasks | 9 files |
 | Phase 08-multiplexing P01 | 12min | 2 tasks | 4 files |
+| Phase 09-cross-browser-e2e P01 | 10 | 2 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -153,6 +154,9 @@ Recent decisions affecting current work:
 - [Phase 07-multi-hop-relay]: Relay does not transfer ArrayBuffer payloads — onRawDataFrame fires before session delivery so the upstream session still holds the buffer reference; transferring detaches it
 - [Phase 07-multi-hop-relay]: vitest.config.ts includes src/**/*.test.ts for src/relay/bridge.test.ts inline unit tests
 - [Phase 08-multiplexing]: Map<number, Session> replaces Session|null; odd/even stream ID partitioning (HTTP/2 convention); close() guards FSM state for OPENING sessions; credit-dropping endpoint wrapper proves HoL independence without modifying Session
+- [Phase 09-cross-browser-e2e]: Applied strict CSP to sandbox-inner.html (inner iframe) not outer page; extracted inline script to sandbox-inner-module.js for CSP 'self' compliance
+- [Phase 09-cross-browser-e2e]: Fixture server per-spec (beforeAll/afterAll) avoids shared state; each spec controls its own CSP via cspByPath
+- [Phase 09-cross-browser-e2e]: test:e2e:local targets chromium+firefox only; webkit is CI-only due to Arch ICU 74/78 mismatch
 
 ### Pending Todos
 
@@ -167,6 +171,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T18:16:40.753Z
-Stopped at: Completed 08-multiplexing 08-01-PLAN.md
+Last session: 2026-04-21T18:33:01.856Z
+Stopped at: Completed 09-cross-browser-e2e-01-PLAN.md
 Resume file: None
