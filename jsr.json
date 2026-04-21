@@ -19,8 +19,7 @@
     "browser": true,
     "deno": true,
     "node": true,
-    "bun": true,
-    "workerd": true
+    "bun": true
   },
   "publish": {
     "include": ["src/**/*.ts", "LICENSE", "README.md"],
