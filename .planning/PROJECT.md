@@ -123,4 +123,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-21 after Phase 7 completion (multi-hop relay bridge with credit forwarding, heap 8.76 MB, cancel 0.32 ms)*
+*Last updated: 2026-04-21 after Phase 8 completion (multiplex mode — per-stream credit windows, HoL-blocking eliminated)*
