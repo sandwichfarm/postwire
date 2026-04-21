@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>two-party-worker</title></head>
+<body>
+<script type="module">
+const CHUNK_SIZE = 64 * 1024; // 64 KB
+const TOTAL = 1024 * 1024;    // 1 MB
+const NUM_CHUNKS = TOTAL / CHUNK_SIZE;
+
+// The worker acts as the receiver; main acts as the sender.
+// Worker creates the channel on its side; main sends data through a MessageChannel.
+const libUrl = new URL("/dist/index.js", window.location.href).href;
+
+const workerCode = `
+import { createChannel, createMessagePortEndpoint } from "${libUrl}";
+
+const TOTAL = ${TOTAL};
+
+self.onmessage = async (ev) => {
+  if (ev.data?.type !== "PORT") return;
+  const port = ev.ports[0];
+
+  const endpoint = createMessagePortEndpoint(port);
+  const ch = createChannel(endpoint, { channelId: "two-party-worker" });
+  await ch.capabilityReady;
+
+  let received = 0;
+
+  ch.onStream((handle) => {
+    handle.session.onChunk((chunk) => {
+      if (chunk instanceof ArrayBuffer) {
+        received += chunk.byteLength;
+      }
+      if (received >= TOTAL) {
+        self.postMessage({ type: "ACK" });
+      }
+    });
+  });
+};
+`;
+
+const blob = new Blob([workerCode], { type: "application/javascript" });
+const workerUrl = URL.createObjectURL(blob);
+const worker = new Worker(workerUrl, { type: "module" });
+
+// Set up the MessageChannel for communication
+const mc = new MessageChannel();
+// Send port2 to the worker as its receive-side endpoint
+worker.postMessage({ type: "PORT" }, [mc.port2]);
+
+// Main thread: sender side on port1
+import { createChannel, createLowLevelStream, createMessagePortEndpoint } from "/dist/index.js";
+
+const endpoint = createMessagePortEndpoint(mc.port1);
+const ch = createChannel(endpoint, { channelId: "two-party-worker" });
+await ch.capabilityReady;
+
+const stream = createLowLevelStream(ch);
+// Wait for worker channel + OPEN/OPEN_ACK handshake
+await new Promise(r => setTimeout(r, 100));
+
+for (let i = 0; i < NUM_CHUNKS; i++) {
+  const buf = new ArrayBuffer(CHUNK_SIZE);
+  new Uint8Array(buf).fill(i & 0xff);
+  await stream.send(buf, [buf]);
+}
+stream.close();
+
+worker.addEventListener("message", (ev) => {
+  if (ev.data?.type === "ACK") {
+    console.log("DONE");
+    URL.revokeObjectURL(workerUrl);
+  }
+});
+</script>
+</body>
+</html>

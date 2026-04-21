@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>iframe-inner</title></head>
+<body>
+<script type="module">
+import { createChannel, createMessagePortEndpoint } from "/dist/index.js";
+
+const TOTAL = 1024 * 1024; // 1 MB expected
+
+window.addEventListener("message", async (ev) => {
+  if (ev.data?.type !== "PORT") return;
+  const port = ev.ports[0];
+
+  const endpointB = createMessagePortEndpoint(port);
+  const chB = createChannel(endpointB, { channelId: "two-party-iframe" });
+
+  await chB.capabilityReady;
+
+  let received = 0;
+
+  chB.onStream((handle) => {
+    handle.session.onChunk((chunk) => {
+      if (chunk instanceof ArrayBuffer) {
+        received += chunk.byteLength;
+      }
+      // ACK when we have received all expected data
+      if (received >= TOTAL) {
+        window.parent.postMessage("ACK", "*");
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

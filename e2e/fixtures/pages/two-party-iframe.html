@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>two-party-iframe</title></head>
+<body>
+<iframe id="inner" src="/iframe-inner.html" title="iframe receiver" style="display:none"></iframe>
+<script type="module">
+import { createChannel, createLowLevelStream, createMessagePortEndpoint } from "/dist/index.js";
+
+const CHUNK_SIZE = 64 * 1024; // 64 KB
+const TOTAL = 1024 * 1024;    // 1 MB total
+const NUM_CHUNKS = TOTAL / CHUNK_SIZE;
+
+const iframe = document.getElementById("inner");
+
+iframe.addEventListener("load", async () => {
+  const mc = new MessageChannel();
+  // Send port2 to the iframe
+  iframe.contentWindow.postMessage({ type: "PORT" }, "*", [mc.port2]);
+
+  const endpointA = createMessagePortEndpoint(mc.port1);
+  const chA = createChannel(endpointA, { channelId: "two-party-iframe" });
+
+  await chA.capabilityReady;
+
+  const stream = createLowLevelStream(chA);
+
+  // Give the iframe time to wire up the receiver
+  await new Promise(r => setTimeout(r, 50));
+
+  for (let i = 0; i < NUM_CHUNKS; i++) {
+    const buf = new ArrayBuffer(CHUNK_SIZE);
+    new Uint8Array(buf).fill(i & 0xff);
+    await stream.send(buf, [buf]);
+  }
+  stream.close();
+});
+
+window.addEventListener("message", (ev) => {
+  if (ev.data === "ACK") {
+    console.log("DONE");
+  }
+});
+</script>
+</body>
+</html>
