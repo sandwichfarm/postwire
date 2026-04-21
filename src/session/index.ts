@@ -290,19 +290,20 @@ export class Session {
   /**
    * Graceful half-close: sends CLOSE frame, transitions to LOCAL_HALF_CLOSED.
    * Remote can still send DATA until it also sends CLOSE.
+   *
+   * @param finalSeq - The seqNum of the last DATA frame this session emitted.
+   *   The Channel layer tracks this by intercepting session.onFrameOut() and
+   *   recording the highest DATA frame seqNum seen. Defaults to 0 if no DATA
+   *   was ever sent (e.g. empty stream).
    */
-  close(): void {
+  close(finalSeq = 0): void {
     const frame: CloseFrame = {
       [FRAME_MARKER]: 1,
       channelId: this.#channelId,
       streamId: this.#streamId,
       seqNum: this.#nextOutSeq(),
       type: "CLOSE",
-      // finalSeq communicates the last DATA seqNum we sent.
-      // Chunker's last-emitted seq is not directly exposed; we record it separately.
-      // For now use the current reorder nextExpected - 1 as a proxy, which is 0 if
-      // no DATA was sent. Phase 3 will wire the outbound last-seq tracking properly.
-      finalSeq: 0,
+      finalSeq,
     };
     this.#applyTransition({ type: "CLOSE_SENT" });
     this.#onFrameOutCb?.(frame, []);
