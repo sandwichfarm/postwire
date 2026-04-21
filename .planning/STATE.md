@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-lifecycle-safety-observability-00-PLAN.md
-last_updated: "2026-04-21T13:09:34.921Z"
+stopped_at: Completed 04-lifecycle-safety-observability-01-PLAN.md
+last_updated: "2026-04-21T13:15:23.817Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 23
-  completed_plans: 18
+  completed_plans: 19
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-21)
 ## Current Position
 
 Phase: 04 (Lifecycle Safety + Observability) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-04-21
 
@@ -70,6 +70,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P05 | 4 | 3 tasks | 3 files |
 | Phase 03-api-adapters-single-hop-integration P06 | 2min | 3 tasks | 3 files |
 | Phase 04-lifecycle-safety-observability P00 | 4min | 3 tasks | 9 files |
+| Phase 04-lifecycle-safety-observability P01 | 3 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -122,6 +123,8 @@ Recent decisions affecting current work:
 - [Phase 03-06]: dist/index.js (not src) used as bundle target in tree-shake check — validates the actual published artifact, not source
 - [Phase 04-lifecycle-safety-observability]: Inline ChannelEmitter class in channel.ts: emitter.ts TypedEmitter has stream-level event map (data/end/error/close/drain) not suitable for channel-level events (error/close/trace)
 - [Phase 04-lifecycle-safety-observability]: Keep CONSUMER_STALL alongside CREDIT_DEADLOCK in ErrorCode union for backward compat — Plan 04 renames the wiring
+- [Phase 04-lifecycle-safety-observability]: BFCache handler casts Event to (Event & { persisted?: boolean }) — avoids DOM-only type dependency in runtime code
+- [Phase 04-lifecycle-safety-observability]: Test polyfills globalThis with EventTarget in beforeAll — Node 22 globalThis is not an EventTarget, polyfill mirrors browser environment
 
 ### Pending Todos
 
@@ -136,6 +139,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T13:09:34.918Z
-Stopped at: Completed 04-lifecycle-safety-observability-00-PLAN.md
+Last session: 2026-04-21T13:15:23.814Z
+Stopped at: Completed 04-lifecycle-safety-observability-01-PLAN.md
 Resume file: None
