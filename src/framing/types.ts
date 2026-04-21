@@ -7,11 +7,7 @@ export const FRAME_MARKER = "__ibf_v1__" as const;
 export const PROTOCOL_VERSION: number = 1;
 
 /** Identifies the data transfer strategy in a DATA frame */
-export type ChunkType =
-  | "BINARY_TRANSFER"
-  | "STRUCTURED_CLONE"
-  | "STREAM_REF"
-  | "SAB_SIGNAL";
+export type ChunkType = "BINARY_TRANSFER" | "STRUCTURED_CLONE" | "STREAM_REF" | "SAB_SIGNAL";
 
 /** Common header present on every frame */
 export interface BaseFrame {

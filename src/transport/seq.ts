@@ -17,7 +17,7 @@ export function seqMask(n: number): number {
  * TCP-style: ((a - b) >>> 0) > HALF_WINDOW
  */
 export function seqLT(a: number, b: number): boolean {
-  return ((seqMask(a) - seqMask(b)) >>> 0) > HALF_WINDOW;
+  return (seqMask(a) - seqMask(b)) >>> 0 > HALF_WINDOW;
 }
 
 /**
@@ -42,4 +42,4 @@ export function seqNext(n: number): number {
   return (n + 1) >>> 0;
 }
 
-export { SEQ_BITS, SEQ_MASK, HALF_WINDOW };
+export { HALF_WINDOW, SEQ_BITS, SEQ_MASK };
