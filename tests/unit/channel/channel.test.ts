@@ -1,5 +1,5 @@
 // tests/unit/channel/channel.test.ts
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createChannel } from "../../../src/channel/channel.js";
 import { decode } from "../../../src/framing/encode-decode.js";
 import { FRAME_MARKER, PROTOCOL_VERSION } from "../../../src/framing/types.js";
