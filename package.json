@@ -29,6 +29,7 @@
     "bench": "vitest bench",
     "typecheck": "tsc --noEmit",
     "ci": "pnpm build && pnpm lint && pnpm test && pnpm test:e2e",
+    "tree-shake:check": "node scripts/tree-shake-check.mjs",
     "version": "changeset version && node scripts/sync-jsr-version.mjs",
     "release": "pnpm build && changeset publish"
   },
