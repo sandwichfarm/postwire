@@ -48,7 +48,7 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 
 ### Topology
 
-- [ ] **TOPO-01**: Two-party topology (one endpoint ↔ one endpoint) is the default and simplest case; all other topologies compose from it
+- [x] **TOPO-01**: Two-party topology (one endpoint ↔ one endpoint) is the default and simplest case; all other topologies compose from it
 - [ ] **TOPO-02**: Relay helper exposes a routing table — it forwards frames between two endpoints **without** reassembling payloads, without using `pipeTo`/`pipeThrough` across the postMessage boundary, and without unbounded buffering
 - [ ] **TOPO-03**: Credits propagate end-to-end across a relay: the relay only issues upstream credits equal to what the downstream has granted, bounding relay memory to `downstreamCreditWindow × maxChunkSize`
 - [ ] **TOPO-04**: Multi-hop stream identity is preserved end-to-end — the worker and the iframe see one logical stream with consistent stream IDs (or remapped IDs that present as a single logical stream to the caller)
@@ -83,7 +83,7 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 ### Testing
 
 - [x] **TEST-01**: Unit tests for framing, reorder buffer, credit window, chunker, and FSM run headless under Node with no browser (pure TypeScript seams)
-- [ ] **TEST-02**: Integration tests use a `MockEndpoint` backed by a real `MessageChannel` pair — exercising real structured-clone and Transferable semantics without spawning a real Worker
+- [x] **TEST-02**: Integration tests use a `MockEndpoint` backed by a real `MessageChannel` pair — exercising real structured-clone and Transferable semantics without spawning a real Worker
 - [ ] **TEST-03**: E2E tests via Vitest browser mode + Playwright exercise real iframe, worker, and service-worker contexts in Chromium, Firefox, and WebKit
 - [ ] **TEST-04**: E2E suite includes the three-hop topology scenario (worker → main-thread relay → strict-CSP sandboxed iframe) as a first-class test
 - [ ] **TEST-05**: E2E suite asserts baseline (postMessage-only, no SAB) works inside a sandboxed iframe under strict CSP — no `unsafe-eval`, no `wasm-unsafe-eval`
@@ -189,8 +189,8 @@ Explicitly excluded. Documented to prevent scope creep.
 | API-02 | Phase 3 | Pending |
 | API-03 | Phase 3 | Pending |
 | API-04 | Phase 3 | Pending |
-| TOPO-01 | Phase 3 | Pending |
-| TEST-02 | Phase 3 | Pending |
+| TOPO-01 | Phase 3 | Complete |
+| TEST-02 | Phase 3 | Complete |
 | LIFE-01 | Phase 4 | Pending |
 | LIFE-02 | Phase 4 | Pending |
 | LIFE-03 | Phase 4 | Pending |
