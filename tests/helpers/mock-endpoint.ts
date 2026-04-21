@@ -1,14 +1,29 @@
 // tests/helpers/mock-endpoint.ts
 // Real MessageChannel-backed PostMessageEndpoint pair for integration tests.
-// Uses Node's node:worker_threads MessageChannel which provides:
-//   - Real structured-clone semantics (non-cloneable values throw DataCloneError)
-//   - Real ArrayBuffer transfer (byteLength === 0 after transfer)
-//   - Async message delivery (next task, NOT synchronous)
-//   - No explicit .start() needed — onmessage= auto-starts the port in Node 22
 //
-// IMPORTANT: In browser contexts, MessagePort requires .start() when using
-// addEventListener. onmessage= assignment auto-starts in both Node and browser.
-// Phase 9 browser helpers must document this difference.
+// GUARANTEES (verified against Node 22.22.1 — see RESEARCH.md Pattern 5):
+// 1. Structured-clone semantics: Non-cloneable values (functions, Symbols, Proxies)
+//    throw DataCloneError synchronously from port.postMessage().
+// 2. Transferable semantics: ArrayBuffer in transfer list is detached after postMessage —
+//    source.byteLength === 0 post-send (FAST-01 contract).
+// 3. Async delivery: Messages arrive asynchronously (next event loop task), NOT
+//    synchronously — integration tests must await or use event-driven patterns.
+// 4. onmessage auto-start: Setting port.onmessage= automatically enables reception;
+//    no explicit port.start() call needed in Node 22 (unlike browser addEventListener).
+//
+// LIMITATIONS (Phase 9 cross-browser tests will verify browser-specific behavior):
+// 1. No cross-origin isolation or COOP/COEP headers — SharedArrayBuffer tests
+//    require Phase 6+ real browser with the correct response headers.
+// 2. Not a real Worker or iframe — lifecycle differences (BFCache, SW recycle,
+//    port transfer across document navigations) are handled in Phase 4.
+// 3. No browser-specific quirks — e.g., browser MessagePort requires .start() when
+//    using addEventListener (not onmessage=); this difference is invisible in Node.
+// 4. Transferable ReadableStream probe returns false in Node 22 — Chrome/Firefox 120+
+//    support it but Node does not; Phase 5/9 enables the capability flag.
+//
+// USE FOR: All Phase 3 unit + integration tests of frame-level and adapter logic.
+// DO NOT USE FOR: BFCache/ServiceWorker lifecycle scenarios (Phase 4+),
+//                 real cross-origin isolation (Phase 6+), browser E2E (Phase 9).
 
 import { MessageChannel } from "node:worker_threads";
 import type { PostMessageEndpoint } from "../../src/transport/endpoint.js";
