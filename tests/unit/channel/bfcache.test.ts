@@ -1,9 +1,24 @@
 // tests/unit/channel/bfcache.test.ts
 // LIFE-01 — BFCache detection via pagehide/pageshow mocks.
-// Uses Node 22 globalThis as EventTarget (confirmed in RESEARCH.md).
+// Node 22's globalThis does NOT extend EventTarget (unlike browsers where globalThis === window).
+// We polyfill globalThis with a single shared EventTarget to simulate the browser environment.
 // PageTransitionEvent is not available in Node — construct via Object.assign(new Event(...), { persisted }).
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { createChannel } from "../../../src/channel/channel.js";
+
+// ---------------------------------------------------------------------------
+// Setup: polyfill globalThis with EventTarget so BFCache listeners can bind.
+// In a real browser, globalThis === window which IS an EventTarget.
+// This polyfill mirrors that for Node unit tests.
+// ---------------------------------------------------------------------------
+beforeAll(() => {
+  if (typeof (globalThis as Record<string, unknown>).addEventListener !== "function") {
+    const et = new EventTarget();
+    (globalThis as Record<string, unknown>).addEventListener = et.addEventListener.bind(et);
+    (globalThis as Record<string, unknown>).removeEventListener = et.removeEventListener.bind(et);
+    (globalThis as Record<string, unknown>).dispatchEvent = et.dispatchEvent.bind(et);
+  }
+});
 
 // Minimal fake endpoint — no actual postMessage delivery needed for BFCache tests.
 function makeFakeEndpoint() {

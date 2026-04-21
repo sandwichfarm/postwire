@@ -193,6 +193,30 @@ export class Channel {
       /* swallowed — caller gets error via onError */
     });
 
+    // BFCache detection — only for Window endpoints (LIFE-01).
+    // pagehide does not fire in Worker scope, so the endpointKind guard is sufficient.
+    // CRITICAL: Do NOT use the 'unload' event — it disqualifies pages from BFCache.
+    // Event type-cast avoids a DOM-only type dependency: PageTransitionEvent is
+    // not available in Node. The persisted property is read from the event object
+    // at runtime; it defaults to false if absent (i.e. in non-BFCache browsers).
+    if (options.endpointKind === "window") {
+      const onPagehide = (e: Event): void => {
+        const persisted = (e as Event & { persisted?: boolean }).persisted ?? false;
+        this.#freezeAllStreams(persisted ? "CHANNEL_FROZEN" : "CHANNEL_CLOSED");
+      };
+      const onPageshow = (_e: Event): void => {
+        // Intentional no-op: channel stays dead after BFCache restore.
+        // Caller must create a new channel if they need to reconnect.
+        // #isClosed guard in #freezeAllStreams prevents any double-error.
+      };
+      (globalThis as unknown as EventTarget).addEventListener("pagehide", onPagehide);
+      (globalThis as unknown as EventTarget).addEventListener("pageshow", onPageshow);
+      this.#disposers.push(
+        () => (globalThis as unknown as EventTarget).removeEventListener("pagehide", onPagehide),
+        () => (globalThis as unknown as EventTarget).removeEventListener("pageshow", onPageshow),
+      );
+    }
+
     // Wire inbound message handler BEFORE sending CAPABILITY (avoid race)
     endpoint.onmessage = (evt: MessageEvent): void => {
       const frame = decode(evt.data);
