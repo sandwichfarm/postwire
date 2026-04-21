@@ -84,7 +84,7 @@ describe("Channel — CAPABILITY handshake", () => {
     const ch = createChannel(ep, { channelId: "test-channel" });
     const onError = vi.fn();
     ch.onError(onError);
-    // Simulate a non-library message (no __ibf_v1__ marker)
+    // Simulate a non-library message (no __pw_v1__ marker)
     ep.simulateMessage({ type: "OPEN", streamId: 1 });
     expect(onError).not.toHaveBeenCalled();
   });

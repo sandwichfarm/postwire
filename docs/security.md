@@ -5,7 +5,7 @@
 The `createWindowEndpoint` adapter requires a non-wildcard `expectedOrigin`. Every inbound `MessageEvent` is validated against this origin before decoding:
 
 ```ts
-import { createWindowEndpoint } from "iframebuffer";
+import { createWindowEndpoint } from "postwire";
 
 // CORRECT — explicit expected origin
 const endpoint = createWindowEndpoint(

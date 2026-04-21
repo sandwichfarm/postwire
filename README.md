@@ -1,4 +1,4 @@
-# iframebuffer
+# postwire
 
 A high-throughput, reliable, ordered stream abstraction over any postMessage boundary — iframe, web worker, service worker, MessageChannel.
 
@@ -8,20 +8,20 @@ Drop it into your existing postMessage wiring. Get stream semantics with backpre
 
 ```sh
 # npm
-npm install iframebuffer
+npm install postwire
 
 # pnpm
-pnpm add iframebuffer
+pnpm add postwire
 
 # JSR
-npx jsr add @iframebuffer/core
+npx jsr add @postwire/core
 ```
 
 ## Quickstart
 
 ```ts
 // main.ts — initiator side (parent page / main thread)
-import { createChannel, createStream, createWorkerEndpoint } from "iframebuffer";
+import { createChannel, createStream, createWorkerEndpoint } from "postwire";
 
 const worker = new Worker("./worker.js", { type: "module" });
 const endpoint = createWorkerEndpoint(worker);
@@ -40,7 +40,7 @@ await writer.close();
 
 ```ts
 // worker.ts — responder side
-import { createChannel, createStream, createWorkerEndpoint } from "iframebuffer";
+import { createChannel, createStream, createWorkerEndpoint } from "postwire";
 
 const endpoint = createWorkerEndpoint(self as DedicatedWorkerGlobalScope);
 const channel = createChannel(endpoint, { role: "responder" });

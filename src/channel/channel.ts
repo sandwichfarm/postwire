@@ -330,11 +330,11 @@ export class Channel {
       // Phase 6: intercept SAB control messages before normal frame decoding.
       // These are not wire-protocol frames — they are out-of-band SAB handshake messages.
       if (evt.data !== null && typeof evt.data === "object") {
-        if ((evt.data as { __ibf_sab_init__?: boolean }).__ibf_sab_init__ === true) {
+        if ((evt.data as { __pw_sab_init__?: boolean }).__pw_sab_init__ === true) {
           this.#handleSabInit(evt.data as { sab: SharedArrayBuffer; bufferSize: number });
           return;
         }
-        if ((evt.data as { __ibf_sab_init_ack__?: boolean }).__ibf_sab_init_ack__ === true) {
+        if ((evt.data as { __pw_sab_init_ack__?: boolean }).__pw_sab_init_ack__ === true) {
           this.#handleSabInitAck();
           return;
         }
@@ -567,7 +567,7 @@ export class Channel {
   openStream(sessionOpts?: Partial<SessionOptions>): StreamHandle {
     if (!this.#multiplexActive && this.#sessions.size > 0) {
       throw new Error(
-        "iframebuffer: openStream() called twice in single-stream mode. " +
+        "postwire: openStream() called twice in single-stream mode. " +
           "Enable multiplex:true on both sides to support concurrent streams.",
       );
     }
@@ -1046,7 +1046,7 @@ export class Channel {
 
       // SAB cannot be transferred (it is shared by reference).
       // Pass an empty transfer list — SharedArrayBuffer sharing is by reference, not transfer.
-      this.#endpoint.postMessage({ __ibf_sab_init__: true, sab: view.sab, bufferSize }, []);
+      this.#endpoint.postMessage({ __pw_sab_init__: true, sab: view.sab, bufferSize }, []);
     } catch (err) {
       const sabErr = new StreamError("SAB_INIT_FAILED", err);
       this.#emitter.emit("error", sabErr);
@@ -1075,7 +1075,7 @@ export class Channel {
       // Start the consumer loop BEFORE sending ACK so we don't miss frames
       this.#startSabConsumerLoop();
       // Send ACK to let initiator flip to SAB mode
-      this.#endpoint.postMessage({ __ibf_sab_init_ack__: true }, []);
+      this.#endpoint.postMessage({ __pw_sab_init_ack__: true }, []);
     } catch (err) {
       // SAB init failed on receiver side — send a NACK by not sending ACK.
       // The initiator will time out and fall back.

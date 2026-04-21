@@ -3,7 +3,7 @@ import {
   createLowLevelStream,
   createEmitterStream,
   createMessagePortEndpoint,
-} from "iframebuffer";
+} from "postwire";
 
 const log = document.getElementById("log") as HTMLPreElement;
 const btn = document.getElementById("start") as HTMLButtonElement;

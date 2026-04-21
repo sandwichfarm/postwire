@@ -1,5 +1,5 @@
 // src/framing/encode-decode.ts
-// Pure encode/decode functions for iframebuffer wire protocol frames.
+// Pure encode/decode functions for postwire wire protocol frames.
 // encode() is the identity function in Phase 1 — frames are already structured-clone-friendly
 // plain objects. This function is a seam for future binary encoding if benchmarks justify it.
 // decode() validates the namespace marker, base fields, and type-specific required fields.
@@ -22,7 +22,7 @@ export function encode(frame: Frame): Record<string, unknown> {
  *
  * Returns null for:
  * - null, non-objects, arrays
- * - missing __ibf_v1__ marker
+ * - missing __pw_v1__ marker
  * - missing or non-string type discriminant
  * - missing required BaseFrame fields (channelId, streamId, seqNum)
  * - unknown type values

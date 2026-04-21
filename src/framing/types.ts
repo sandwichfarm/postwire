@@ -1,9 +1,9 @@
 // src/framing/types.ts
-// Wire protocol frame type definitions for iframebuffer
+// Wire protocol frame type definitions for postwire
 // FRAME_MARKER is a string literal (NOT a Symbol) — Symbols are not structured-cloneable
 // and would be silently dropped by postMessage.
 
-export const FRAME_MARKER = "__ibf_v1__" as const;
+export const FRAME_MARKER = "__pw_v1__" as const;
 export const PROTOCOL_VERSION: number = 1;
 
 /** Identifies the data transfer strategy in a DATA frame */

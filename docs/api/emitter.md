@@ -5,7 +5,7 @@
 ## Import
 
 ```ts
-import { createChannel, createEmitterStream, createWorkerEndpoint } from "iframebuffer";
+import { createChannel, createEmitterStream, createWorkerEndpoint } from "postwire";
 ```
 
 ## Signature
@@ -71,7 +71,7 @@ Gracefully closes the stream. Emits `end`, then `close`, then calls `removeAllLi
 
 ```ts
 // initiator.ts
-import { createChannel, createEmitterStream, createMessagePortEndpoint } from "iframebuffer";
+import { createChannel, createEmitterStream, createMessagePortEndpoint } from "postwire";
 
 const { port1, port2 } = new MessageChannel();
 // Send port2 to the other side
@@ -89,7 +89,7 @@ stream.end();
 
 ```ts
 // responder.ts
-import { createChannel, createEmitterStream, createMessagePortEndpoint } from "iframebuffer";
+import { createChannel, createEmitterStream, createMessagePortEndpoint } from "postwire";
 
 const channel = createChannel(createMessagePortEndpoint(port2));
 const stream = createEmitterStream(channel, { role: "responder" });

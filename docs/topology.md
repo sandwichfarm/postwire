@@ -1,6 +1,6 @@
 # Topology Patterns
 
-iframebuffer supports three topology patterns: two-party, relay (multi-hop), and multiplex.
+postwire supports three topology patterns: two-party, relay (multi-hop), and multiplex.
 
 ## Two-party
 
@@ -18,7 +18,7 @@ Wire-up:
 import {
   createChannel, createStream,
   createMessagePortEndpoint,
-} from "iframebuffer";
+} from "postwire";
 
 const { port1, port2 } = new MessageChannel();
 targetWindow.postMessage({ type: "PORT" }, expectedOrigin, [port2]);
@@ -30,7 +30,7 @@ const { writable } = createStream(ch);
 
 ```ts
 // responder.ts (inside the target frame)
-import { createChannel, createStream, createMessagePortEndpoint } from "iframebuffer";
+import { createChannel, createStream, createMessagePortEndpoint } from "postwire";
 
 self.addEventListener("message", (ev) => {
   if (ev.data?.type === "PORT") {
@@ -57,7 +57,7 @@ Worker ──── ChannelA ──── Main thread ──── ChannelB ─�
 import {
   createChannel, createRelayBridge,
   createWorkerEndpoint, createMessagePortEndpoint,
-} from "iframebuffer";
+} from "postwire";
 
 const worker = new Worker("./worker.js", { type: "module" });
 const { port1: toIframePort, port2: iframePort } = new MessageChannel();
@@ -74,7 +74,7 @@ const bridge = createRelayBridge(chA, chB);
 
 ```ts
 // worker.ts — producer
-import { createChannel, createStream, createWorkerEndpoint } from "iframebuffer";
+import { createChannel, createStream, createWorkerEndpoint } from "postwire";
 
 const ch = createChannel(createWorkerEndpoint(self as DedicatedWorkerGlobalScope));
 await ch.capabilityReady;
@@ -86,7 +86,7 @@ const writer = writable.getWriter();
 
 ```ts
 // iframe.ts — consumer
-import { createChannel, createStream, createMessagePortEndpoint } from "iframebuffer";
+import { createChannel, createStream, createMessagePortEndpoint } from "postwire";
 
 self.addEventListener("message", (ev) => {
   if (ev.data?.type === "PORT") {

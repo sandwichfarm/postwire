@@ -1,6 +1,6 @@
 # Endpoint Adapters
 
-iframebuffer ships four adapter factories that wrap the native postMessage shapes into a uniform `PostMessageEndpoint` interface. Choose the one that matches your transport.
+postwire ships four adapter factories that wrap the native postMessage shapes into a uniform `PostMessageEndpoint` interface. Choose the one that matches your transport.
 
 ## PostMessageEndpoint interface
 
@@ -18,7 +18,7 @@ All four adapters produce a value that satisfies this interface and can be passe
 Wraps a `Worker` (from main thread) or `DedicatedWorkerGlobalScope` (from inside the worker).
 
 ```ts
-import { createWorkerEndpoint } from "iframebuffer";
+import { createWorkerEndpoint } from "postwire";
 
 // Main thread side:
 const worker = new Worker("./worker.js", { type: "module" });
@@ -35,7 +35,7 @@ SAB-capable when the page is cross-origin-isolated (COOP/COEP headers set). Work
 Wraps a `MessagePort`. The most flexible adapter — works for any MessageChannel-based topology including cross-origin iframes.
 
 ```ts
-import { createMessagePortEndpoint } from "iframebuffer";
+import { createMessagePortEndpoint } from "postwire";
 
 const { port1, port2 } = new MessageChannel();
 const endpoint = createMessagePortEndpoint(port1);
@@ -51,7 +51,7 @@ SAB-capable depends on the receiving context (cross-origin iframes without `allo
 Wraps a cross-origin `Window` (e.g. an iframe's `contentWindow` or a `window.opener`). Requires a non-wildcard `expectedOrigin` — the library validates `MessageEvent.origin` on every inbound message and drops messages from other origins.
 
 ```ts
-import { createWindowEndpoint } from "iframebuffer";
+import { createWindowEndpoint } from "postwire";
 
 const iframe = document.querySelector("iframe");
 const endpoint = createWindowEndpoint(
@@ -71,7 +71,7 @@ SAB-capable only when the iframe is same-origin and the page is cross-origin-iso
 Wraps a `ServiceWorker` (from a page talking to its SW) or a `Client` (from inside the SW talking to a controlled page).
 
 ```ts
-import { createServiceWorkerEndpoint } from "iframebuffer";
+import { createServiceWorkerEndpoint } from "postwire";
 
 // Page side:
 const sw = await navigator.serviceWorker.ready;

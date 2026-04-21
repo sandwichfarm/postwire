@@ -3,7 +3,7 @@ import {
   createRelayBridge,
   createWorkerEndpoint,
   createMessagePortEndpoint,
-} from "iframebuffer";
+} from "postwire";
 
 const btn = document.getElementById("start") as HTMLButtonElement;
 const countEl = document.getElementById("count") as HTMLSpanElement;

@@ -4,7 +4,7 @@
 import {
   createChannel,
   createMessagePortEndpoint,
-} from "iframebuffer";
+} from "postwire";
 
 let received = 0;
 

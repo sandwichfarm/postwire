@@ -12,9 +12,9 @@ import { bench, describe } from "vitest";
 import { sendBinaryViaLibrary } from "../helpers/node-harness.js";
 import { sendBinaryViaLibrarySab } from "../helpers/node-harness.js";
 
-// IFB_BENCH_HEAVY=1 enables 256 MB scenario (excluded by default for dev ergonomics)
+// PW_BENCH_HEAVY=1 enables 256 MB scenario (excluded by default for dev ergonomics)
 const HEAVY: boolean =
-  typeof process !== "undefined" && process.env?.IFB_BENCH_HEAVY === "1";
+  typeof process !== "undefined" && process.env?.PW_BENCH_HEAVY === "1";
 
 const SIZES: [number, string][] = [
   [1024, "1KB"],

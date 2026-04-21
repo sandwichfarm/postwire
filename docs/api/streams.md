@@ -5,7 +5,7 @@
 ## Import
 
 ```ts
-import { createChannel, createStream, createWorkerEndpoint } from "iframebuffer";
+import { createChannel, createStream, createWorkerEndpoint } from "postwire";
 ```
 
 ## Signature
@@ -40,7 +40,7 @@ This means `pipeTo` and `pipeThrough` apply real end-to-end backpressure — a s
 
 ```ts
 // sender.ts (initiator)
-import { createChannel, createStream, createMessagePortEndpoint } from "iframebuffer";
+import { createChannel, createStream, createMessagePortEndpoint } from "postwire";
 
 const { port1, port2 } = new MessageChannel();
 // Send port2 to the receiver side
@@ -58,7 +58,7 @@ await writer.close();
 
 ```ts
 // receiver.ts (responder)
-import { createChannel, createStream, createMessagePortEndpoint } from "iframebuffer";
+import { createChannel, createStream, createMessagePortEndpoint } from "postwire";
 
 const channel = createChannel(createMessagePortEndpoint(port2), { role: "responder" });
 

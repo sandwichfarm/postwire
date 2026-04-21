@@ -1,4 +1,4 @@
-// iframebuffer public API
+// postwire public API
 
 // ---------------------------------------------------------------------------
 // Phase 1: Framing types and encode/decode

@@ -10,7 +10,7 @@ import { bench, describe } from "vitest";
 import { sendNaive } from "../helpers/node-harness.js";
 
 const HEAVY: boolean =
-  typeof process !== "undefined" && process.env?.IFB_BENCH_HEAVY === "1";
+  typeof process !== "undefined" && process.env?.PW_BENCH_HEAVY === "1";
 
 const SIZES: [number, string][] = [
   [1024, "1KB"],

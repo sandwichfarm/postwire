@@ -6,7 +6,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "iframebuffer": "file:../.."
+    "postwire": "file:../.."
   },
   "devDependencies": {
     "vite": "^8.0.0"

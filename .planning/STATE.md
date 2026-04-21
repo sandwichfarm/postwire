@@ -99,7 +99,7 @@ Recent decisions affecting current work:
 - [Phase 01]: Vitest 4 needs passWithNoTests: true to exit 0 before any test files exist
 - [Phase 01]: WebKit on Arch Linux incompatible with Playwright 1.59.1 (ICU 74 vs 78 ABI); webkit E2E coverage delegated to CI (ubuntu-latest)
 - [Phase 01]: encode() is identity function in Phase 1 — frames are plain objects; function is a seam for future binary encoding
-- [Phase 01]: FRAME_MARKER is the string '__ibf_v1__' (not Symbol) — Symbols are silently dropped by structured-clone in postMessage
+- [Phase 01]: FRAME_MARKER is the string '__pw_v1__' (not Symbol) — Symbols are silently dropped by structured-clone in postMessage
 - [Phase 01]: All 8 frame types included (not 7): CAPABILITY required by PROTO-04/05; doc count discrepancy is a documentation error
 - [Phase 01]: Window adapter uses win.addEventListener for inbound (not win.onmessage=) to avoid clobbering caller's handler
 - [Phase 01]: ServiceWorkerEndpointMeta.sabCapable typed as literal false (not boolean) for exhaustive type narrowing

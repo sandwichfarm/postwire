@@ -83,7 +83,7 @@ describe("createWindowEndpoint", () => {
       onOriginRejected: (origin) => rejected.push(origin),
     });
 
-    fakeWin.dispatchMessage("https://evil.com", { __ibf_v1__: 1 });
+    fakeWin.dispatchMessage("https://evil.com", { __pw_v1__: 1 });
 
     expect(rejected).toEqual(["https://evil.com"]);
   });
@@ -97,7 +97,7 @@ describe("createWindowEndpoint", () => {
 
     const received: MessageEvent[] = [];
     endpoint.onmessage = (e) => received.push(e);
-    fakeWin.dispatchMessage("https://expected.com", { __ibf_v1__: 1 });
+    fakeWin.dispatchMessage("https://expected.com", { __pw_v1__: 1 });
 
     expect(rejected).toHaveLength(0);
     expect(received).toHaveLength(1);

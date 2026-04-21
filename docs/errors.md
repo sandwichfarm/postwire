@@ -3,7 +3,7 @@
 All failures surface as a `StreamError` with a stable `.code` discriminant. Import it for `instanceof` checks:
 
 ```ts
-import { StreamError } from "iframebuffer";
+import { StreamError } from "postwire";
 
 channel.on("error", (err) => {
   if (err instanceof StreamError) {
@@ -75,7 +75,7 @@ class StreamError extends Error {
 
 **What:** The remote side sent a `CAPABILITY` frame with a different `protocolVersion` than the local side.
 
-**Common cause:** Running different versions of iframebuffer on the two sides of the boundary.
+**Common cause:** Running different versions of postwire on the two sides of the boundary.
 
 **Recovery:** Ensure both sides import the same version. This error fires before any data is exchanged.
 
@@ -133,6 +133,6 @@ class StreamError extends Error {
 
 ## See also
 
-- [Observability](https://github.com/iframebuffer/iframebuffer) — `channel.stats()`, trace hooks
+- [Observability](https://github.com/postwire/postwire) — `channel.stats()`, trace hooks
 - [Lifecycle](topology.md) — BFCache, teardown, heartbeat
 - [Security](security.md) — origin validation

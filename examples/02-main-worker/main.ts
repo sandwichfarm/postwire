@@ -2,7 +2,7 @@ import {
   createChannel,
   createEmitterStream,
   createWorkerEndpoint,
-} from "iframebuffer";
+} from "postwire";
 
 const log = document.getElementById("log") as HTMLPreElement;
 const btn = document.getElementById("start") as HTMLButtonElement;

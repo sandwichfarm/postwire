@@ -17,7 +17,7 @@ import {
   sendNaive,
 } from "./helpers/node-harness.ts";
 
-const HEAVY = process.argv.includes("--heavy") || process.env.IFB_BENCH_HEAVY === "1";
+const HEAVY = process.argv.includes("--heavy") || process.env.PW_BENCH_HEAVY === "1";
 
 const SIZES = [
   [1024, "1KB"],

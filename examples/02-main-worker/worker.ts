@@ -2,7 +2,7 @@ import {
   createChannel,
   createEmitterStream,
   createWorkerEndpoint,
-} from "iframebuffer";
+} from "postwire";
 
 const endpoint = createWorkerEndpoint(self as unknown as DedicatedWorkerGlobalScope);
 const ch = createChannel(endpoint);

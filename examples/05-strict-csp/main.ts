@@ -2,7 +2,7 @@ import {
   createChannel,
   createLowLevelStream,
   createMessagePortEndpoint,
-} from "iframebuffer";
+} from "postwire";
 
 const CHUNK_SIZE = 64 * 1024; // 64 KB
 const TOTAL = 512 * 1024;     // 512 KB

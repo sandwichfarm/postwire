@@ -5,7 +5,7 @@
 ## Import
 
 ```ts
-import { createChannel, createLowLevelStream, createWorkerEndpoint } from "iframebuffer";
+import { createChannel, createLowLevelStream, createWorkerEndpoint } from "postwire";
 ```
 
 ## Signature
@@ -93,7 +93,7 @@ stream.close();
 
 ```ts
 // initiator.ts
-import { createChannel, createLowLevelStream, createMessagePortEndpoint } from "iframebuffer";
+import { createChannel, createLowLevelStream, createMessagePortEndpoint } from "postwire";
 
 const { port1, port2 } = new MessageChannel();
 // Send port2 to the other side (e.g. iframe.contentWindow.postMessage)
@@ -108,8 +108,8 @@ stream.close();
 
 ```ts
 // responder.ts
-import { createChannel, createMessagePortEndpoint } from "iframebuffer";
-import type { StreamHandle } from "iframebuffer";
+import { createChannel, createMessagePortEndpoint } from "postwire";
+import type { StreamHandle } from "postwire";
 
 const channel = createChannel(createMessagePortEndpoint(port2));
 

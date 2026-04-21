@@ -37,14 +37,14 @@ export function createWindowEndpoint(
 ): PostMessageEndpoint {
   if (expectedOrigin === "*") {
     throw new Error(
-      '[iframebuffer] createWindowEndpoint: wildcard expectedOrigin "*" is not allowed. ' +
+      '[postwire] createWindowEndpoint: wildcard expectedOrigin "*" is not allowed. ' +
         'Provide the exact expected origin (e.g., "https://example.com").',
     );
   }
 
   if (expectedOrigin === "") {
     throw new Error(
-      "[iframebuffer] createWindowEndpoint: empty string expectedOrigin is not allowed. " +
+      "[postwire] createWindowEndpoint: empty string expectedOrigin is not allowed. " +
         'Provide the exact expected origin (e.g., "https://example.com").',
     );
   }

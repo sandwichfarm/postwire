@@ -1,5 +1,5 @@
 // src/types.ts
-// Public exported types for iframebuffer.
+// Public exported types for postwire.
 // StreamError is the single typed error class for all adapter surfaces.
 
 /**
@@ -22,7 +22,7 @@ export type ErrorCode =
   | "SAB_INIT_FAILED";
 
 /**
- * Typed error class emitted by all iframebuffer API surfaces.
+ * Typed error class emitted by all postwire API surfaces.
  * .code is a stable discriminant for programmatic error handling.
  * .cause holds the original error when available (e.g. the native DataCloneError).
  * .streamId optionally identifies the stream that raised the error (Phase 4, OBS-02).
@@ -34,7 +34,7 @@ export class StreamError extends Error {
   readonly streamId?: number;
 
   constructor(code: ErrorCode, cause: unknown, streamId?: number) {
-    super(`iframebuffer: ${code}`);
+    super(`postwire: ${code}`);
     this.name = "StreamError";
     this.code = code;
     this.cause = cause;

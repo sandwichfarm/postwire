@@ -1,7 +1,7 @@
 <!-- GSD:project-start source:PROJECT.md -->
 ## Project
 
-**iframebuffer *(working name)***
+**postwire *(working name)***
 
 A JavaScript library (with WASM if benchmarks justify it) that streams arbitrary data at high bitrate over any postMessage boundary — iframe, web worker, service worker, MessageChannel. Consumers import it on both sides of a boundary and wire it into their existing postMessage handlers rather than replacing the channel. The library handles framing, chunking, ordering, and feature-detected fast paths (SharedArrayBuffer when available) so the caller gets stream semantics out of what's normally a one-shot message API.
 
