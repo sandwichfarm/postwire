@@ -1,0 +1,127 @@
+error[private-type-ref]: public type 'createWindowEndpoint' references private type 'WindowEndpointOptions'
+  --> /home/sandwich/Develop/iframebuffer/.claude/worktrees/agent-a4bb23fc/src/transport/adapters/window.ts:33:1
+   | 
+33 | export function createWindowEndpoint(
+   | ^
+   = hint: make the referenced type public or remove the reference
+   | 
+ 6 | export interface WindowEndpointOptions {
+   | - this is the referenced type
+   | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'ChannelOptions["sessionOptions"]' references private type 'SessionOptions'
+   --> /home/sandwich/Develop/iframebuffer/.claude/worktrees/agent-a4bb23fc/src/channel/channel.ts:154:3
+    | 
+154 |   sessionOptions?: Partial<Omit<SessionOptions, "channelId" | "streamId" | "role">>;
+    |   ^
+    = hint: make the referenced type public or remove the reference
+    | 
+ 32 | export interface SessionOptions {
+    | - this is the referenced type
+    | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'Channel.prototype.openStream' references private type 'SessionOptions'
+   --> /home/sandwich/Develop/iframebuffer/.claude/worktrees/agent-a4bb23fc/src/channel/channel.ts:585:3
+    | 
+585 |   openStream(sessionOpts?: Partial<SessionOptions>): StreamHandle {
+    |   ^
+    = hint: make the referenced type public or remove the reference
+    | 
+ 32 | export interface SessionOptions {
+    | - this is the referenced type
+    | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'Channel.prototype.openStream' references private type 'StreamHandle'
+   --> /home/sandwich/Develop/iframebuffer/.claude/worktrees/agent-a4bb23fc/src/channel/channel.ts:585:3
+    | 
+585 |   openStream(sessionOpts?: Partial<SessionOptions>): StreamHandle {
+    |   ^
+    = hint: make the referenced type public or remove the reference
+    | 
+200 | export interface StreamHandle {
+    | - this is the referenced type
+    | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'Channel.prototype.on' references private type 'ChannelEventMap'
+   --> /home/sandwich/Develop/iframebuffer/.claude/worktrees/agent-a4bb23fc/src/channel/channel.ts:624:3
+    | 
+624 |   on<K extends keyof ChannelEventMap>(
+    |   ^
+    = hint: make the referenced type public or remove the reference
+    | 
+101 | type ChannelEventMap = {
+    | - this is the referenced type
+    | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'Channel.prototype.stats' references private type 'ChannelStats'
+   --> /home/sandwich/Develop/iframebuffer/.claude/worktrees/agent-a4bb23fc/src/channel/channel.ts:716:3
+    | 
+716 |   stats(): ChannelStats {
+    |   ^
+    = hint: make the referenced type public or remove the reference
+    | 
+ 29 | export interface ChannelStats {
+    | - this is the referenced type
+    | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'EmitterStream["on"]' references private type 'EmitterEventMap'
+   --> /home/sandwich/Develop/iframebuffer/.claude/worktrees/agent-a4bb23fc/src/adapters/emitter.ts:104:3
+    | 
+104 |   on<K extends keyof EmitterEventMap>(
+    |   ^
+    = hint: make the referenced type public or remove the reference
+    | 
+ 25 | type EmitterEventMap = {
+    | - this is the referenced type
+    | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'LowLevelOptions["sessionOptions"]' references private type 'SessionOptions'
+  --> /home/sandwich/Develop/iframebuffer/.claude/worktrees/agent-a4bb23fc/src/adapters/lowlevel.ts:13:3
+   | 
+13 |   sessionOptions?: Partial<SessionOptions>;
+   |   ^
+   = hint: make the referenced type public or remove the reference
+   | 
+32 | export interface SessionOptions {
+   | - this is the referenced type
+   | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'StreamsOptions["sessionOptions"]' references private type 'SessionOptions'
+  --> /home/sandwich/Develop/iframebuffer/.claude/worktrees/agent-a4bb23fc/src/adapters/streams.ts:36:3
+   | 
+36 |   sessionOptions?: Partial<SessionOptions>;
+   |   ^
+   = hint: make the referenced type public or remove the reference
+   | 
+32 | export interface SessionOptions {
+   | - this is the referenced type
+   | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error: Found 9 documentation lint errors.
