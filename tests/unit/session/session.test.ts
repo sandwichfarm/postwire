@@ -523,6 +523,40 @@ describe("Session — SESS-06 wraparound integration", () => {
 });
 
 // ---------------------------------------------------------------------------
+// OBS-02: REORDER_OVERFLOW routes to onError (error taxonomy wiring)
+// ---------------------------------------------------------------------------
+
+describe("Session — REORDER_OVERFLOW routed to onError (OBS-02)", () => {
+  it("REORDER_OVERFLOW caught in receiveFrame routes to onError as 'REORDER_OVERFLOW'", () => {
+    const session = new Session({
+      channelId: "reorder-err",
+      streamId: 1,
+      role: "responder",
+      maxReorderBuffer: 2, // tiny buffer to force overflow quickly
+      stallTimeoutMs: 0,
+    });
+    session.onFrameOut(() => {}); // required to send OPEN_ACK
+
+    const errors: string[] = [];
+    session.onError((r) => errors.push(r));
+
+    // Open the session first (responder receives OPEN → transitions to OPEN)
+    session.receiveFrame(makeOpen("reorder-err", 1, 0));
+    expect(session.state).toBe("OPEN");
+
+    // Inject out-of-order DATA frames to overflow the 2-frame buffer.
+    // Expected seqNum is 0 (next expected after OPEN handshake); inject seq 1, 2, 3.
+    // Buffer holds 2 out-of-order frames; inserting the 3rd overflows it.
+    session.receiveFrame(makeData("reorder-err", 1, 1, "b")); // out-of-order: 1 (buffer: [1])
+    session.receiveFrame(makeData("reorder-err", 1, 2, "c")); // out-of-order: 2 (buffer: [1,2])
+    // This one should overflow (buffer is full at 2):
+    session.receiveFrame(makeData("reorder-err", 1, 3, "d")); // overflow!
+
+    expect(errors).toContain("REORDER_OVERFLOW");
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Full lifecycle — responder side completes CLOSED
 // ---------------------------------------------------------------------------
 

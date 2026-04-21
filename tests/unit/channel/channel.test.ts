@@ -4,6 +4,7 @@ import { createChannel } from "../../../src/channel/channel.js";
 import { decode } from "../../../src/framing/encode-decode.js";
 import { FRAME_MARKER, PROTOCOL_VERSION } from "../../../src/framing/types.js";
 import type { PostMessageEndpoint } from "../../../src/transport/endpoint.js";
+import { StreamError } from "../../../src/types.js";
 
 // Minimal fake endpoint that captures postMessage calls and lets tests inject messages
 function makeFakeEndpoint(): PostMessageEndpoint & {
@@ -103,6 +104,97 @@ describe("Channel — CAPABILITY negotiated caps", () => {
     await ch.capabilityReady;
     expect(ch.capabilities.sab).toBe(false);
     expect(ch.capabilities.transferableStreams).toBe(false);
+  });
+});
+
+describe("Channel — error event routing (OBS-02)", () => {
+  it("emits StreamError(PROTOCOL_MISMATCH) on channel.on('error') when version mismatches", () => {
+    const ep = makeFakeEndpoint();
+    const ch = createChannel(ep, { channelId: "err-routing-1" });
+    const errors: StreamError[] = [];
+    ch.on("error", (e) => errors.push(e));
+
+    // Simulate CAPABILITY frame with wrong protocolVersion
+    ep.simulateMessage({
+      [FRAME_MARKER]: 1,
+      channelId: "err-routing-1",
+      streamId: 0,
+      seqNum: 0,
+      type: "CAPABILITY",
+      protocolVersion: 999, // mismatch
+      sab: false,
+      transferableStreams: false,
+    });
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]!.code).toBe("PROTOCOL_MISMATCH");
+    expect(errors[0]).toBeInstanceOf(StreamError);
+  });
+
+  it("emits StreamError(DataCloneError) on channel.on('error') when postMessage throws", () => {
+    // Create an endpoint whose postMessage throws a DataCloneError on the second call
+    // (first call is the CAPABILITY frame on construction)
+    let callCount = 0;
+    const ep: PostMessageEndpoint & { sent: unknown[]; simulateMessage(d: unknown): void } = {
+      sent: [],
+      postMessage(msg: unknown) {
+        callCount++;
+        if (callCount > 1) {
+          // Simulate Node DataCloneError (not a DOMException in Node)
+          throw new Error("value could not be cloned");
+        }
+        this.sent.push(msg);
+      },
+      onmessage: null,
+      simulateMessage(data: unknown) {
+        ep.onmessage?.({ data } as MessageEvent);
+      },
+    };
+
+    const ch = createChannel(ep, { channelId: "err-routing-2" });
+    const errors: StreamError[] = [];
+    ch.on("error", (e) => errors.push(e));
+
+    // Open a stream (creates session, sends OPEN frame — second postMessage call which throws)
+    ch.openStream();
+
+    expect(errors).toHaveLength(1);
+    expect(errors[0]!.code).toBe("DataCloneError");
+    expect(errors[0]).toBeInstanceOf(StreamError);
+  });
+
+  it("emits StreamError(CREDIT_DEADLOCK) via channel.on('error') when session stall fires", () => {
+    vi.useFakeTimers();
+    try {
+      const ep = makeFakeEndpoint();
+      const ch = createChannel(ep, {
+        channelId: "err-routing-3",
+        sessionOptions: {
+          stallTimeoutMs: 1000,
+          initialCredit: 0, // start with 0 send credit — stall timer arms immediately
+        },
+      });
+      const errors: StreamError[] = [];
+      ch.on("error", (e) => errors.push(e));
+
+      // Simulate incoming OPEN to create session on responder side
+      ep.simulateMessage({
+        [FRAME_MARKER]: 1,
+        channelId: "err-routing-3",
+        streamId: 1,
+        seqNum: 0,
+        type: "OPEN",
+        initCredit: 0, // 0 credit so stall timer fires
+      });
+
+      // Advance fake clock past stallTimeoutMs
+      vi.advanceTimersByTime(1001);
+
+      expect(errors.some((e) => e.code === "CREDIT_DEADLOCK")).toBe(true);
+      expect(errors[0]).toBeInstanceOf(StreamError);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

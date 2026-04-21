@@ -75,4 +75,31 @@ describe("createWindowEndpoint", () => {
     // _endpoint.onmessage is null by default — should not throw
     expect(() => fakeWin.dispatchMessage("https://example.com", { data: true })).not.toThrow();
   });
+
+  it("calls onOriginRejected when message arrives from wrong origin (OBS-02)", () => {
+    const fakeWin = makeFakeWindow();
+    const rejected: string[] = [];
+    const _endpoint = createWindowEndpoint(fakeWin as unknown as Window, "https://expected.com", {
+      onOriginRejected: (origin) => rejected.push(origin),
+    });
+
+    fakeWin.dispatchMessage("https://evil.com", { __ibf_v1__: 1 });
+
+    expect(rejected).toEqual(["https://evil.com"]);
+  });
+
+  it("does NOT call onOriginRejected when message arrives from correct origin", () => {
+    const fakeWin = makeFakeWindow();
+    const rejected: string[] = [];
+    const endpoint = createWindowEndpoint(fakeWin as unknown as Window, "https://expected.com", {
+      onOriginRejected: (origin) => rejected.push(origin),
+    });
+
+    const received: MessageEvent[] = [];
+    endpoint.onmessage = (e) => received.push(e);
+    fakeWin.dispatchMessage("https://expected.com", { __ibf_v1__: 1 });
+
+    expect(rejected).toHaveLength(0);
+    expect(received).toHaveLength(1);
+  });
 });
