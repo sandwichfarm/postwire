@@ -12,6 +12,7 @@
 // Those live in Session (Layer 4).
 
 import { decode, encode } from "../framing/encode-decode.js";
+import type { TraceEvent } from "./stats.js";
 
 /**
  * Detect if ReadableStream is transferable in this environment.
@@ -58,8 +59,51 @@ import {
   PROTOCOL_VERSION,
 } from "../framing/types.js";
 import { Session, type SessionOptions } from "../session/index.js";
+import { isTerminalState } from "../session/fsm.js";
 import type { PostMessageEndpoint } from "../transport/endpoint.js";
 import { StreamError } from "../types.js";
+
+// ---------------------------------------------------------------------------
+// Channel-level event map + typed emitter
+// ---------------------------------------------------------------------------
+
+type ChannelEventMap = {
+  error: [err: StreamError];
+  close: [];
+  trace: [event: TraceEvent];
+};
+
+/**
+ * Minimal typed emitter for channel-level events (error, close, trace).
+ * Inlined here because the stream-level TypedEmitter in emitter.ts has a
+ * different event map and is not reusable for channel-level events.
+ */
+class ChannelEmitter {
+  readonly #handlers = new Map<keyof ChannelEventMap, Set<(...args: unknown[]) => void>>();
+
+  on<K extends keyof ChannelEventMap>(
+    event: K,
+    handler: (...args: ChannelEventMap[K]) => void,
+  ): void {
+    if (!this.#handlers.has(event)) this.#handlers.set(event, new Set());
+    this.#handlers.get(event)!.add(handler as (...args: unknown[]) => void);
+  }
+
+  off<K extends keyof ChannelEventMap>(
+    event: K,
+    handler: (...args: ChannelEventMap[K]) => void,
+  ): void {
+    this.#handlers.get(event)?.delete(handler as (...args: unknown[]) => void);
+  }
+
+  emit<K extends keyof ChannelEventMap>(event: K, ...args: ChannelEventMap[K]): void {
+    this.#handlers.get(event)?.forEach((h) => h(...args));
+  }
+
+  removeAllListeners(): void {
+    this.#handlers.clear();
+  }
+}
 
 export interface ChannelOptions {
   /** Identifier for this channel — shared between both sides. Default: random string. */
@@ -71,6 +115,21 @@ export interface ChannelOptions {
   hooks?: Record<string, never>;
   /** Session options forwarded to new Session() for each stream opened. */
   sessionOptions?: Partial<Omit<SessionOptions, "channelId" | "streamId" | "role">>;
+  /**
+   * 'window' enables BFCache listeners (pagehide/pageshow) on globalThis.
+   * Other values are reserved for documentation / future use in Phase 4.
+   */
+  endpointKind?: "window" | "worker" | "messageport" | "serviceworker";
+  /**
+   * Opt-in SW heartbeat (LIFE-02). When set, a CAPABILITY ping is sent every intervalMs;
+   * if no pong arrives within timeoutMs, CHANNEL_DEAD is emitted.
+   */
+  heartbeat?: { intervalMs: number; timeoutMs: number };
+  /**
+   * Enable per-frame trace events on channel.on('trace', ...) (OBS-03).
+   * Off by default — no overhead when disabled.
+   */
+  trace?: boolean;
 }
 
 /** Internal stream handle — NOT part of the public API. */
@@ -82,6 +141,7 @@ export interface StreamHandle {
 export class Channel {
   readonly #endpoint: PostMessageEndpoint; // strong ref — prevents GC (LIFE-04)
   readonly #channelId: string;
+  readonly #options: ChannelOptions;
   readonly #sessionOptions: Partial<Omit<SessionOptions, "channelId" | "streamId" | "role">>;
 
   // Capability negotiation — probe is evaluated once at channel construction.
@@ -103,11 +163,24 @@ export class Channel {
   #onStreamCb: ((stream: StreamHandle) => void) | null = null;
 
   // error callback (channel-level errors: PROTOCOL_MISMATCH, DataCloneError)
+  // Kept for backward compat; new callers should use channel.on('error', cb).
   #onErrorCb: ((err: StreamError) => void) | null = null;
+
+  // Phase 4: typed emitter, disposers array, closed guard (LIFE-05, OBS-02)
+  readonly #emitter = new ChannelEmitter();
+  readonly #disposers: (() => void)[] = [];
+  #isClosed = false; // idempotency guard for #freezeAllStreams
+
+  // Phase 4: aggregate byte counters (OBS-01) — wired in Plan 01
+  #bytesSent = 0;
+  #bytesReceived = 0;
+  readonly #frameCountsSent: Map<string, number> = new Map();
+  readonly #frameCountsRecv: Map<string, number> = new Map();
 
   constructor(endpoint: PostMessageEndpoint, options: ChannelOptions = {}) {
     this.#endpoint = endpoint;
     this.#channelId = options.channelId ?? crypto.randomUUID();
+    this.#options = options;
     this.#sessionOptions = options.sessionOptions ?? {};
 
     // Capability ready promise — resolves on remote CAPABILITY, rejects on PROTOCOL_MISMATCH
@@ -225,9 +298,33 @@ export class Channel {
 
   /**
    * Register callback for channel-level errors (PROTOCOL_MISMATCH, DataCloneError).
+   * @deprecated Prefer channel.on('error', cb) — this shim is kept for backward compat.
    */
   onError(cb: (err: StreamError) => void): void {
     this.#onErrorCb = cb;
+  }
+
+  /**
+   * Subscribe to a channel-level event (OBS-02, LIFE-03, OBS-03).
+   * 'error' — StreamError with typed .code; 'close' — channel died; 'trace' — per-frame debug.
+   */
+  on<K extends keyof ChannelEventMap>(
+    event: K,
+    handler: (...args: ChannelEventMap[K]) => void,
+  ): this {
+    this.#emitter.on(event, handler);
+    return this;
+  }
+
+  /**
+   * Unsubscribe from a channel-level event.
+   */
+  off<K extends keyof ChannelEventMap>(
+    event: K,
+    handler: (...args: ChannelEventMap[K]) => void,
+  ): this {
+    this.#emitter.off(event, handler);
+    return this;
   }
 
   // ---------------------------------------------------------------------------
@@ -252,13 +349,50 @@ export class Channel {
 
   /**
    * Gracefully close the channel: close the active session with correct finalSeq.
+   * Idempotent — calling close() on an already-closed channel is a no-op.
    */
   close(): void {
+    if (this.#isClosed) return;
     if (this.#session !== null) {
       const finalSeq = this.#lastDataSeqOut >= 0 ? this.#lastDataSeqOut : 0;
       this.#session.close(finalSeq);
       this.#session = null;
     }
+    this.#runDisposers();
+    this.#emitter.removeAllListeners();
+    this.#isClosed = true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Private: channel death / freeze (Phase 4)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Called on channel death or freeze. Resets the active session, emits error+close,
+   * flushes disposers (removing all event listeners), and marks the channel as closed.
+   * Idempotent: guarded by #isClosed so calling twice is safe.
+   *
+   * Per RESEARCH.md Pattern 6. Phase 4 Wave 1 wires BFCache/teardown/heartbeat here.
+   */
+  #freezeAllStreams(code: "CHANNEL_FROZEN" | "CHANNEL_DEAD" | "CHANNEL_CLOSED"): void {
+    if (this.#isClosed) return;
+    this.#isClosed = true;
+    if (this.#session !== null && !isTerminalState(this.#session.state)) {
+      this.#session.reset(code);
+    }
+    this.#session = null;
+    this.#emitter.emit("error", new StreamError(code, undefined));
+    this.#emitter.emit("close");
+    this.#runDisposers();
+    this.#emitter.removeAllListeners();
+  }
+
+  /** Flush the disposers array in reverse order (LIFE-05). */
+  #runDisposers(): void {
+    for (let i = this.#disposers.length - 1; i >= 0; i--) {
+      this.#disposers[i]!();
+    }
+    this.#disposers.length = 0;
   }
 
   // ---------------------------------------------------------------------------

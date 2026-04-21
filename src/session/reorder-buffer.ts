@@ -22,6 +22,11 @@ export class ReorderBuffer {
     return this.#nextExpected;
   }
 
+  /** Number of out-of-order frames currently buffered (OBS-01). */
+  get bufferSize(): number {
+    return this.#buffer.size;
+  }
+
   /**
    * Insert a frame. Returns an array of in-order frames to deliver (may be empty).
    * Throws 'REORDER_OVERFLOW' if the buffer capacity is exceeded.

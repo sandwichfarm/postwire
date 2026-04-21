@@ -223,7 +223,19 @@ export class Session {
         this.#credit.addRecvConsumed(1);
 
         // Insert into reorder buffer — may return multiple in-order frames.
-        const delivered = this.#reorder.insert(frame as DataFrame);
+        // REORDER_OVERFLOW is thrown as a plain Error by ReorderBuffer; catch it here
+        // so it does not escape as an unhandled exception (RESEARCH.md Pitfall 4).
+        let delivered: DataFrame[];
+        try {
+          delivered = this.#reorder.insert(frame as DataFrame);
+        } catch (e) {
+          if (e instanceof Error && e.message === "REORDER_OVERFLOW") {
+            this.#applyTransition({ type: "RESET_SENT", reason: "REORDER_OVERFLOW" });
+            this.#onErrorCb?.("REORDER_OVERFLOW");
+            return;
+          }
+          throw e;
+        }
         for (const df of delivered) {
           const reassembled = this.#chunker.reassemble(df);
           if (reassembled !== null) {
