@@ -105,7 +105,7 @@ Plans:
   5. A 10% regression in any benchmark dimension blocks CI on subsequent PRs
 **Plans**: 4 plans
 Plans:
-- [ ] 05-00-PLAN.md — Harness scaffold: vitest.bench.config.ts, helpers (payloads, iframe/worker harness, JSON reporter), compare.mjs, bench.yml CI workflow
+- [x] 05-00-PLAN.md — Harness scaffold: vitest.bench.config.ts, helpers (payloads, iframe/worker harness, JSON reporter), compare.mjs, bench.yml CI workflow
 - [ ] 05-01-PLAN.md — Benchmark scenarios: binary-transfer, structured-clone, naive-baseline across 1KB/64KB/1MB/16MB (+ 256MB heavy)
 - [ ] 05-02-PLAN.md — Baseline run: execute local bench (Chromium + Firefox), commit baseline.json, verify comparator
 - [ ] 05-03-PLAN.md — WASM decision: analyze baseline.json, write .planning/decisions/05-wasm-decision.md

@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 04-lifecycle-safety-observability plan 05 (04-05-PLAN.md) — Phase 4 complete
-last_updated: "2026-04-21T13:46:18.820Z"
+status: executing
+stopped_at: Completed 05-benchmark-harness plan 00 (05-00-PLAN.md)
+last_updated: "2026-04-21T14:11:11.626Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
   completed_phases: 4
-  total_plans: 23
-  completed_plans: 23
+  total_plans: 27
+  completed_plans: 24
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-21)
 
 **Core value:** A high-throughput, reliable, ordered stream abstraction that slots into any existing postMessage boundary with minimal caller-side code.
-**Current focus:** Phase 04 — Lifecycle Safety + Observability
+**Current focus:** Phase 05 — Benchmark Harness
 
 ## Current Position
 
-Phase: 5
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 05 (Benchmark Harness) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
 Last activity: 2026-04-21
 
 Progress: [░░░░░░░░░░] 0%
@@ -75,6 +75,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04-lifecycle-safety-observability P03 | 3 | 2 tasks | 3 files |
 | Phase 04-lifecycle-safety-observability P04 | 5min | 2 tasks | 5 files |
 | Phase 04 P05 | 7 | 2 tasks | 5 files |
+| Phase 05-benchmark-harness P00 | 6min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -136,6 +137,9 @@ Recent decisions affecting current work:
 - [Phase 04-lifecycle-safety-observability]: CONSUMER_STALL renamed to CREDIT_DEADLOCK in emitter.ts; CONSUMER_STALL kept in ErrorCode union for backward compat
 - [Phase 04]: channel.stats() combines per-stream Session getters (streamId, creditWindowAvailable, reorderBufferDepth, chunkerChunks) with Channel-level byte/frame counters into polling ChannelStats snapshot
 - [Phase 04]: Trace events: opt-in via options.trace=true; zero-overhead when disabled (single bool check per frame); CAPABILITY frames tracked separately in #sendCapability since they bypass sendFrame()
+- [Phase 05-benchmark-harness]: Vitest 4.1.4 requires @vitest/browser-playwright factory API for browser.provider (not string 'playwright')
+- [Phase 05-benchmark-harness]: tinybench 6 Statistics shape: latency.p50/p75/p99 and throughput.mean (not flat hz/p50 from v5)
+- [Phase 05-benchmark-harness]: bench:local excludes WebKit (Arch ICU ABI mismatch) — CI covers all browsers via ubuntu-latest --with-deps
 
 ### Pending Todos
 
@@ -150,6 +154,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T13:42:21.093Z
-Stopped at: Completed 04-lifecycle-safety-observability plan 05 (04-05-PLAN.md) — Phase 4 complete
+Last session: 2026-04-21T14:11:11.623Z
+Stopped at: Completed 05-benchmark-harness plan 00 (05-00-PLAN.md)
 Resume file: None
