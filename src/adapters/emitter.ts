@@ -16,7 +16,7 @@
 //   In a two-party pair, one side must be initiator, one must be responder.
 
 import type { Channel } from "../channel/channel.js";
-import { StreamError } from "../types.js";
+import { StreamError, type ErrorCode } from "../types.js";
 
 // ---------------------------------------------------------------------------
 // Typed EventEmitter base (~40 LoC, zero deps, browser-safe)
@@ -179,9 +179,11 @@ export function createEmitterStream(channel: Channel, options?: EmitterOptions):
         this.emit("data", chunk);
       });
 
-      // Wire session errors → 'error' event
+      // Wire session errors → 'error' event (OBS-02: CREDIT_DEADLOCK replaces CONSUMER_STALL)
       session.onError((reason: string) => {
-        const code = reason === "consumer-stall" ? "CONSUMER_STALL" : "CONSUMER_STALL";
+        // Map 'consumer-stall' from CreditWindow to the OBS-02 typed code CREDIT_DEADLOCK.
+        // All other reasons pass through as CREDIT_DEADLOCK for now (conservative fallback).
+        const code: ErrorCode = reason === "consumer-stall" ? "CREDIT_DEADLOCK" : "CREDIT_DEADLOCK";
         this.emit("error", new StreamError(code, new Error(reason)));
       });
 

@@ -61,7 +61,36 @@ import {
 import { Session, type SessionOptions } from "../session/index.js";
 import { isTerminalState } from "../session/fsm.js";
 import type { PostMessageEndpoint } from "../transport/endpoint.js";
-import { StreamError } from "../types.js";
+import { StreamError, type ErrorCode } from "../types.js";
+
+// ---------------------------------------------------------------------------
+// Module-level helper: map session error reason strings to typed ErrorCode
+// ---------------------------------------------------------------------------
+
+/**
+ * Maps session-level error reason strings to OBS-02 typed ErrorCode values.
+ * Called when session.onError fires to convert the raw string into a typed code
+ * before emitting on the channel error emitter.
+ */
+function mapSessionErrorCode(reason: string): ErrorCode {
+  switch (reason) {
+    case "consumer-stall":
+      return "CREDIT_DEADLOCK";
+    case "REORDER_OVERFLOW":
+      return "REORDER_OVERFLOW";
+    case "DataCloneError":
+      return "DataCloneError";
+    case "CHANNEL_FROZEN":
+      return "CHANNEL_FROZEN";
+    case "CHANNEL_DEAD":
+      return "CHANNEL_DEAD";
+    case "CHANNEL_CLOSED":
+      return "CHANNEL_CLOSED";
+    default:
+      // Covers CANCEL/RESET reasons and any future unknown strings.
+      return "PROTOCOL_MISMATCH";
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Channel-level event map + typed emitter
@@ -306,7 +335,8 @@ export class Channel {
     if (frame.protocolVersion !== PROTOCOL_VERSION) {
       const err = new StreamError("PROTOCOL_MISMATCH", undefined);
       this.#rejectCapability(err);
-      this.#onErrorCb?.(err);
+      this.#emitter.emit("error", err); // OBS-02: route through typed emitter
+      this.#onErrorCb?.(err); // backward compat
       return;
     }
     const isPostHandshake = this.#remoteCap !== null;
@@ -543,7 +573,8 @@ export class Channel {
       ) {
         const streamErr = new StreamError("DataCloneError", err);
         this.#session?.reset("DataCloneError");
-        this.#onErrorCb?.(streamErr);
+        this.#emitter.emit("error", streamErr); // OBS-02: route through typed emitter
+        this.#onErrorCb?.(streamErr); // backward compat
       } else {
         throw err; // unexpected error — rethrow
       }
@@ -566,6 +597,16 @@ export class Channel {
     // Wire outbound frames from Session → Channel → endpoint
     session.onFrameOut((frame, transfer) => {
       this.sendFrame(frame, transfer);
+    });
+
+    // OBS-02: route session-level errors through the channel typed emitter.
+    // Maps reason strings (e.g. 'consumer-stall', 'REORDER_OVERFLOW') to ErrorCode.
+    // Both #emitter and #onErrorCb are called for full backward compat.
+    session.onError((reason: string) => {
+      const code = mapSessionErrorCode(reason);
+      const err = new StreamError(code, new Error(reason), streamId);
+      this.#emitter.emit("error", err);
+      this.#onErrorCb?.(err);
     });
 
     return session;
