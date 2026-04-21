@@ -1,5 +1,5 @@
 {
-  "name": "@postwire/core",
+  "name": "@sandwich/postwire",
   "version": "0.0.0",
   "exports": {
     ".": "./src/index.ts",
