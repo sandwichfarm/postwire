@@ -25,4 +25,13 @@ export { createWorkerEndpoint } from "./transport/adapters/worker.js";
 export type { PostMessageEndpoint } from "./transport/endpoint.js";
 
 // Sequence number arithmetic (Phase 1 — Plan 02)
-export { seqGT, seqLT, seqLTE, seqMask, seqNext } from "./transport/seq.js";
+export {
+  HALF_WINDOW,
+  SEQ_BITS,
+  SEQ_MASK,
+  seqGT,
+  seqLT,
+  seqLTE,
+  seqMask,
+  seqNext,
+} from "./transport/seq.js";
