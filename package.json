@@ -63,13 +63,15 @@
     "bench:raw": "vitest bench --config vitest.bench.config.ts --outputJson benchmarks/results/latest.json",
     "bench:heavy": "PW_BENCH_HEAVY=1 vitest bench --config vitest.bench.config.ts --outputJson benchmarks/results/latest.json && node benchmarks/normalize.mjs benchmarks/results/latest.json benchmarks/results/baseline.json",
     "bench:compare": "node benchmarks/compare.mjs",
+    "bench:readme": "node scripts/bench-to-readme.mjs",
     "typecheck": "tsc --noEmit",
     "ci": "pnpm build && pnpm lint && pnpm test && pnpm test:e2e",
     "tree-shake:check": "node scripts/tree-shake-check.mjs",
     "version": "changeset version && node scripts/sync-jsr-version.mjs",
     "release": "pnpm build && changeset publish",
     "pub:check": "node scripts/check-name-availability.mjs",
-    "pub:dry-run": "pnpm build && pnpm exec publint && npm publish --provenance --dry-run && pnpm exec jsr publish --dry-run"
+    "pub:dry-run": "pnpm build && pnpm exec publint && npm publish --provenance --dry-run && pnpm exec jsr publish --dry-run",
+    "prepublishOnly": "pnpm bench:readme"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.2",

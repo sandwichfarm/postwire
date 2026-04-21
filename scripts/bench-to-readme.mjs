@@ -16,9 +16,11 @@ const BASELINE_PATH = "benchmarks/results/baseline.json";
 const README_PATH = "README.md";
 
 // --- args --------------------------------------------------------------------
+// Accept `--` as a bare POSIX end-of-options marker (pnpm forwards it before
+// script args, e.g. `pnpm bench:readme -- --skip-bench`).
 const args = process.argv.slice(2);
 const skipBench = args.includes("--skip-bench");
-const unknown = args.filter((a) => a !== "--skip-bench");
+const unknown = args.filter((a) => a !== "--skip-bench" && a !== "--");
 if (unknown.length > 0) {
   console.error(`bench-to-readme: unknown argument(s): ${unknown.join(" ")}`);
   console.error("usage: node scripts/bench-to-readme.mjs [--skip-bench]");
