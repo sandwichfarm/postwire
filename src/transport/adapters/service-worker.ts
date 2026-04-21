@@ -17,6 +17,7 @@ import type { PostMessageEndpoint } from "../endpoint.js";
  * is set permanently at construction time and never re-evaluated per-chunk.
  */
 export interface ServiceWorkerEndpointMeta {
+  /** The wrapped {@link PostMessageEndpoint} backed by the ServiceWorker. */
   endpoint: PostMessageEndpoint;
   /** Always false — SAB requires same agent cluster. See PITFALLS.md P14. */
   sabCapable: false;

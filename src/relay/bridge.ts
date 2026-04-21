@@ -26,11 +26,13 @@ import { FRAME_MARKER } from "../framing/types.js";
 // Public types
 // ---------------------------------------------------------------------------
 
+/** Options for {@link createRelayBridge}. */
 export interface RelayBridgeOptions {
   /** Initial credit offered in downstream OPEN frames. Default: 16. */
   initialCredit?: number;
 }
 
+/** Snapshot counters for a {@link RelayBridge}. */
 export interface RelayStats {
   /** Total DATA frames forwarded from upstream to downstream. */
   framesForwardedIn: number;
@@ -42,6 +44,7 @@ export interface RelayStats {
   mappings: number;
 }
 
+/** Handle returned by {@link createRelayBridge}. */
 export interface RelayBridge {
   /** Polling snapshot of relay metrics. */
   stats(): RelayStats;

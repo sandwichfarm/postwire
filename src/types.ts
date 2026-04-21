@@ -28,11 +28,20 @@ export type ErrorCode =
  * .streamId optionally identifies the stream that raised the error (Phase 4, OBS-02).
  */
 export class StreamError extends Error {
+  /** Stable discriminant for programmatic error handling. */
   readonly code: ErrorCode;
+  /** Original underlying error, if any (e.g. the native DataCloneError). */
   override readonly cause: unknown;
   /** Optional stream-level error correlation (Phase 4, OBS-02). */
   readonly streamId?: number;
 
+  /**
+   * Construct a new typed stream error.
+   *
+   * @param code     - The {@link ErrorCode} discriminant.
+   * @param cause    - The underlying native error, if any.
+   * @param streamId - Optional stream id for error correlation.
+   */
   constructor(code: ErrorCode, cause: unknown, streamId?: number) {
     super(`postwire: ${code}`);
     this.name = "StreamError";

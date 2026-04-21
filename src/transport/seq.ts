@@ -3,8 +3,11 @@
 // seqA < seqB (in modular space) iff ((seqA - seqB) >>> 0) > HALF_WINDOW
 // This correctly handles the 0xFFFFFFFF → 0 wraparound boundary.
 
+/** Sequence-number bit width. Matches TCP's 32-bit sequence space. */
 const SEQ_BITS: number = 32;
+/** Bitmask for 32-bit unsigned wraparound. */
 const SEQ_MASK: number = 0xffff_ffff;
+/** Half the sequence space (2^31). Threshold for modular "a < b" comparisons. */
 const HALF_WINDOW: number = 0x8000_0000; // 2^31
 
 /** Mask a sequence number to 32 bits (unsigned) */

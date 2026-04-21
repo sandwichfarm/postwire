@@ -7,11 +7,13 @@ import type { Channel } from "../channel/channel.js";
 import type { SessionOptions } from "../session/index.js";
 import { StreamError } from "../types.js";
 
+/** Options for {@link createLowLevelStream}. */
 export interface LowLevelOptions {
   /** Session options forwarded to Channel.openStream(). */
   sessionOptions?: Partial<SessionOptions>;
 }
 
+/** Low-level stream handle returned by {@link createLowLevelStream}. */
 export interface LowLevelStream {
   /**
    * Send a chunk. If transfer is provided, the payload is sent via BINARY_TRANSFER

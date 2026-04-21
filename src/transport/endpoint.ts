@@ -9,6 +9,8 @@
  * create a MessageChannel and pass one port to the library.
  */
 export interface PostMessageEndpoint {
+  /** Send `message` across the boundary, optionally transferring ownership of `transfer`. */
   postMessage(message: unknown, transfer?: Transferable[]): void;
+  /** Inbound message handler. The library assigns this slot; callers must not clobber it. */
   onmessage: ((event: MessageEvent) => void) | null;
 }

@@ -27,6 +27,7 @@ import type { Channel, StreamHandle } from "../channel/channel.js";
 import type { SessionOptions } from "../session/index.js";
 import { StreamError } from "../types.js";
 
+/** Options for {@link createStream}. */
 export interface StreamsOptions {
   /**
    * Session options forwarded to channel.openStream().
@@ -35,8 +36,11 @@ export interface StreamsOptions {
   sessionOptions?: Partial<SessionOptions>;
 }
 
+/** WHATWG Streams pair returned by {@link createStream}. */
 export interface StreamsPair {
+  /** Inbound readable side — chunks arriving from the remote endpoint. */
   readable: ReadableStream<unknown>;
+  /** Outbound writable side — chunks sent to the remote endpoint. */
   writable: WritableStream<unknown>;
 }
 

@@ -81,6 +81,7 @@ class TypedEmitter {
 // EmitterStream public interface
 // ---------------------------------------------------------------------------
 
+/** Options for {@link createEmitterStream}. */
 export interface EmitterOptions {
   /**
    * Stream role for this end of the connection.
@@ -94,19 +95,27 @@ export interface EmitterOptions {
   hooks?: Record<string, never>;
 }
 
+/**
+ * Node-style event emitter returned by {@link createEmitterStream}.
+ * Emits `data`, `end`, `error`, `close`, and `drain`.
+ */
 export interface EmitterStream {
+  /** Register a handler for `event`. Returns this for chaining. */
   on<K extends keyof EmitterEventMap>(
     event: K,
     handler: (...args: EmitterEventMap[K]) => void,
   ): this;
+  /** Remove a previously-registered handler for `event`. Returns this for chaining. */
   off<K extends keyof EmitterEventMap>(
     event: K,
     handler: (...args: EmitterEventMap[K]) => void,
   ): this;
+  /** Register a handler that fires at most once for `event`. Returns this for chaining. */
   once<K extends keyof EmitterEventMap>(
     event: K,
     handler: (...args: EmitterEventMap[K]) => void,
   ): this;
+  /** Remove every registered handler on this emitter. Called automatically on `close`. */
   removeAllListeners(): void;
   /**
    * Send a chunk to the remote side.

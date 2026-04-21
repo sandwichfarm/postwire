@@ -138,6 +138,10 @@ class ChannelEmitter {
   }
 }
 
+/**
+ * Options passed to {@link Channel} / {@link createChannel}.
+ * All fields are optional — sensible defaults are applied.
+ */
 export interface ChannelOptions {
   /** Identifier for this channel — shared between both sides. Default: random string. */
   channelId?: string;
@@ -198,6 +202,14 @@ export interface StreamHandle {
   readonly channel: Channel;
 }
 
+/**
+ * Bidirectional channel over a single {@link PostMessageEndpoint}.
+ *
+ * Drives the CAPABILITY handshake, multiplexes one or more {@link Session} instances,
+ * and routes frames to/from the endpoint. Most callers should use {@link createChannel}
+ * and then compose an adapter ({@link createLowLevelStream} / {@link createEmitterStream} /
+ * {@link createStream}).
+ */
 export class Channel {
   readonly #endpoint: PostMessageEndpoint; // strong ref — prevents GC (LIFE-04)
   readonly #channelId: string;
@@ -272,6 +284,12 @@ export class Channel {
   #heartbeatInterval: ReturnType<typeof setInterval> | null = null;
   #heartbeatTimeout: ReturnType<typeof setTimeout> | null = null;
 
+  /**
+   * Construct a Channel over the given endpoint.
+   *
+   * @param endpoint - The {@link PostMessageEndpoint} this channel owns.
+   * @param options  - Optional {@link ChannelOptions}.
+   */
   constructor(endpoint: PostMessageEndpoint, options: ChannelOptions = {}) {
     this.#endpoint = endpoint;
     this.#channelId = options.channelId ?? crypto.randomUUID();
