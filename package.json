@@ -1,0 +1,50 @@
+{
+  "name": "iframebuffer",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "High-throughput, reliable, ordered stream abstraction over any postMessage boundary",
+  "license": "MIT",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./wasm": {
+      "import": "./dist/wasm.js",
+      "types": "./dist/wasm.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "lint": "biome check . && publint",
+    "format": "biome format --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "bench": "vitest bench",
+    "typecheck": "tsc --noEmit",
+    "ci": "pnpm build && pnpm lint && pnpm test && pnpm test:e2e",
+    "version": "changeset version && node scripts/sync-jsr-version.mjs",
+    "release": "pnpm build && changeset publish"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.2",
+    "@biomejs/biome": "2.4.12",
+    "@changesets/cli": "2.31.0",
+    "@playwright/test": "1.59.1",
+    "@types/node": "25.6.0",
+    "@vitest/browser": "4.1.4",
+    "@vitest/coverage-v8": "4.1.4",
+    "publint": "0.3.18",
+    "tinybench": "6.0.0",
+    "tsdown": "0.21.9",
+    "tsx": "4.21.0",
+    "typescript": "6.0.3",
+    "vitest": "4.1.4"
+  }
+}
