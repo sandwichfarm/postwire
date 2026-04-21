@@ -75,9 +75,9 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 
 ### Compatibility & security
 
-- [ ] **COMP-01**: Baseline path (postMessage-only, no SAB, no WASM) runs under strict CSP without `unsafe-eval` or `wasm-unsafe-eval`
+- [x] **COMP-01**: Baseline path (postMessage-only, no SAB, no WASM) runs under strict CSP without `unsafe-eval` or `wasm-unsafe-eval`
 - [x] **COMP-02**: Library has zero runtime dependencies
-- [ ] **COMP-03**: Library runs in Chrome, Firefox, and Safari (latest-2 evergreen) — verified by CI against real browsers
+- [x] **COMP-03**: Library runs in Chrome, Firefox, and Safari (latest-2 evergreen) — verified by CI against real browsers
 - [x] **COMP-04**: Library is ESM-first with TypeScript type declarations shipped
 
 ### Testing
@@ -160,9 +160,9 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| COMP-01 | Phase 1 | Pending |
+| COMP-01 | Phase 1 | Complete |
 | COMP-02 | Phase 1 | Complete |
-| COMP-03 | Phase 9 | Pending |
+| COMP-03 | Phase 9 | Complete |
 | COMP-04 | Phase 1 | Complete |
 | ENDP-01 | Phase 1 | Complete |
 | ENDP-02 | Phase 1 | Complete |

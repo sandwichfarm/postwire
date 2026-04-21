@@ -40,7 +40,7 @@ Plans:
 - [x] 01-01-PLAN.md — Toolchain scaffold (package.json, tsconfig, tsdown, biome, vitest, playwright, changesets, jsr.json)
 - [x] 01-02-PLAN.md — Wire protocol framing (Frame types discriminated union, encode/decode, seq arithmetic + wraparound tests)
 - [x] 01-03-PLAN.md — Transport endpoint adapters (PostMessageEndpoint interface, four adapters, origin validation)
-- [ ] 01-04-PLAN.md — CI workflows, final exports wiring, full Phase 1 gate check
+- [x] 01-04-PLAN.md — CI workflows, final exports wiring, full Phase 1 gate check
 
 ### Phase 2: Session Protocol Core
 **Goal**: All per-stream state components are implemented in pure TypeScript, exhaustively unit-tested without a browser, and proven correct through the sequence-number wraparound boundary

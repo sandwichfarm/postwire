@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 01-03-PLAN.md — PostMessageEndpoint interface + four adapters
-last_updated: "2026-04-21T10:12:04.107Z"
+status: verifying
+stopped_at: Completed 01-04-PLAN.md — CI workflows + full Phase 1 gate (Phase 1 complete)
+last_updated: "2026-04-21T10:15:59.483Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-21)
 
 Phase: 01 (Scaffold + Wire Protocol Foundation) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-21
 
 Progress: [░░░░░░░░░░] 0%
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P01 | 9min | 3 tasks | 15 files |
 | Phase 01 P02 | 3min | 2 tasks | 5 files |
 | Phase 01 P03 | 7min | 2 tasks | 8 files |
+| Phase 01-scaffold-wire-protocol-foundation P04 | 5min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,9 @@ Recent decisions affecting current work:
 - [Phase 01]: Window adapter uses win.addEventListener for inbound (not win.onmessage=) to avoid clobbering caller's handler
 - [Phase 01]: ServiceWorkerEndpointMeta.sabCapable typed as literal false (not boolean) for exhaustive type narrowing
 - [Phase 01]: Worker and MessagePort adapters are thin casts — native shapes already satisfy PostMessageEndpoint interface
+- [Phase 01-scaffold-wire-protocol-foundation]: WebKit fails locally on Arch (ICU 74 vs 78 ABI); webkit E2E coverage delegated to CI (ubuntu-latest with --with-deps)
+- [Phase 01-scaffold-wire-protocol-foundation]: [Phase 01]: publish.yml trigger is push:tags:v* only — no accidental publish on normal branch commits
+- [Phase 01-scaffold-wire-protocol-foundation]: [Phase 01]: npm publish uses --provenance --access public with NODE_AUTH_TOKEN; JSR publish uses id-token:write exclusively with no secret
 
 ### Pending Todos
 
@@ -91,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T10:12:04.104Z
-Stopped at: Completed 01-03-PLAN.md — PostMessageEndpoint interface + four adapters
+Last session: 2026-04-21T10:15:59.481Z
+Stopped at: Completed 01-04-PLAN.md — CI workflows + full Phase 1 gate (Phase 1 complete)
 Resume file: None
