@@ -54,7 +54,7 @@ Plans:
   5. Property/fuzz suite exercises the FSM and sequence wraparound with randomized inputs and produces zero assertion failures
 **Plans**: 6 plans
 Plans:
-- [ ] 02-00-PLAN.md — Dependency install (fast-check) + directory scaffolding (src/session/, tests/unit/session/ stubs)
+- [x] 02-00-PLAN.md — Dependency install (fast-check) + directory scaffolding (src/session/, tests/unit/session/ stubs)
 - [ ] 02-01-PLAN.md — ReorderBuffer: Map-backed in-order delivery, REORDER_OVERFLOW, seqLT wraparound fuzz (SESS-01, SESS-06)
 - [ ] 02-02-PLAN.md — CreditWindow: QUIC WINDOW_UPDATE credit accounting, stall timer, desiredSize seam (SESS-02, SESS-03)
 - [ ] 02-03-PLAN.md — Chunker: metadata-before-transfer invariant, split/reassemble (SESS-04)
@@ -161,7 +161,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scaffold + Wire Protocol Foundation | 4/4 | Complete | 2026-04-21 |
-| 2. Session Protocol Core | 0/6 | Not started | - |
+| 2. Session Protocol Core | 1/6 | In Progress|  |
 | 3. API Adapters + Single-Hop Integration | 0/? | Not started | - |
 | 4. Lifecycle Safety + Observability | 0/? | Not started | - |
 | 5. Benchmark Harness | 0/? | Not started | - |

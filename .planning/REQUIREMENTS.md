@@ -82,7 +82,7 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 
 ### Testing
 
-- [ ] **TEST-01**: Unit tests for framing, reorder buffer, credit window, chunker, and FSM run headless under Node with no browser (pure TypeScript seams)
+- [x] **TEST-01**: Unit tests for framing, reorder buffer, credit window, chunker, and FSM run headless under Node with no browser (pure TypeScript seams)
 - [ ] **TEST-02**: Integration tests use a `MockEndpoint` backed by a real `MessageChannel` pair — exercising real structured-clone and Transferable semantics without spawning a real Worker
 - [ ] **TEST-03**: E2E tests via Vitest browser mode + Playwright exercise real iframe, worker, and service-worker contexts in Chromium, Firefox, and WebKit
 - [ ] **TEST-04**: E2E suite includes the three-hop topology scenario (worker → main-thread relay → strict-CSP sandboxed iframe) as a first-class test
@@ -180,7 +180,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | SESS-04 | Phase 2 | Pending |
 | SESS-05 | Phase 2 | Pending |
 | SESS-06 | Phase 2 | Pending |
-| TEST-01 | Phase 2 | Pending |
+| TEST-01 | Phase 2 | Complete |
 | TEST-06 | Phase 2 | Pending |
 | FAST-01 | Phase 3 | Pending |
 | FAST-02 | Phase 3 | Pending |

@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 01-04-PLAN.md — CI workflows + full Phase 1 gate (Phase 1 complete)
-last_updated: "2026-04-21T10:21:23.124Z"
+status: executing
+stopped_at: Completed 02-00-PLAN.md — fast-check devDep + session scaffold
+last_updated: "2026-04-21T10:47:50.304Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 10
+  completed_plans: 5
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-21)
 
 **Core value:** A high-throughput, reliable, ordered stream abstraction that slots into any existing postMessage boundary with minimal caller-side code.
-**Current focus:** Phase 01 — Scaffold + Wire Protocol Foundation
+**Current focus:** Phase 02 — Session Protocol Core
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 02 (Session Protocol Core) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
 Last activity: 2026-04-21
 
 Progress: [░░░░░░░░░░] 0%
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P02 | 3min | 2 tasks | 5 files |
 | Phase 01 P03 | 7min | 2 tasks | 8 files |
 | Phase 01-scaffold-wire-protocol-foundation P04 | 5min | 2 tasks | 3 files |
+| Phase 02-session-protocol-core P00 | 5min | 1 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,7 @@ Recent decisions affecting current work:
 - [Phase 01-scaffold-wire-protocol-foundation]: WebKit fails locally on Arch (ICU 74 vs 78 ABI); webkit E2E coverage delegated to CI (ubuntu-latest with --with-deps)
 - [Phase 01-scaffold-wire-protocol-foundation]: [Phase 01]: publish.yml trigger is push:tags:v* only — no accidental publish on normal branch commits
 - [Phase 01-scaffold-wire-protocol-foundation]: [Phase 01]: npm publish uses --provenance --access public with NODE_AUTH_TOKEN; JSR publish uses id-token:write exclusively with no secret
+- [Phase 02-session-protocol-core]: fast-check added as devDependency at ^4.7.0 per COMP-02 (zero runtime deps); TERMINAL_STATES exported with explicit Set<StreamState> annotation for isolatedDeclarations
 
 ### Pending Todos
 
@@ -95,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T10:15:59.481Z
-Stopped at: Completed 01-04-PLAN.md — CI workflows + full Phase 1 gate (Phase 1 complete)
+Last session: 2026-04-21T10:47:50.302Z
+Stopped at: Completed 02-00-PLAN.md — fast-check devDep + session scaffold
 Resume file: None
