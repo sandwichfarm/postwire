@@ -12,6 +12,45 @@
 // Those live in Session (Layer 4).
 
 import { decode, encode } from "../framing/encode-decode.js";
+
+/**
+ * Detect if ReadableStream is transferable in this environment.
+ *
+ * Phase 3: Always returns false (safely disabled for initial launch).
+ * Phase 5/9: Flip the guard to true and enable the actual probe.
+ *
+ * Design notes (RESEARCH.md FAST-02):
+ *   The actual probe would use try/catch around:
+ *     const rs = new ReadableStream();
+ *     port1.postMessage(rs, [rs as unknown as Transferable]);
+ *   If postMessage does not throw, ReadableStream is transferable in this runtime.
+ *   Node 22's MessageChannel does NOT support transferable ReadableStream —
+ *   this probe would return false in Node regardless of the guard below.
+ *   Chrome/Firefox 120+ DO support it. The guard ensures Phase 3 always produces
+ *   a CAPABILITY frame with transferableStreams: false, deferring the STREAM_REF
+ *   fast path to Phase 5/9 where benchmarks validate it.
+ */
+function checkReadableStreamTransferable(): boolean {
+  // Phase 3: safely disabled — always returns false.
+  return false;
+
+  // Phase 5/9: remove the early return above and uncomment the probe below.
+  /* eslint-disable no-unreachable */
+  /*
+  try {
+    const { port1, port2 } = new MessageChannel();
+    const rs = new ReadableStream();
+    port1.postMessage(rs, [rs as unknown as Transferable]);
+    port1.close();
+    port2.close();
+    return true;
+  } catch {
+    return false;
+  }
+  */
+  /* eslint-enable no-unreachable */
+}
+
 import {
   type CapabilityFrame,
   FRAME_MARKER,
@@ -45,8 +84,9 @@ export class Channel {
   readonly #channelId: string;
   readonly #sessionOptions: Partial<Omit<SessionOptions, "channelId" | "streamId" | "role">>;
 
-  // Capability negotiation
-  #localCap = { sab: false, transferableStreams: false };
+  // Capability negotiation — probe is evaluated once at channel construction.
+  // checkReadableStreamTransferable() always returns false in Phase 3 (FAST-02).
+  #localCap = { sab: false, transferableStreams: checkReadableStreamTransferable() };
   #remoteCap: { sab: boolean; transferableStreams: boolean } | null = null;
   readonly #capabilityReady: Promise<void>;
   #resolveCapability!: () => void;
