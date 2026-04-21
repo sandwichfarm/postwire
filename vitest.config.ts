@@ -10,6 +10,7 @@ export default defineConfig({
           include: [
             "tests/unit/**/*.{test,spec}.ts",
             "tests/integration/**/*.{test,spec}.ts",
+            "src/**/*.{test,spec}.ts",
           ],
           environment: "node",
           globals: false,

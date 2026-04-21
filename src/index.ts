@@ -71,3 +71,14 @@ export { createLowLevelStream } from "./adapters/lowlevel.js";
 export type { StreamsOptions, StreamsPair } from "./adapters/streams.js";
 // WHATWG Streams adapter (API-03)
 export { createStream } from "./adapters/streams.js";
+
+// ---------------------------------------------------------------------------
+// Phase 7: Relay bridge (TOPO-02, TOPO-03, TOPO-04)
+// ---------------------------------------------------------------------------
+
+export type {
+  RelayBridge,
+  RelayBridgeOptions,
+  RelayStats,
+} from "./relay/bridge.js";
+export { createRelayBridge } from "./relay/bridge.js";
