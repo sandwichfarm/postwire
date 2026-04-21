@@ -59,7 +59,7 @@ Plans:
 - [x] 02-02-PLAN.md — CreditWindow: QUIC WINDOW_UPDATE credit accounting, stall timer, desiredSize seam (SESS-02, SESS-03)
 - [x] 02-03-PLAN.md — Chunker: metadata-before-transfer invariant, split/reassemble (SESS-04)
 - [x] 02-04-PLAN.md — FSM: pure reducer, 28-row transition table, fast-check property suite (SESS-05, TEST-06)
-- [ ] 02-05-PLAN.md — Session integration: wire all four modules, full lifecycle tests, cross-module wraparound fuzz (SESS-06, TEST-01, TEST-06)
+- [x] 02-05-PLAN.md — Session integration: wire all four modules, full lifecycle tests, cross-module wraparound fuzz (SESS-06, TEST-01, TEST-06)
 
 ### Phase 3: API Adapters + Single-Hop Integration
 **Goal**: All three public API surfaces are implemented and the library streams data end-to-end over a real postMessage boundary in a single-hop topology

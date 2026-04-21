@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 02-session-protocol-core-03-PLAN.md
-last_updated: "2026-04-21T10:52:41.795Z"
+status: verifying
+stopped_at: Completed 02-session-protocol-core-05-PLAN.md
+last_updated: "2026-04-21T11:01:14.867Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 10
-  completed_plans: 9
+  completed_plans: 10
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-21)
 
 Phase: 02 (Session Protocol Core) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-21
 
 Progress: [░░░░░░░░░░] 0%
@@ -61,6 +61,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-session-protocol-core P02 | 2min | 2 tasks | 2 files |
 | Phase 02-session-protocol-core P04 | 5 | 2 tasks | 2 files |
 | Phase 02-session-protocol-core P03 | 131s | 1 tasks | 2 files |
+| Phase 02-session-protocol-core P05 | 5min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -94,6 +95,8 @@ Recent decisions affecting current work:
 - [Phase 02-session-protocol-core]: IllegalTransitionError exposes .state and .eventType readonly fields for structured error handling in Session without string parsing
 - [Phase 02-session-protocol-core]: Chunker: ab.slice() per chunk so original is never in transfer list; Transport transfers each slice independently
 - [Phase 02-session-protocol-core]: Chunker reassembly map keyed by streamId (not seqNum) for future multi-stream support without API change
+- [Phase 02-session-protocol-core]: reorderInitSeq?: number in SessionOptions forwarded to ReorderBuffer constructor — enables SESS-06 wraparound tests at arbitrary starting sequence numbers
+- [Phase 02-session-protocol-core]: Session.receiveFrame isTerminalState guard silently drops all frames in terminal states — no throw on delayed post-close DATA frames (FSM Pitfall 3)
 
 ### Pending Todos
 
@@ -108,6 +111,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T10:52:41.792Z
-Stopped at: Completed 02-session-protocol-core-03-PLAN.md
+Last session: 2026-04-21T11:01:14.864Z
+Stopped at: Completed 02-session-protocol-core-05-PLAN.md
 Resume file: None
