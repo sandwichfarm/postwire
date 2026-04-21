@@ -2,8 +2,18 @@
   "name": "postwire",
   "version": "0.1.0",
   "type": "module",
-  "description": "High-throughput, reliable, ordered stream abstraction over any postMessage boundary",
+  "description": "High-throughput, reliable, ordered stream abstraction over any postMessage boundary — iframes, web workers, service workers, MessageChannel, BroadcastChannel — with credit-based backpressure, three API surfaces (low-level, Node EventEmitter, WHATWG Streams), multi-hop relay, optional multiplexing, and feature-detected SharedArrayBuffer fast path. Zero runtime dependencies, strict-CSP compatible baseline.",
+  "keywords": ["postmessage", "stream", "streaming", "backpressure", "iframe", "worker", "web-worker", "service-worker", "messagechannel", "broadcastchannel", "transferable", "sharedarraybuffer", "sab", "relay", "multiplex", "whatwg-streams", "readablestream", "writablestream", "eventemitter"],
   "license": "MIT",
+  "author": "Sandwich Farm LLC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sandwichfarm/postwire.git"
+  },
+  "homepage": "https://github.com/sandwichfarm/postwire#readme",
+  "bugs": {
+    "url": "https://github.com/sandwichfarm/postwire/issues"
+  },
   "sideEffects": false,
   "exports": {
     ".": {
