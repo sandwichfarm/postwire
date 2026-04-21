@@ -9,10 +9,10 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 
 ### Endpoint abstraction
 
-- [ ] **ENDP-01**: Library accepts any caller-provided transport endpoint that exposes `postMessage(message, transfer?)` and a message-receipt hook (`onmessage` setter or `addEventListener('message', ...)`)
-- [ ] **ENDP-02**: Ships adapters that wrap the four endpoint shapes — `Worker` / `DedicatedWorkerGlobalScope`, `MessagePort`, `Window` (cross-origin iframe), and `ServiceWorker` / `Client`
-- [ ] **ENDP-03**: `Window` adapter requires a non-wildcard `expectedOrigin` and validates `MessageEvent.origin` on every inbound message; messages from other origins are dropped silently and surfaced via the observability hook
-- [ ] **ENDP-04**: `ServiceWorker` / `Client` endpoint is flagged as SAB-incapable at capability negotiation (different agent cluster)
+- [x] **ENDP-01**: Library accepts any caller-provided transport endpoint that exposes `postMessage(message, transfer?)` and a message-receipt hook (`onmessage` setter or `addEventListener('message', ...)`)
+- [x] **ENDP-02**: Ships adapters that wrap the four endpoint shapes — `Worker` / `DedicatedWorkerGlobalScope`, `MessagePort`, `Window` (cross-origin iframe), and `ServiceWorker` / `Client`
+- [x] **ENDP-03**: `Window` adapter requires a non-wildcard `expectedOrigin` and validates `MessageEvent.origin` on every inbound message; messages from other origins are dropped silently and surfaced via the observability hook
+- [x] **ENDP-04**: `ServiceWorker` / `Client` endpoint is flagged as SAB-incapable at capability negotiation (different agent cluster)
 
 ### Wire protocol
 
@@ -37,7 +37,7 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 - [ ] **FAST-02**: Transferable `ReadableStream` path is used when feature-detected (modern Chrome/Firefox); falls back to library-native chunked delivery where unavailable (Safari stable as of v1 release is assumed absent)
 - [ ] **FAST-03**: Structured-clone path handles arbitrary cloneable payloads and surfaces `DataCloneError` as a named, typed error — never swallowed
 - [ ] **FAST-04**: `SharedArrayBuffer` + `Atomics` fast path activates when cross-origin-isolated AND not cross-agent-cluster AND caller opts in; falls back transparently to the postMessage-transferable path otherwise
-- [ ] **FAST-05**: Feature detection runs once at channel open, not per chunk; the path stays fixed for the channel lifetime
+- [x] **FAST-05**: Feature detection runs once at channel open, not per chunk; the path stays fixed for the channel lifetime
 
 ### API surfaces
 
@@ -164,16 +164,16 @@ Explicitly excluded. Documented to prevent scope creep.
 | COMP-02 | Phase 1 | Complete |
 | COMP-03 | Phase 9 | Pending |
 | COMP-04 | Phase 1 | Complete |
-| ENDP-01 | Phase 1 | Pending |
-| ENDP-02 | Phase 1 | Pending |
-| ENDP-03 | Phase 1 | Pending |
-| ENDP-04 | Phase 1 | Pending |
+| ENDP-01 | Phase 1 | Complete |
+| ENDP-02 | Phase 1 | Complete |
+| ENDP-03 | Phase 1 | Complete |
+| ENDP-04 | Phase 1 | Complete |
 | PROTO-01 | Phase 1 | Complete |
 | PROTO-02 | Phase 1 | Complete |
 | PROTO-03 | Phase 1 | Complete |
 | PROTO-04 | Phase 1 | Complete |
 | PROTO-05 | Phase 1 | Complete |
-| FAST-05 | Phase 1 | Pending |
+| FAST-05 | Phase 1 | Complete |
 | SESS-01 | Phase 2 | Pending |
 | SESS-02 | Phase 2 | Pending |
 | SESS-03 | Phase 2 | Pending |
