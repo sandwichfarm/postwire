@@ -7,12 +7,10 @@
       "scripts/**",
       "*.ts",
       "*.js",
-      "*.json"
-    ],
-    "ignore": [
-      "dist/**",
-      "node_modules/**",
-      ".changeset/**"
+      "*.json",
+      "!!dist",
+      "!!node_modules",
+      "!!.changeset"
     ]
   },
   "formatter": {
@@ -45,7 +43,13 @@
       "trailingCommas": "all"
     }
   },
-  "organizeImports": {
-    "enabled": true
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on"
+        }
+      }
+    }
   }
 }
