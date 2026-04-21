@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-04-PLAN.md
-last_updated: "2026-04-21T12:30:50.507Z"
+stopped_at: Completed 03-api-adapters-single-hop-integration-03-PLAN.md
+last_updated: "2026-04-21T12:31:02.410Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
@@ -66,6 +66,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P01 | 3min | 2 tasks | 3 files |
 | Phase 03-api-adapters-single-hop-integration P02 | 4min | 2 tasks | 4 files |
 | Phase 03-api-adapters-single-hop-integration P04 | 6 | 4 tasks | 4 files |
+| Phase 03-api-adapters-single-hop-integration P03 | 7min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -110,6 +111,8 @@ Recent decisions affecting current work:
 - [Phase 03-02]: Chunker zero-copy for single-chunk BINARY_TRANSFER: original ab placed in transfer list directly (not sliced), satisfying FAST-01 source.byteLength===0 contract
 - [Phase 03-api-adapters-single-hop-integration]: createStream always calls channel.openStream() (initiator); responder integration tests use chB.onStream() directly
 - [Phase 03-api-adapters-single-hop-integration]: IllegalTransitionError guard in sink.write(): DataCloneError re-entrancy causes FSM to be ERRORED mid-sendData; catch and surface pre-set streamError
+- [Phase 03-api-adapters-single-hop-integration]: EmitterOptions.role initiator/responder prevents FSM conflict in two-party stream setup
+- [Phase 03-api-adapters-single-hop-integration]: Session.onCreditRefill() hook enables event-driven drain without polling
 
 ### Pending Todos
 
@@ -124,6 +127,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T12:30:41.868Z
-Stopped at: Completed 03-04-PLAN.md
+Last session: 2026-04-21T12:31:02.408Z
+Stopped at: Completed 03-api-adapters-single-hop-integration-03-PLAN.md
 Resume file: None
