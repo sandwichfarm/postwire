@@ -251,6 +251,28 @@ export class Channel {
       this.#session?.receiveFrame(frame);
     };
 
+    // LIFE-05: push a disposer to null out onmessage on close.
+    // This removes the library's inbound listener from the endpoint.
+    this.#disposers.push(() => {
+      endpoint.onmessage = null;
+    });
+
+    // Endpoint teardown detection (LIFE-03).
+    // Node 22: MessagePort fires 'close' when the partner port closes — detected here.
+    // Browser: the 'close' event on MessagePort is a Blink-only proposal (not cross-browser).
+    //   In browsers, teardown detection for MessagePort falls back to heartbeat (LIFE-02).
+    //   For Window endpoints, pagehide(persisted=false) covers iframe unload (LIFE-01).
+    // Adding the listener is always safe — it is a no-op if 'close' never fires.
+    if (typeof (endpoint as unknown as EventTarget).addEventListener === "function") {
+      const onEndpointClose = (): void => {
+        this.#freezeAllStreams("CHANNEL_CLOSED");
+      };
+      (endpoint as unknown as EventTarget).addEventListener("close", onEndpointClose);
+      this.#disposers.push(() =>
+        (endpoint as unknown as EventTarget).removeEventListener("close", onEndpointClose),
+      );
+    }
+
     // Send our CAPABILITY frame immediately
     this.#sendCapability();
 
@@ -406,6 +428,14 @@ export class Channel {
   }
 
   /**
+   * True if there is an active (non-null) session.
+   * Used by lifecycle integration tests (LIFE-03) to assert no zombie sessions remain.
+   */
+  get hasActiveSession(): boolean {
+    return this.#session !== null;
+  }
+
+  /**
    * Gracefully close the channel: close the active session with correct finalSeq.
    * Idempotent — calling close() on an already-closed channel is a no-op.
    */
@@ -435,8 +465,20 @@ export class Channel {
   #freezeAllStreams(code: "CHANNEL_FROZEN" | "CHANNEL_DEAD" | "CHANNEL_CLOSED"): void {
     if (this.#isClosed) return;
     this.#isClosed = true;
-    if (this.#session !== null && !isTerminalState(this.#session.state)) {
-      this.#session.reset(code);
+    if (this.#session !== null) {
+      const s = this.#session.state;
+      // RESET_SENT is only valid from OPEN, LOCAL_HALF_CLOSED, REMOTE_HALF_CLOSED, CLOSING.
+      // IDLE and OPENING have not completed the handshake and do not accept RESET_SENT.
+      // Terminal states (CLOSED, ERRORED, CANCELLED) throw on any event.
+      // Guard: only call reset() when the session is in a state that accepts it.
+      if (
+        s === "OPEN" ||
+        s === "LOCAL_HALF_CLOSED" ||
+        s === "REMOTE_HALF_CLOSED" ||
+        s === "CLOSING"
+      ) {
+        this.#session.reset(code);
+      }
     }
     this.#session = null;
     this.#emitter.emit("error", new StreamError(code, undefined));
