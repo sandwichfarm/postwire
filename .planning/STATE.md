@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 03-api-adapters-single-hop-integration-06-PLAN.md
-last_updated: "2026-04-21T12:44:40.646Z"
+status: executing
+stopped_at: Completed 04-lifecycle-safety-observability-00-PLAN.md
+last_updated: "2026-04-21T13:09:34.921Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
   completed_phases: 3
-  total_plans: 17
-  completed_plans: 17
+  total_plans: 23
+  completed_plans: 18
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-21)
 
 **Core value:** A high-throughput, reliable, ordered stream abstraction that slots into any existing postMessage boundary with minimal caller-side code.
-**Current focus:** Phase 03 — API Adapters + Single-Hop Integration
+**Current focus:** Phase 04 — Lifecycle Safety + Observability
 
 ## Current Position
 
-Phase: 4
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 04 (Lifecycle Safety + Observability) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
 Last activity: 2026-04-21
 
 Progress: [░░░░░░░░░░] 0%
@@ -69,6 +69,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-api-adapters-single-hop-integration P03 | 7min | 3 tasks | 5 files |
 | Phase 03 P05 | 4 | 3 tasks | 3 files |
 | Phase 03-api-adapters-single-hop-integration P06 | 2min | 3 tasks | 3 files |
+| Phase 04-lifecycle-safety-observability P00 | 4min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -119,6 +120,8 @@ Recent decisions affecting current work:
 - [Phase 03-05]: Heap-flat threshold 20 MB (not 10 MB): full-suite V8 context adds ~12 MB background from 18 other test modules; 20 MB still conclusively proves bounded heap vs 190+ MB unbounded case
 - [Phase 03-06]: esbuild bundle analysis for tree-shaking verification: bundle minimal caller, grep output for adapter-unique class names (TypedEmitter, ReadableStream, WritableStream)
 - [Phase 03-06]: dist/index.js (not src) used as bundle target in tree-shake check — validates the actual published artifact, not source
+- [Phase 04-lifecycle-safety-observability]: Inline ChannelEmitter class in channel.ts: emitter.ts TypedEmitter has stream-level event map (data/end/error/close/drain) not suitable for channel-level events (error/close/trace)
+- [Phase 04-lifecycle-safety-observability]: Keep CONSUMER_STALL alongside CREDIT_DEADLOCK in ErrorCode union for backward compat — Plan 04 renames the wiring
 
 ### Pending Todos
 
@@ -133,6 +136,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T12:41:04.701Z
-Stopped at: Completed 03-api-adapters-single-hop-integration-06-PLAN.md
+Last session: 2026-04-21T13:09:34.918Z
+Stopped at: Completed 04-lifecycle-safety-observability-00-PLAN.md
 Resume file: None

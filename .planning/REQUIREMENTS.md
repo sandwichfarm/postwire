@@ -61,17 +61,17 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 
 ### Lifecycle safety
 
-- [ ] **LIFE-01**: `pagehide` / `pageshow` (BFCache) is handled — streams on a BFCached page are paused cleanly on `pagehide` and either resumed on `pageshow` or error with `CHANNEL_FROZEN` if resumption isn't safe
-- [ ] **LIFE-02**: Service-worker recycling mid-stream triggers a heartbeat/timeout that surfaces `CHANNEL_DEAD` instead of silent stall
-- [ ] **LIFE-03**: Endpoint teardown (iframe unload, worker terminate, port close) propagates an explicit `CHANNEL_CLOSED` error to all active streams; no zombie streams remain
-- [ ] **LIFE-04**: Strong references to `MessagePort` are retained for the channel lifetime so ports are not GC'd mid-stream
-- [ ] **LIFE-05**: Event listeners registered by the library are removed on channel close; no leaked listeners after teardown
+- [x] **LIFE-01**: `pagehide` / `pageshow` (BFCache) is handled — streams on a BFCached page are paused cleanly on `pagehide` and either resumed on `pageshow` or error with `CHANNEL_FROZEN` if resumption isn't safe
+- [x] **LIFE-02**: Service-worker recycling mid-stream triggers a heartbeat/timeout that surfaces `CHANNEL_DEAD` instead of silent stall
+- [x] **LIFE-03**: Endpoint teardown (iframe unload, worker terminate, port close) propagates an explicit `CHANNEL_CLOSED` error to all active streams; no zombie streams remain
+- [x] **LIFE-04**: Strong references to `MessagePort` are retained for the channel lifetime so ports are not GC'd mid-stream
+- [x] **LIFE-05**: Event listeners registered by the library are removed on channel close; no leaked listeners after teardown
 
 ### Observability
 
-- [ ] **OBS-01**: Library exposes typed metrics hooks — bytes sent/received per stream, current credit window, reorder buffer depth, frame counts by type
-- [ ] **OBS-02**: Library exposes typed error events — `DataCloneError`, `ORIGIN_REJECTED`, `CREDIT_DEADLOCK`, `REORDER_OVERFLOW`, `PROTOCOL_MISMATCH`, `CHANNEL_FROZEN`, `CHANNEL_DEAD`, `CHANNEL_CLOSED`
-- [ ] **OBS-03**: Optional trace hook emits per-frame trace events for debugging without hard-coupling to a specific logger
+- [x] **OBS-01**: Library exposes typed metrics hooks — bytes sent/received per stream, current credit window, reorder buffer depth, frame counts by type
+- [x] **OBS-02**: Library exposes typed error events — `DataCloneError`, `ORIGIN_REJECTED`, `CREDIT_DEADLOCK`, `REORDER_OVERFLOW`, `PROTOCOL_MISMATCH`, `CHANNEL_FROZEN`, `CHANNEL_DEAD`, `CHANNEL_CLOSED`
+- [x] **OBS-03**: Optional trace hook emits per-frame trace events for debugging without hard-coupling to a specific logger
 
 ### Compatibility & security
 
@@ -191,14 +191,14 @@ Explicitly excluded. Documented to prevent scope creep.
 | API-04 | Phase 3 | Complete |
 | TOPO-01 | Phase 3 | Complete |
 | TEST-02 | Phase 3 | Complete |
-| LIFE-01 | Phase 4 | Pending |
-| LIFE-02 | Phase 4 | Pending |
-| LIFE-03 | Phase 4 | Pending |
-| LIFE-04 | Phase 4 | Pending |
-| LIFE-05 | Phase 4 | Pending |
-| OBS-01 | Phase 4 | Pending |
-| OBS-02 | Phase 4 | Pending |
-| OBS-03 | Phase 4 | Pending |
+| LIFE-01 | Phase 4 | Complete |
+| LIFE-02 | Phase 4 | Complete |
+| LIFE-03 | Phase 4 | Complete |
+| LIFE-04 | Phase 4 | Complete |
+| LIFE-05 | Phase 4 | Complete |
+| OBS-01 | Phase 4 | Complete |
+| OBS-02 | Phase 4 | Complete |
+| OBS-03 | Phase 4 | Complete |
 | BENCH-01 | Phase 5 | Pending |
 | BENCH-02 | Phase 5 | Pending |
 | BENCH-03 | Phase 5 | Pending |
