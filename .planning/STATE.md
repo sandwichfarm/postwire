@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 09-cross-browser-e2e-01-PLAN.md
-last_updated: "2026-04-21T18:33:58.139Z"
+stopped_at: Completed 10-examples-docs-publish 10-01-PLAN.md
+last_updated: "2026-04-21T18:47:50.447Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
-  completed_phases: 9
-  total_plans: 31
-  completed_plans: 31
+  completed_phases: 10
+  total_plans: 32
+  completed_plans: 32
   percent: 0
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-21)
 
 **Core value:** A high-throughput, reliable, ordered stream abstraction that slots into any existing postMessage boundary with minimal caller-side code.
-**Current focus:** Phase 09 — Cross-Browser E2E Test Suite
+**Current focus:** Phase 10 — Examples + Docs + Publish
 
 ## Current Position
 
-Phase: 10
-Plan: Not started
+Phase: 10 (Examples + Docs + Publish) — EXECUTING
+Plan: 1 of 1
 Status: Phase complete — ready for verification
 Last activity: 2026-04-21
 
@@ -81,6 +81,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 07-multi-hop-relay P01 | 16min | 3 tasks | 9 files |
 | Phase 08-multiplexing P01 | 12min | 2 tasks | 4 files |
 | Phase 09-cross-browser-e2e P01 | 10 | 2 tasks | 14 files |
+| Phase 10-examples-docs-publish P01 | 9 | 3 tasks | 37 files |
 
 ## Accumulated Context
 
@@ -157,6 +158,9 @@ Recent decisions affecting current work:
 - [Phase 09-cross-browser-e2e]: Applied strict CSP to sandbox-inner.html (inner iframe) not outer page; extracted inline script to sandbox-inner-module.js for CSP 'self' compliance
 - [Phase 09-cross-browser-e2e]: Fixture server per-spec (beforeAll/afterAll) avoids shared state; each spec controls its own CSP via cspByPath
 - [Phase 09-cross-browser-e2e]: test:e2e:local targets chromium+firefox only; webkit is CI-only due to Arch ICU 74/78 mismatch
+- [Phase 10-examples-docs-publish]: Plain markdown under docs/ instead of VitePress — GitHub-renderable, zero config
+- [Phase 10-examples-docs-publish]: examples/N uses file:../.. dep — no publish needed to run locally
+- [Phase 10-examples-docs-publish]: tsconfig.json excludes examples/ from root typecheck
 
 ### Pending Todos
 
@@ -171,6 +175,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T18:33:01.856Z
-Stopped at: Completed 09-cross-browser-e2e-01-PLAN.md
+Last session: 2026-04-21T18:47:50.444Z
+Stopped at: Completed 10-examples-docs-publish 10-01-PLAN.md
 Resume file: None

@@ -99,27 +99,27 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 
 ### Examples
 
-- [ ] **EX-01**: Example — two-party stream (parent ↔ iframe) with a simple `pipeTo` file download
-- [ ] **EX-02**: Example — two-party stream (main ↔ worker) with `ReadableStream` of compressed frames
-- [ ] **EX-03**: Example — three-hop topology: worker ingests a live stream → main-thread relay → strict-CSP sandboxed iframe consumer
-- [ ] **EX-04**: Example — multiplex mode: file download and control channel over one endpoint
-- [ ] **EX-05**: Each example is runnable locally (`pnpm dev`) and deployed to the examples site
+- [x] **EX-01**: Example — two-party stream (parent ↔ iframe) with a simple `pipeTo` file download
+- [x] **EX-02**: Example — two-party stream (main ↔ worker) with `ReadableStream` of compressed frames
+- [x] **EX-03**: Example — three-hop topology: worker ingests a live stream → main-thread relay → strict-CSP sandboxed iframe consumer
+- [x] **EX-04**: Example — multiplex mode: file download and control channel over one endpoint
+- [x] **EX-05**: Each example is runnable locally (`pnpm dev`) and deployed to the examples site
 
 ### Documentation
 
-- [ ] **DOC-01**: README covers install, a 10-line quickstart, and a link tree to the API/topology/benchmark docs
-- [ ] **DOC-02**: Documentation site (generated from source) covers the three API surfaces, endpoint adapters, capability negotiation, topology patterns, lifecycle/teardown semantics, and all named errors
-- [ ] **DOC-03**: Benchmark results section with charts (throughput, latency, CPU vs chunk size / data type / topology)
-- [ ] **DOC-04**: Migration / interop notes — when to use this library vs comlink vs native Transferable ReadableStream vs SAB ring buffer directly
-- [ ] **DOC-05**: Security-model docs explicitly cover origin validation, strict-CSP caveats, COOP/COEP interactions, sandboxed-iframe limitations
-- [ ] **DOC-06**: Decision log captures every key architecture/protocol decision with the benchmark or research evidence behind it
+- [x] **DOC-01**: README covers install, a 10-line quickstart, and a link tree to the API/topology/benchmark docs
+- [x] **DOC-02**: Documentation site (generated from source) covers the three API surfaces, endpoint adapters, capability negotiation, topology patterns, lifecycle/teardown semantics, and all named errors
+- [x] **DOC-03**: Benchmark results section with charts (throughput, latency, CPU vs chunk size / data type / topology)
+- [x] **DOC-04**: Migration / interop notes — when to use this library vs comlink vs native Transferable ReadableStream vs SAB ring buffer directly
+- [x] **DOC-05**: Security-model docs explicitly cover origin validation, strict-CSP caveats, COOP/COEP interactions, sandboxed-iframe limitations
+- [x] **DOC-06**: Decision log captures every key architecture/protocol decision with the benchmark or research evidence behind it
 
 ### Publishing
 
-- [ ] **PUB-01**: Package has a short, catchy name that is available on both npm and jsr; name selected before v1 publish
-- [ ] **PUB-02**: Dual-publish to npm and jsr from a single CI workflow using GitHub OIDC trusted publishing (no long-lived tokens)
-- [ ] **PUB-03**: Version sync script keeps `package.json` and `jsr.json` on the same version automatically; drift is prevented by CI check
-- [ ] **PUB-04**: Semantic versioning managed by Changesets with human-readable changelog
+- [x] **PUB-01**: Package has a short, catchy name that is available on both npm and jsr; name selected before v1 publish
+- [x] **PUB-02**: Dual-publish to npm and jsr from a single CI workflow using GitHub OIDC trusted publishing (no long-lived tokens)
+- [x] **PUB-03**: Version sync script keeps `package.json` and `jsr.json` on the same version automatically; drift is prevented by CI check
+- [x] **PUB-04**: Semantic versioning managed by Changesets with human-readable changelog
 
 ## v2 Requirements
 
@@ -214,21 +214,21 @@ Explicitly excluded. Documented to prevent scope creep.
 | TEST-03 | Phase 9 | Complete |
 | TEST-04 | Phase 9 | Complete |
 | TEST-05 | Phase 9 | Complete |
-| EX-01 | Phase 10 | Pending |
-| EX-02 | Phase 10 | Pending |
-| EX-03 | Phase 10 | Pending |
-| EX-04 | Phase 10 | Pending |
-| EX-05 | Phase 10 | Pending |
-| DOC-01 | Phase 10 | Pending |
-| DOC-02 | Phase 10 | Pending |
-| DOC-03 | Phase 10 | Pending |
-| DOC-04 | Phase 10 | Pending |
-| DOC-05 | Phase 10 | Pending |
-| DOC-06 | Phase 10 | Pending |
-| PUB-01 | Phase 10 | Pending |
-| PUB-02 | Phase 10 | Pending |
-| PUB-03 | Phase 10 | Pending |
-| PUB-04 | Phase 10 | Pending |
+| EX-01 | Phase 10 | Complete |
+| EX-02 | Phase 10 | Complete |
+| EX-03 | Phase 10 | Complete |
+| EX-04 | Phase 10 | Complete |
+| EX-05 | Phase 10 | Complete |
+| DOC-01 | Phase 10 | Complete |
+| DOC-02 | Phase 10 | Complete |
+| DOC-03 | Phase 10 | Complete |
+| DOC-04 | Phase 10 | Complete |
+| DOC-05 | Phase 10 | Complete |
+| DOC-06 | Phase 10 | Complete |
+| PUB-01 | Phase 10 | Complete |
+| PUB-02 | Phase 10 | Complete |
+| PUB-03 | Phase 10 | Complete |
+| PUB-04 | Phase 10 | Complete |
 
 **Coverage:**
 - v1 requirements: 69 total
