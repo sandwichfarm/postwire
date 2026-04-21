@@ -1,9 +1,18 @@
 {
   "name": "@sandwich/postwire",
   "version": "0.1.0",
+  "description": "High-throughput, reliable, ordered stream abstraction over any postMessage boundary — iframes, web workers, service workers, MessageChannel, BroadcastChannel — with credit-based backpressure, three API surfaces (low-level, Node EventEmitter, WHATWG Streams), multi-hop relay, optional multiplexing, and feature-detected SharedArrayBuffer fast path. Zero runtime dependencies, strict-CSP compatible baseline.",
+  "license": "MIT",
   "exports": {
     ".": "./src/index.ts",
     "./wasm": "./src/wasm.ts"
+  },
+  "runtimeCompat": {
+    "browser": true,
+    "deno": true,
+    "node": true,
+    "bun": true,
+    "workerd": true
   },
   "publish": {
     "include": ["src/**/*.ts", "LICENSE", "README.md"],

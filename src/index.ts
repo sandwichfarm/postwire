@@ -1,4 +1,62 @@
-// postwire public API
+/**
+ * # postwire
+ *
+ * A high-throughput, reliable, ordered stream abstraction that slots into any
+ * existing `postMessage` boundary — iframes, web workers, service workers,
+ * `MessageChannel`, `BroadcastChannel` — with credit-based backpressure and
+ * zero runtime dependencies.
+ *
+ * The library does not own the channel. Consumers wire it into their existing
+ * `postMessage` code by handing it an endpoint (a `PostMessageEndpoint` — any
+ * object with `postMessage` and a way to receive messages).
+ *
+ * Three API surfaces are provided, each tree-shakeable so callers only pay for
+ * what they import:
+ *
+ * - {@link createLowLevelStream} — minimal `send(chunk, transfer?)` /
+ *   `onChunk(cb)` primitive
+ * - {@link createEmitterStream} — Node-style `EventEmitter` wrapper
+ * - {@link createStream} — WHATWG Streams `{ readable, writable }` pair with
+ *   `desiredSize` wired to the credit window for end-to-end backpressure
+ *
+ * Higher-level topologies:
+ *
+ * - {@link createChannel} — bidirectional channel over a single endpoint
+ * - {@link createRelayBridge} — multi-hop relay (worker → main → iframe)
+ *   with end-to-end credit forwarding and no reassembly buffers
+ *
+ * Feature-detected fast paths:
+ *
+ * - Transferable `ArrayBuffer` / `TypedArray` (zero-copy)
+ * - `SharedArrayBuffer` + `Atomics.waitAsync` ring buffer when
+ *   cross-origin-isolated (opt-in via `channel.options.sab`)
+ *
+ * @example Basic two-party stream over a `MessageChannel` pair
+ * ```ts
+ * import { createChannel, createStream } from "@sandwich/postwire";
+ *
+ * const { port1, port2 } = new MessageChannel();
+ * const a = createChannel(port1);
+ * const b = createChannel(port2);
+ *
+ * // consumer side
+ * b.onStream((handle) => {
+ *   const { readable } = createStream(b, { handle });
+ *   readable.pipeTo(new WritableStream({
+ *     write(chunk) { console.log("got", chunk); },
+ *   }));
+ * });
+ *
+ * // producer side
+ * const { writable } = createStream(a);
+ * const writer = writable.getWriter();
+ * await writer.write(new Uint8Array([1, 2, 3]));
+ * await writer.close();
+ * ```
+ *
+ * @packageDocumentation
+ * @module
+ */
 
 // ---------------------------------------------------------------------------
 // Phase 1: Framing types and encode/decode
