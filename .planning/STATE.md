@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-benchmark-harness plan 00 (05-00-PLAN.md)
-last_updated: "2026-04-21T14:11:11.626Z"
+stopped_at: Completed 05-benchmark-harness plan 01 (05-01-PLAN.md) — Node-mode pivot
+last_updated: "2026-04-21T14:41:48.247Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
   completed_phases: 4
   total_plans: 27
-  completed_plans: 24
+  completed_plans: 25
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-21)
 ## Current Position
 
 Phase: 05 (Benchmark Harness) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-04-21
 
@@ -76,6 +76,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04-lifecycle-safety-observability P04 | 5min | 2 tasks | 5 files |
 | Phase 04 P05 | 7 | 2 tasks | 5 files |
 | Phase 05-benchmark-harness P00 | 6min | 2 tasks | 11 files |
+| Phase 05-benchmark-harness P01 | 25min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -140,6 +141,8 @@ Recent decisions affecting current work:
 - [Phase 05-benchmark-harness]: Vitest 4.1.4 requires @vitest/browser-playwright factory API for browser.provider (not string 'playwright')
 - [Phase 05-benchmark-harness]: tinybench 6 Statistics shape: latency.p50/p75/p99 and throughput.mean (not flat hz/p50 from v5)
 - [Phase 05-benchmark-harness]: bench:local excludes WebKit (Arch ICU ABI mismatch) — CI covers all browsers via ubuntu-latest --with-deps
+- [Phase 05-benchmark-harness]: Browser-mode srcdoc iframe pivot to Node env: /src/index.js import never resolves in sandboxed srcdoc, CAPABILITY handshake hung indefinitely; node:worker_threads MessageChannel provides real semantics without infrastructure overhead
+- [Phase 05-benchmark-harness]: Bench harness uses channel.openStream() + session.sendData() directly: LowLevelStream.close() calls channel.close() which requires OPEN state — premature close causes IllegalTransitionError
 
 ### Pending Todos
 
@@ -154,6 +157,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T14:11:11.623Z
-Stopped at: Completed 05-benchmark-harness plan 00 (05-00-PLAN.md)
+Last session: 2026-04-21T14:41:48.244Z
+Stopped at: Completed 05-benchmark-harness plan 01 (05-01-PLAN.md) — Node-mode pivot
 Resume file: None

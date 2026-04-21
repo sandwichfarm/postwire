@@ -92,8 +92,8 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 ### Benchmarks
 
 - [x] **BENCH-01**: Benchmark harness built on Vitest browser mode + tinybench, runnable locally and in CI, across Chromium, Firefox, and WebKit
-- [ ] **BENCH-02**: Benchmarks measure throughput (MB/s), latency (p50/p95/p99), and CPU (approximated via `performance.now()`-banded sampling) for each data type (binary, stream-ref, structured-clone)
-- [ ] **BENCH-03**: Benchmarks compare the library against naive postMessage chunking across data sizes (1KB, 64KB, 1MB, 16MB, 256MB) and topologies (two-party, relay)
+- [x] **BENCH-02**: Benchmarks measure throughput (MB/s), latency (p50/p95/p99), and CPU (approximated via `performance.now()`-banded sampling) for each data type (binary, stream-ref, structured-clone)
+- [x] **BENCH-03**: Benchmarks compare the library against naive postMessage chunking across data sizes (1KB, 64KB, 1MB, 16MB, 256MB) and topologies (two-party, relay)
 - [x] **BENCH-04**: Benchmark report is published alongside each release — versioned in the repository and rendered in the docs site
 - [x] **BENCH-05**: Benchmark data drives the WASM decision gate — introduce WASM only when JS path hits a measurable ceiling that WASM can break through (documented in decision log)
 
@@ -200,8 +200,8 @@ Explicitly excluded. Documented to prevent scope creep.
 | OBS-02 | Phase 4 | Complete |
 | OBS-03 | Phase 4 | Complete |
 | BENCH-01 | Phase 5 | Complete |
-| BENCH-02 | Phase 5 | Pending |
-| BENCH-03 | Phase 5 | Pending |
+| BENCH-02 | Phase 5 | Complete |
+| BENCH-03 | Phase 5 | Complete |
 | BENCH-04 | Phase 5 | Complete |
 | BENCH-05 | Phase 5 | Complete |
 | FAST-04 | Phase 6 | Pending |

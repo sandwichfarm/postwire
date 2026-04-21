@@ -2,7 +2,7 @@
 phase: 05-benchmark-harness
 plan: "00"
 subsystem: testing
-tags: [vitest, tinybench, playwright, benchmarks, browser-mode, ci]
+tags: [vitest, tinybench, playwright, benchmarks, browser-mode, ci, node-mode-pivot]
 
 requires:
   - phase: 01-scaffold-wire-protocol-foundation
@@ -13,13 +13,14 @@ requires:
     provides: channel.stats() for byte-count cross-check
 
 provides:
-  - vitest.bench.config.ts — three-browser bench project config (chromium/firefox/webkit)
+  - vitest.bench.config.ts — bench project config (Node env after Plan 01 pivot; see 05-01-SUMMARY.md)
   - benchmarks/helpers/payloads.ts — chunked crypto.getRandomValues payload factories
-  - benchmarks/helpers/iframe-harness.ts — srcdoc iframe factory with MessageChannel handshake
-  - benchmarks/helpers/worker-harness.ts — Blob URL module worker factory
+  - benchmarks/helpers/iframe-harness.browser.archived.ts — srcdoc iframe factory (ARCHIVED — hung in browser mode)
+  - benchmarks/helpers/worker-harness.browser.archived.ts — Blob URL module worker factory (ARCHIVED)
+  - benchmarks/helpers/node-harness.ts — Node MessageChannel harness (replaces archived browser-mode helpers)
   - benchmarks/helpers/reporter.ts — BenchJsonReporter writing timestamped JSON artifacts
   - benchmarks/compare.mjs — CLI regression comparator with configurable threshold
-  - .github/workflows/bench.yml — nightly+dispatch+label-triggered CI workflow
+  - .github/workflows/bench.yml — nightly+dispatch+label-triggered CI workflow (Node-only, no Playwright install)
   - .planning/decisions/ — directory for WASM decision artifact
 
 affects:
@@ -157,6 +158,18 @@ None. Harness helpers are scaffolding files — they contain no hardcoded placeh
 - All helper factories (`createBenchIframe`, `createBenchWorker`, `createBinaryPayload`) are importable
 - `BenchJsonReporter` is ready to register in `vitest.bench.config.ts` reporters array when scenarios exist
 - `.planning/decisions/05-wasm-decision.md` directory is ready for the WASM decision artifact
+
+## Post-Plan Scope Adjustment (Plan 01 pivot)
+
+The browser-mode harness (iframe-harness.ts, worker-harness.ts) created in this plan was subsequently discovered to hang indefinitely when Plan 01 scenarios ran. See `05-01-SUMMARY.md` for full details. The harness was pivoted to Node env in the same commit as Plan 01's scenario work (`b17e8a8`):
+
+- `iframe-harness.ts` → renamed to `iframe-harness.browser.archived.ts` (kept for reference/future revival)
+- `worker-harness.ts` → renamed to `worker-harness.browser.archived.ts` (kept for reference/future revival)
+- `benchmarks/helpers/node-harness.ts` created (replacement)
+- `vitest.bench.config.ts` rewritten to Node env
+- `bench.yml` updated (no Playwright install needed)
+
+The `@vitest/browser-playwright` devDep is kept installed — not worth uninstalling; available for Phase 9 browser-mode revival.
 
 ---
 *Phase: 05-benchmark-harness*

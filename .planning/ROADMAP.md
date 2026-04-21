@@ -106,7 +106,7 @@ Plans:
 **Plans**: 4 plans
 Plans:
 - [x] 05-00-PLAN.md — Harness scaffold: vitest.bench.config.ts, helpers (payloads, iframe/worker harness, JSON reporter), compare.mjs, bench.yml CI workflow
-- [ ] 05-01-PLAN.md — Benchmark scenarios: binary-transfer, structured-clone, naive-baseline across 1KB/64KB/1MB/16MB (+ 256MB heavy)
+- [x] 05-01-PLAN.md — Benchmark scenarios: binary-transfer, structured-clone, naive-baseline across 1KB/64KB/1MB/16MB (+ 256MB heavy)
 - [ ] 05-02-PLAN.md — Baseline run: execute local bench (Chromium + Firefox), commit baseline.json, verify comparator
 - [ ] 05-03-PLAN.md — WASM decision: analyze baseline.json, write .planning/decisions/05-wasm-decision.md
 
@@ -176,7 +176,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 2. Session Protocol Core | 5/6 | In Progress|  |
 | 3. API Adapters + Single-Hop Integration | 5/7 | In Progress|  |
 | 4. Lifecycle Safety + Observability | 6/6 | Complete   | 2026-04-21 |
-| 5. Benchmark Harness | 0/? | Not started | - |
+| 5. Benchmark Harness | 2/4 | In Progress|  |
 | 6. SAB Fast Path | 0/? | Not started | - |
 | 7. Multi-Hop Relay | 0/? | Not started | - |
 | 8. Multiplexing | 0/? | Not started | - |
