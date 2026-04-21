@@ -28,7 +28,7 @@
     "test:e2e": "playwright test",
     "bench": "vitest bench --config vitest.bench.config.ts",
     "bench:heavy": "IFB_BENCH_HEAVY=1 vitest bench --config vitest.bench.config.ts",
-    "bench:local": "vitest bench --config vitest.bench.config.ts --project=bench-chromium --project=bench-firefox",
+    "bench:local": "vitest bench --config vitest.bench.config.ts",
     "typecheck": "tsc --noEmit",
     "ci": "pnpm build && pnpm lint && pnpm test && pnpm test:e2e",
     "tree-shake:check": "node scripts/tree-shake-check.mjs",

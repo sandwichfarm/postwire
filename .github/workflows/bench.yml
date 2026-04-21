@@ -1,5 +1,9 @@
 name: Benchmarks
 
+# Node-mode benchmarks — no browser installation needed.
+# Pivoted from browser-mode in Phase 5 (srcdoc iframe import resolution issue).
+# See .planning/phases/05-benchmark-harness/05-01-SUMMARY.md for rationale.
+
 on:
   schedule:
     - cron: "0 2 * * *"
@@ -31,17 +35,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Install Playwright browsers (all three)
-        run: pnpm exec playwright install --with-deps chromium firefox webkit
-
       - name: Build library
         run: pnpm build
 
-      - name: Run benchmarks (all browsers, default payload sizes)
+      - name: Run benchmarks (Node env, default payload sizes)
         run: pnpm bench
-        env:
-          # Workers=1 runs browser projects sequentially — avoids OOM on 256 MB payloads
-          VITEST_MAX_WORKERS: "1"
 
       - name: Upload results artifact
         uses: actions/upload-artifact@v4

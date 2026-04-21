@@ -1,65 +1,37 @@
 // benchmarks/scenarios/structured-clone.bench.ts
-// Measures structured-clone (non-transferable JS object) path throughput.
-// Structured clone is the slow path: no zero-copy, GC pressure from serialization.
+// Measures structured-clone (non-transferable JS object) path throughput via the library.
+//
+// Uses node:worker_threads MessageChannel — real structured-clone semantics.
+// This is the "slow path": no zero-copy, serialisation + deserialisation overhead.
+// Compare against binary-transfer.bench.ts to quantify BINARY_TRANSFER vs STRUCTURED_CLONE cost.
+
 import { bench, describe } from "vitest";
-import { createBenchIframe } from "../helpers/iframe-harness.js";
-import { createBenchWorker } from "../helpers/worker-harness.js";
-import type { BenchIframe } from "../helpers/iframe-harness.js";
-import type { BenchWorker } from "../helpers/worker-harness.js";
+import { sendStructuredViaLibrary } from "../helpers/node-harness.js";
 
 const HEAVY: boolean =
-  (typeof process !== "undefined" && process.env?.IFB_BENCH_HEAVY === "1") ||
-  ((globalThis as unknown as Record<string, string>).IFB_BENCH_HEAVY === "1");
+  typeof process !== "undefined" && process.env?.IFB_BENCH_HEAVY === "1";
 
 const SIZES: [number, string][] = [
   [1024, "1KB"],
   [64 * 1024, "64KB"],
   [1 * 1024 * 1024, "1MB"],
   [16 * 1024 * 1024, "16MB"],
-  ...(HEAVY ? [[256 * 1024 * 1024, "256MB"] as [number, string]] : []),
+  ...(HEAVY ? ([[256 * 1024 * 1024, "256MB"]] as [number, string][]) : []),
 ];
 
 for (const [bytes, label] of SIZES) {
-  const iterations = bytes <= 1024 ? 100 : 30;
+  const iterations = bytes <= 1024 ? 50 : bytes <= 65536 ? 30 : 10;
 
   describe(`structured-clone ${label}`, () => {
-    let iframeCtx: BenchIframe;
-
     bench(
-      `library (structured-clone) — iframe [${label}]`,
+      `library (structured-clone) [${label}]`,
       async () => {
-        // sendViaLibrary with bytes — harness generates structured payload internally
-        // For structured-clone comparison, we pass bytes as the size target
-        await iframeCtx.sendViaLibrary(bytes);
+        await sendStructuredViaLibrary(bytes);
       },
       {
         iterations,
-        warmupIterations: 5,
-        setup: async () => {
-          iframeCtx = await createBenchIframe();
-        },
-        teardown: async () => {
-          iframeCtx.destroy();
-        },
-      },
-    );
-
-    let workerCtx: BenchWorker;
-
-    bench(
-      `library (structured-clone) — worker [${label}]`,
-      async () => {
-        await workerCtx.sendViaLibrary(bytes);
-      },
-      {
-        iterations,
-        warmupIterations: 5,
-        setup: async () => {
-          workerCtx = await createBenchWorker();
-        },
-        teardown: async () => {
-          workerCtx.terminate();
-        },
+        warmupIterations: 3,
+        time: 2000,
       },
     );
   });
