@@ -12,7 +12,7 @@
 // Those live in Session (Layer 4).
 
 import { decode, encode } from "../framing/encode-decode.js";
-import type { TraceEvent } from "./stats.js";
+import type { ChannelStats, StreamStats, TraceEvent } from "./stats.js";
 
 /**
  * Detect if ReadableStream is transferable in this environment.
@@ -54,6 +54,7 @@ function checkReadableStreamTransferable(): boolean {
 
 import {
   type CapabilityFrame,
+  type DataFrame,
   FRAME_MARKER,
   type Frame,
   PROTOCOL_VERSION,
@@ -260,6 +261,32 @@ export class Channel {
       const frame = decode(evt.data);
       if (frame === null) return; // not a library frame — pass through silently
 
+      // Track inbound frame counts (OBS-01)
+      this.#frameCountsRecv.set(frame.type, (this.#frameCountsRecv.get(frame.type) ?? 0) + 1);
+      if (frame.type === "DATA") {
+        const df = frame as DataFrame;
+        if (df.chunkType === "BINARY_TRANSFER" && df.payload instanceof ArrayBuffer) {
+          this.#bytesReceived += df.payload.byteLength;
+        }
+      }
+
+      // Emit trace event for inbound frame (OBS-03)
+      if (this.#options.trace) {
+        this.#emitter.emit("trace", {
+          timestamp: performance.now(),
+          direction: "in",
+          frameType: frame.type,
+          streamId: frame.streamId,
+          seq: frame.seqNum,
+          byteLength:
+            frame.type === "DATA" &&
+            (frame as DataFrame).chunkType === "BINARY_TRANSFER" &&
+            (frame as DataFrame).payload instanceof ArrayBuffer
+              ? ((frame as DataFrame).payload as ArrayBuffer).byteLength
+              : undefined,
+        });
+      }
+
       if (frame.type === "CAPABILITY") {
         this.#handleCapability(frame as CapabilityFrame);
         return;
@@ -328,6 +355,18 @@ export class Channel {
       sab: this.#localCap.sab,
       transferableStreams: this.#localCap.transferableStreams,
     };
+    // Track outbound CAPABILITY frame counts and trace (OBS-01, OBS-03)
+    this.#frameCountsSent.set("CAPABILITY", (this.#frameCountsSent.get("CAPABILITY") ?? 0) + 1);
+    if (this.#options.trace) {
+      this.#emitter.emit("trace", {
+        timestamp: performance.now(),
+        direction: "out",
+        frameType: "CAPABILITY",
+        streamId: 0,
+        seq: 0,
+        byteLength: undefined,
+      });
+    }
     this.#sendRaw(encode(cap), []);
   }
 
@@ -437,6 +476,50 @@ export class Channel {
     return this;
   }
 
+  /**
+   * Returns a polling snapshot of channel and per-stream metrics (OBS-01).
+   * Not reactive — call as needed. Safe to call before any stream is opened.
+   *
+   * Byte counts:
+   *   - BINARY_TRANSFER frames: exact (ArrayBuffer.byteLength at intercept point)
+   *   - STRUCTURED_CLONE frames: 0 (payload cannot be measured without serializing)
+   *
+   * frameCountsByType: combined send + receive counts per frame type for the active stream.
+   */
+  stats(): ChannelStats {
+    const streams: StreamStats[] = [];
+
+    if (this.#session !== null) {
+      // Combine sent + received counts into a single frameCountsByType map
+      const combined = new Map<string, number>();
+      for (const [k, v] of this.#frameCountsSent) {
+        combined.set(k, (combined.get(k) ?? 0) + v);
+      }
+      for (const [k, v] of this.#frameCountsRecv) {
+        combined.set(k, (combined.get(k) ?? 0) + v);
+      }
+
+      streams.push({
+        streamId: this.#session.streamId,
+        bytesSent: this.#bytesSent,
+        bytesReceived: this.#bytesReceived,
+        frameCountsByType: Object.fromEntries(combined) as StreamStats["frameCountsByType"],
+        creditWindowAvailable: this.#session.creditWindowAvailable,
+        reorderBufferDepth: this.#session.reorderBufferDepth,
+        chunkerChunksSent: this.#session.chunkerChunksSent,
+        chunkerChunksReceived: this.#session.chunkerChunksReceived,
+      });
+    }
+
+    return {
+      streams,
+      aggregate: {
+        bytesSent: this.#bytesSent,
+        bytesReceived: this.#bytesReceived,
+      },
+    };
+  }
+
   // ---------------------------------------------------------------------------
   // Frame send (used by Session.onFrameOut and internal capability send)
   // ---------------------------------------------------------------------------
@@ -444,12 +527,39 @@ export class Channel {
   /**
    * Called by the Session via onFrameOut to send an outgoing frame.
    * Tracks lastDataSeqOut for CLOSE finalSeq (RESEARCH.md Pitfall 6).
+   * Increments OBS-01 byte/frame counters; emits OBS-03 trace event when enabled.
    * Wraps postMessage in try/catch for DataCloneError (PITFALLS P1).
    */
   sendFrame(frame: Frame, transfer?: ArrayBuffer[]): void {
     if (frame.type === "DATA") {
       this.#lastDataSeqOut = frame.seqNum;
+      // Track bytes for BINARY_TRANSFER path (exact); STRUCTURED_CLONE is not counted
+      // because payload byteLength is unavailable at this layer without serializing.
+      const df = frame as DataFrame;
+      if (df.chunkType === "BINARY_TRANSFER" && df.payload instanceof ArrayBuffer) {
+        this.#bytesSent += df.payload.byteLength;
+      }
     }
+    // Track outbound frame counts (OBS-01)
+    this.#frameCountsSent.set(frame.type, (this.#frameCountsSent.get(frame.type) ?? 0) + 1);
+
+    // Emit trace event for outbound frame (OBS-03)
+    if (this.#options.trace) {
+      this.#emitter.emit("trace", {
+        timestamp: performance.now(),
+        direction: "out",
+        frameType: frame.type,
+        streamId: frame.streamId,
+        seq: frame.seqNum,
+        byteLength:
+          frame.type === "DATA" &&
+          (frame as DataFrame).chunkType === "BINARY_TRANSFER" &&
+          (frame as DataFrame).payload instanceof ArrayBuffer
+            ? ((frame as DataFrame).payload as ArrayBuffer).byteLength
+            : undefined,
+      });
+    }
+
     this.#sendRaw(encode(frame), transfer ?? []);
   }
 
@@ -572,7 +682,19 @@ export class Channel {
         (err instanceof Error && err.message.includes("could not be cloned"))
       ) {
         const streamErr = new StreamError("DataCloneError", err);
-        this.#session?.reset("DataCloneError");
+        // Guard: only call reset() from states that accept RESET_SENT (same as #freezeAllStreams).
+        // OPENING and IDLE do not accept RESET_SENT in the FSM transition table.
+        if (this.#session !== null) {
+          const s = this.#session.state;
+          if (
+            s === "OPEN" ||
+            s === "LOCAL_HALF_CLOSED" ||
+            s === "REMOTE_HALF_CLOSED" ||
+            s === "CLOSING"
+          ) {
+            this.#session.reset("DataCloneError");
+          }
+        }
         this.#emitter.emit("error", streamErr); // OBS-02: route through typed emitter
         this.#onErrorCb?.(streamErr); // backward compat
       } else {

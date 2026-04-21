@@ -30,6 +30,10 @@ export class Chunker {
   readonly #maxChunkSize: number;
   #nextSeq: number;
 
+  // OBS-01: counters for stats() snapshot
+  #chunksSent = 0;
+  #chunksReceived = 0;
+
   // Reassembly map: streamId → accumulated ArrayBuffer slices
   readonly #reassemblyBufs: Map<number, ArrayBuffer[]> = new Map<number, ArrayBuffer[]>();
 
@@ -38,6 +42,16 @@ export class Chunker {
     this.#channelId = opts.channelId;
     this.#streamId = opts.streamId;
     this.#maxChunkSize = opts.maxChunkSize ?? 65536;
+  }
+
+  /** Number of chunks sent (OBS-01). Each split() call may produce multiple chunks. */
+  get chunksSent(): number {
+    return this.#chunksSent;
+  }
+
+  /** Number of fully reassembled payloads received (OBS-01). */
+  get chunksReceived(): number {
+    return this.#chunksReceived;
   }
 
   /**
@@ -97,6 +111,7 @@ export class Chunker {
         offset += chunkSize;
       } while (offset < total);
 
+      this.#chunksSent += results.length;
       return results;
     }
 
@@ -117,6 +132,7 @@ export class Chunker {
       isFinal: true,
     };
 
+    this.#chunksSent += 1;
     return [{ frame, transfer: [] }];
   }
 
@@ -128,7 +144,11 @@ export class Chunker {
   reassemble(frame: DataFrame): unknown {
     if (frame.chunkType === "STRUCTURED_CLONE") {
       // Single-chunk: return immediately (isFinal must be true per protocol)
-      return frame.isFinal ? frame.payload : null;
+      if (frame.isFinal) {
+        this.#chunksReceived += 1;
+        return frame.payload;
+      }
+      return null;
     }
 
     // BINARY_TRANSFER: accumulate slices keyed by streamId
@@ -157,6 +177,7 @@ export class Chunker {
       pos += buf.byteLength;
     }
 
+    this.#chunksReceived += 1;
     return result;
   }
 }

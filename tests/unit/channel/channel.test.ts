@@ -198,6 +198,59 @@ describe("Channel — error event routing (OBS-02)", () => {
   });
 });
 
+describe("Channel — trace events (OBS-03)", () => {
+  it("emits trace events when trace:true", () => {
+    const ep = makeFakeEndpoint();
+    const ch = createChannel(ep, { channelId: "trace-on", trace: true });
+    const traces: unknown[] = [];
+    ch.on("trace", (t) => traces.push(t));
+
+    // Simulate inbound CAPABILITY message (triggers inbound trace)
+    ep.simulateMessage({
+      [FRAME_MARKER]: 1,
+      channelId: "trace-on",
+      streamId: 0,
+      seqNum: 0,
+      type: "CAPABILITY",
+      protocolVersion: PROTOCOL_VERSION,
+      sab: false,
+      transferableStreams: false,
+    });
+
+    // Should have at least one trace event (outbound CAPABILITY on construction + inbound)
+    expect(traces.length).toBeGreaterThanOrEqual(1);
+    const inboundTrace = traces.find(
+      (t: unknown) => (t as { direction: string }).direction === "in",
+    );
+    expect(inboundTrace).toBeDefined();
+    expect((inboundTrace as { frameType: string }).frameType).toBe("CAPABILITY");
+    expect((inboundTrace as { timestamp: number }).timestamp).toBeTypeOf("number");
+
+    ch.close();
+  });
+
+  it("does NOT emit trace events when trace option is absent", () => {
+    const ep = makeFakeEndpoint();
+    const ch = createChannel(ep, { channelId: "trace-off" }); // no trace option
+    const traces: unknown[] = [];
+    ch.on("trace", (t) => traces.push(t));
+
+    ep.simulateMessage({
+      [FRAME_MARKER]: 1,
+      channelId: "trace-off",
+      streamId: 0,
+      seqNum: 0,
+      type: "CAPABILITY",
+      protocolVersion: PROTOCOL_VERSION,
+      sab: false,
+      transferableStreams: false,
+    });
+
+    expect(traces).toHaveLength(0);
+    ch.close();
+  });
+});
+
 describe("Channel — SW heartbeat (LIFE-02)", () => {
   afterEach(() => vi.useRealTimers());
 

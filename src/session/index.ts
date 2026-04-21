@@ -125,9 +125,34 @@ export class Session {
     return this.#state;
   }
 
+  /** Stream identifier (OBS-01). */
+  get streamId(): number {
+    return this.#streamId;
+  }
+
   /** Forwarded from CreditWindow; Phase 3 WHATWG Streams adapter wires this to desiredSize. */
   get desiredSize(): number {
     return this.#credit.desiredSize;
+  }
+
+  /** Current available send credit (OBS-01). */
+  get creditWindowAvailable(): number {
+    return this.#credit.sendCredit;
+  }
+
+  /** Current reorder buffer depth — out-of-order frames buffered (OBS-01). */
+  get reorderBufferDepth(): number {
+    return this.#reorder.bufferSize;
+  }
+
+  /** Number of DATA chunks sent via the chunker (OBS-01). */
+  get chunkerChunksSent(): number {
+    return this.#chunker.chunksSent;
+  }
+
+  /** Number of complete payloads reassembled by the chunker (OBS-01). */
+  get chunkerChunksReceived(): number {
+    return this.#chunker.chunksReceived;
   }
 
   // ---------------------------------------------------------------------------
