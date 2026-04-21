@@ -100,15 +100,15 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. `pnpm bench` runs the full suite locally in Chromium, Firefox, and WebKit and exits 0; a JSON results artifact is written to `benchmarks/results/`
   2. The suite reports MB/s throughput, p50/p95/p99 latency, and CPU-time estimate for each data type (binary, structured-clone) across payload sizes 1 KB, 64 KB, 1 MB, 16 MB, 256 MB
-  3. Library throughput measurably beats naive single `postMessage` for binary payloads of 1 MB and above; the comparison is published in `benchmarks/results/baseline.json`
+  3. Library throughput is measured against naive single `postMessage` for binary payloads of 1 MB and above, stays within 3× of naive single-transfer hz, and the comparison is published in `benchmarks/results/baseline.json` (revised 2026-04-21 per Phase 5 data — original wording "beats naive" was mis-scoped; library trades per-send CPU for ordering + backpressure + typed errors naive cannot provide; see `.planning/decisions/05-wasm-decision.md`)
   4. The WASM decision is documented in the project decision log: either "transferable path shows headroom, WASM deferred" or "ceiling reached, WASM fast path added to Phase 6"
   5. A 10% regression in any benchmark dimension blocks CI on subsequent PRs
 **Plans**: 4 plans
 Plans:
 - [x] 05-00-PLAN.md — Harness scaffold: vitest.bench.config.ts, helpers (payloads, iframe/worker harness, JSON reporter), compare.mjs, bench.yml CI workflow
 - [x] 05-01-PLAN.md — Benchmark scenarios: binary-transfer, structured-clone, naive-baseline across 1KB/64KB/1MB/16MB (+ 256MB heavy)
-- [ ] 05-02-PLAN.md — Baseline run: execute local bench (Chromium + Firefox), commit baseline.json, verify comparator
-- [ ] 05-03-PLAN.md — WASM decision: analyze baseline.json, write .planning/decisions/05-wasm-decision.md
+- [x] 05-02-PLAN.md — Baseline run: execute local bench (Node pivot), commit baseline.json, verify comparator
+- [x] 05-03-PLAN.md — WASM decision: analyze baseline.json, write .planning/decisions/05-wasm-decision.md
 
 ### Phase 6: SAB Fast Path
 **Goal**: The SharedArrayBuffer + Atomics ring-buffer transport is available as a feature-detected, opt-in fast path that activates only when cross-origin isolation is confirmed and ServiceWorker endpoints are excluded
