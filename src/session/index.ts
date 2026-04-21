@@ -80,6 +80,7 @@ export class Session {
   #onFrameOutCb: ((frame: Frame, transfer?: ArrayBuffer[]) => void) | null = null;
   #onChunkCb: ((chunk: unknown) => void) | null = null;
   #onErrorCb: ((reason: string) => void) | null = null;
+  #onCreditRefillCb: (() => void) | null = null;
 
   constructor(opts: SessionOptions) {
     this.#channelId = opts.channelId;
@@ -146,6 +147,15 @@ export class Session {
   /** Register callback for error conditions (stall, reset, cancel). */
   onError(cb: (reason: string) => void): void {
     this.#onErrorCb = cb;
+  }
+
+  /**
+   * Register callback fired when send credit refills after having been exhausted.
+   * Used by the EventEmitter adapter to emit the 'drain' event (API-02).
+   * Fires once per credit-refill cycle when credit transitions from 0 to positive.
+   */
+  onCreditRefill(cb: () => void): void {
+    this.#onCreditRefillCb = cb;
   }
 
   // ---------------------------------------------------------------------------
@@ -283,6 +293,14 @@ export class Session {
     this.#emitData(payload, chunkType);
   }
 
+  /**
+   * Returns true if the send credit window is currently exhausted.
+   * Used by adapters to track whether a subsequent credit refill warrants a 'drain' event.
+   */
+  get isCreditExhausted(): boolean {
+    return this.#credit.desiredSize <= 0;
+  }
+
   // ---------------------------------------------------------------------------
   // Lifecycle control
   // ---------------------------------------------------------------------------
@@ -364,13 +382,21 @@ export class Session {
   /**
    * Drain the pending-sends queue as long as send credit is available.
    * Called after addSendCredit (CREDIT frame or OPEN_ACK received).
+   * Fires onCreditRefillCb once per drain cycle if credit was previously exhausted
+   * and the queue was non-empty — this signals 'drain' to the EventEmitter adapter.
    */
   #drainPendingSends(): void {
+    const hadPending = this.#pendingSends.length > 0;
     while (this.#pendingSends.length > 0 && this.#credit.consumeSendCredit()) {
       const item = this.#pendingSends.shift();
       if (item !== undefined) {
         this.#emitData(item.payload, item.chunkType);
       }
+    }
+    // Fire credit-refill callback once if we drained at least one pending send,
+    // signalling that backpressure has been relieved.
+    if (hadPending && this.#onCreditRefillCb !== null) {
+      this.#onCreditRefillCb();
     }
   }
 
