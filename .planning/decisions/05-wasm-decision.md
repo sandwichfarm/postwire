@@ -36,6 +36,25 @@ All numbers below come from `benchmarks/results/baseline.json` (commit `d682226`
 - rme for all scenarios ≤ 6.71% (the 16 MB structured-clone run; all others ≤ 2.84%). Numbers are stable.
 - Throughput for 16 MB structured-clone is only 10 samples over 3.5 s — lowest confidence data point, noted but not load-bearing for the decision.
 
+### CPU time per send (BENCH-02) — `process.cpuUsage()` delta, µs/op
+
+Separate run via `benchmarks/cpu-profile.mjs` (Vitest bench + tinybench don't expose per-iteration CPU; this script wraps each `send*` function in `process.cpuUsage()` deltas over ≥ 200 ms wall time).
+
+| Scenario | 1 KB | 64 KB | 1 MB | 16 MB |
+|----------|-----:|------:|-----:|------:|
+| library (transferable) µs/op | 195 | 174 | 1,813 | 12,332 |
+| naive postMessage µs/op | 32 | 43 | 274 | 7,269 |
+| library (structured-clone) µs/op | 163 | 513 | 10,513 | 428,642 |
+
+CPU utilization (user+system CPU / wall time):
+- library (transferable): 117%–172% (goes above 100% → V8 engages GC + worker threads on large payloads)
+- naive postMessage: 99%–158% (similar)
+
+**CPU interpretation:**
+- At 16 MB, library transferable burns 12.3 ms of CPU per send vs naive's 7.3 ms — a 69% CPU tax for the library.
+- library structured-clone at 16 MB is ~60× more CPU than BINARY_TRANSFER at the same size — the structured-clone path is the dominant CPU cost for non-binary payloads.
+- Throughput ÷ CPU confirms the CPU-bound interpretation: library transferable at 16 MB produces 1,842 MB/s while spending 12.3 ms CPU per 16 MB op → effective throughput is exactly wall-time-throughput with CPU pegged near the single-thread ceiling. The library isn't CPU-idle waiting for I/O; it's CPU-active framing.
+
 ## Bottleneck Analysis
 
 **Classification:** **CPU-bound by per-send framing** (not GC-bound, not channel-bound).

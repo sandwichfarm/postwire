@@ -3,7 +3,7 @@
 // Usage: node benchmarks/normalize.mjs <vitest.json> <out.json>
 // Output schema: { timestamp, node, scenarios: [{ name, payloadBytes, mb_s, p50_ms, p75_ms, p99_ms, samples, rme }] }
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { execSync } from "node:child_process";
 
 const [inPath, outPath] = process.argv.slice(2);
@@ -23,11 +23,23 @@ function extractPayloadBytes(name) {
 const vitest = JSON.parse(readFileSync(inPath, "utf8"));
 const scenarios = [];
 
+// Merge CPU-profile data if available. cpu-profile.json uses the same scenario names
+// as bench output, so we can look up by name.
+const cpuProfilePath = "benchmarks/results/cpu-profile.json";
+let cpuByName = new Map();
+if (existsSync(cpuProfilePath)) {
+  const cpu = JSON.parse(readFileSync(cpuProfilePath, "utf8"));
+  for (const s of cpu.scenarios ?? []) {
+    cpuByName.set(s.name, s);
+  }
+}
+
 for (const file of vitest.files ?? []) {
   for (const group of file.groups ?? []) {
     for (const b of group.benchmarks ?? []) {
       const payloadBytes = extractPayloadBytes(b.name);
       const hz = b.hz;
+      const cpu = cpuByName.get(b.name);
       scenarios.push({
         name: b.name,
         payloadBytes,
@@ -41,6 +53,9 @@ for (const file of vitest.files ?? []) {
         max_ms: b.max,
         samples: b.sampleCount,
         rme: b.rme,
+        // BENCH-02 CPU-time estimate (from benchmarks/cpu-profile.mjs — measured separately)
+        cpu_us_per_op: cpu?.cpu_us_per_op ?? null,
+        cpu_utilization: cpu?.cpu_utilization ?? null,
       });
     }
   }
