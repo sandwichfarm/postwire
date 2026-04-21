@@ -284,11 +284,13 @@ export class SabRingConsumer {
 
   // Read a little-endian u32 from the u8 payload area
   #readU32LE(byteOffset: number): number {
+    // TypedArray index access always returns a number for in-bounds offsets;
+    // the caller guarantees byteOffset + 3 < this.#u8.length.
     return (
-      (this.#u8[byteOffset]! |
-        (this.#u8[byteOffset + 1]! << 8) |
-        (this.#u8[byteOffset + 2]! << 16) |
-        (this.#u8[byteOffset + 3]! << 24)) >>>
+      ((this.#u8[byteOffset] as number) |
+        ((this.#u8[byteOffset + 1] as number) << 8) |
+        ((this.#u8[byteOffset + 2] as number) << 16) |
+        ((this.#u8[byteOffset + 3] as number) << 24)) >>>
       0
     );
   }

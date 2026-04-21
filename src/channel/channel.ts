@@ -117,7 +117,7 @@ class ChannelEmitter {
     handler: (...args: ChannelEventMap[K]) => void,
   ): void {
     if (!this.#handlers.has(event)) this.#handlers.set(event, new Set());
-    this.#handlers.get(event)!.add(handler as (...args: unknown[]) => void);
+    this.#handlers.get(event)?.add(handler as (...args: unknown[]) => void);
   }
 
   off<K extends keyof ChannelEventMap>(
@@ -128,7 +128,9 @@ class ChannelEmitter {
   }
 
   emit<K extends keyof ChannelEventMap>(event: K, ...args: ChannelEventMap[K]): void {
-    this.#handlers.get(event)?.forEach((h) => h(...args));
+    this.#handlers.get(event)?.forEach((h) => {
+      h(...args);
+    });
   }
 
   removeAllListeners(): void {
@@ -711,7 +713,7 @@ export class Channel {
   /** Flush the disposers array in reverse order (LIFE-05). */
   #runDisposers(): void {
     for (let i = this.#disposers.length - 1; i >= 0; i--) {
-      this.#disposers[i]!();
+      this.#disposers[i]?.();
     }
     this.#disposers.length = 0;
   }
@@ -725,7 +727,9 @@ export class Channel {
    * timeout are cleared when channel.close() runs (Pitfall 6 prevention).
    */
   #startHeartbeat(): void {
-    const { intervalMs, timeoutMs } = this.#options.heartbeat!;
+    const heartbeat = this.#options.heartbeat;
+    if (!heartbeat) throw new Error("heartbeat options unexpectedly absent");
+    const { intervalMs, timeoutMs } = heartbeat;
     this.#heartbeatInterval = setInterval(() => {
       if (this.#isClosed) return;
       this.#sendCapability(); // ping

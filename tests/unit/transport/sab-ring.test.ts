@@ -36,7 +36,10 @@ describe("sab-ring: round-trip", () => {
 
     // Write all
     for (let i = 0; i < payloads.length; i++) {
-      const ok = await producer.write(payloads[i]!, seqs[i]!, chunkTypes[i]!);
+      const payload = payloads[i] as Uint8Array;
+      const seq = seqs[i] as number;
+      const chunkType = chunkTypes[i] as number;
+      const ok = await producer.write(payload, seq, chunkType);
       expect(ok).toBe(true);
     }
 
@@ -44,9 +47,9 @@ describe("sab-ring: round-trip", () => {
     for (let i = 0; i < payloads.length; i++) {
       const msg = await consumer.read(1000);
       expect(msg).not.toBeNull();
-      expect(msg!.seq).toBe(seqs[i]);
-      expect(msg!.chunkType).toBe(chunkTypes[i]);
-      expect(msg!.payload).toEqual(payloads[i]);
+      expect(msg?.seq).toBe(seqs[i]);
+      expect(msg?.chunkType).toBe(chunkTypes[i]);
+      expect(msg?.payload).toEqual(payloads[i]);
     }
   });
 
@@ -60,9 +63,9 @@ describe("sab-ring: round-trip", () => {
     const msg = await consumer.read(1000);
 
     expect(msg).not.toBeNull();
-    expect(msg!.seq).toBe(42);
-    expect(msg!.chunkType).toBe(3);
-    expect(msg!.payload).toEqual(payload);
+    expect(msg?.seq).toBe(42);
+    expect(msg?.chunkType).toBe(3);
+    expect(msg?.payload).toEqual(payload);
   });
 });
 
@@ -89,26 +92,26 @@ describe("sab-ring: wrap-around", () => {
     }
 
     // Write first two frames (they fit without wrap)
-    expect(await producer.write(payloads[0]!, 10, 0)).toBe(true);
-    expect(await producer.write(payloads[1]!, 11, 0)).toBe(true);
+    expect(await producer.write(payloads[0] as Uint8Array, 10, 0)).toBe(true);
+    expect(await producer.write(payloads[1] as Uint8Array, 11, 0)).toBe(true);
 
     // Read first two frames to free space
     const m0 = await consumer.read(1000);
     const m1 = await consumer.read(1000);
-    expect(m0!.seq).toBe(10);
-    expect(m1!.seq).toBe(11);
+    expect(m0?.seq).toBe(10);
+    expect(m1?.seq).toBe(11);
 
     // Now write frames 3 and 4 — frame 3 will trigger a wrap
-    expect(await producer.write(payloads[2]!, 12, 0)).toBe(true);
-    expect(await producer.write(payloads[3]!, 13, 0)).toBe(true);
+    expect(await producer.write(payloads[2] as Uint8Array, 12, 0)).toBe(true);
+    expect(await producer.write(payloads[3] as Uint8Array, 13, 0)).toBe(true);
 
     // Read frames 3 and 4
     const m2 = await consumer.read(1000);
     const m3 = await consumer.read(1000);
-    expect(m2!.seq).toBe(12);
-    expect(m2!.payload).toEqual(payloads[2]);
-    expect(m3!.seq).toBe(13);
-    expect(m3!.payload).toEqual(payloads[3]);
+    expect(m2?.seq).toBe(12);
+    expect(m2?.payload).toEqual(payloads[2]);
+    expect(m3?.seq).toBe(13);
+    expect(m3?.payload).toEqual(payloads[3]);
   });
 
   it("consumer skips padding marker and reads frame at offset 0", async () => {
@@ -126,13 +129,13 @@ describe("sab-ring: wrap-around", () => {
     // Write first, read first (to free space)
     await producer.write(p1, 1, 0);
     const r1 = await consumer.read(500);
-    expect(r1!.seq).toBe(1);
+    expect(r1?.seq).toBe(1);
 
     // Write second — should wrap
     await producer.write(p2, 2, 0);
     const r2 = await consumer.read(500);
-    expect(r2!.seq).toBe(2);
-    expect(r2!.payload).toEqual(p2);
+    expect(r2?.seq).toBe(2);
+    expect(r2?.payload).toEqual(p2);
   });
 });
 
@@ -152,7 +155,7 @@ describe("sab-ring: terminator", () => {
     // Read the real frame
     const m1 = await consumer.read(1000);
     expect(m1).not.toBeNull();
-    expect(m1!.seq).toBe(1);
+    expect(m1?.seq).toBe(1);
 
     // Next read hits terminator → null
     const m2 = await consumer.read(1000);
@@ -231,9 +234,9 @@ describe("sab-ring: fuzz", () => {
     for (const s of sent) {
       const msg = await consumer.read(1000);
       expect(msg).not.toBeNull();
-      expect(msg!.seq).toBe(s.seq);
-      expect(msg!.chunkType).toBe(s.chunkType);
-      expect(msg!.payload).toEqual(s.payload);
+      expect(msg?.seq).toBe(s.seq);
+      expect(msg?.chunkType).toBe(s.chunkType);
+      expect(msg?.payload).toEqual(s.payload);
     }
   });
 
@@ -279,8 +282,8 @@ describe("sab-ring: fuzz", () => {
 
     expect(received).toHaveLength(NUM);
     for (let i = 0; i < NUM; i++) {
-      expect(received[i]!.seq).toBe(sent[i]!.seq);
-      expect(received[i]!.payload).toEqual(sent[i]!.payload);
+      expect(received[i]?.seq).toBe(sent[i]?.seq);
+      expect(received[i]?.payload).toEqual(sent[i]?.payload);
     }
   });
 });

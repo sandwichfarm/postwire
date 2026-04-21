@@ -38,15 +38,11 @@ function makeFakeEndpoint() {
 
 // Helper: dispatch a fake PageTransitionEvent (PageTransitionEvent not available in Node)
 function dispatchPagehide(persisted: boolean): void {
-  globalThis.dispatchEvent(
-    Object.assign(new Event("pagehide"), { persisted }) as Event,
-  );
+  globalThis.dispatchEvent(Object.assign(new Event("pagehide"), { persisted }) as Event);
 }
 
 function dispatchPageshow(persisted: boolean): void {
-  globalThis.dispatchEvent(
-    Object.assign(new Event("pageshow"), { persisted }) as Event,
-  );
+  globalThis.dispatchEvent(Object.assign(new Event("pageshow"), { persisted }) as Event);
 }
 
 describe("Channel — BFCache (LIFE-01)", () => {
@@ -54,7 +50,9 @@ describe("Channel — BFCache (LIFE-01)", () => {
 
   afterEach(() => {
     // Close all channels to flush disposers and remove globalThis listeners
-    channels.splice(0).forEach((ch) => ch.close());
+    channels.splice(0).forEach((ch) => {
+      ch.close();
+    });
   });
 
   it("emits CHANNEL_FROZEN on pagehide(persisted=true)", () => {
@@ -110,5 +108,3 @@ describe("Channel — BFCache (LIFE-01)", () => {
     expect(errors).toHaveLength(0);
   });
 });
-
-export { makeFakeEndpoint };

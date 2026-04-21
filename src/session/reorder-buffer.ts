@@ -46,7 +46,10 @@ export class ReorderBuffer {
       const out: DataFrame[] = [frame];
       this.#nextExpected = seqNext(this.#nextExpected);
       while (this.#buffer.has(this.#nextExpected)) {
-        out.push(this.#buffer.get(this.#nextExpected)!);
+        const buffered = this.#buffer.get(this.#nextExpected);
+        if (!buffered)
+          throw new Error("reorder-buffer invariant violated: has() true but get() undefined");
+        out.push(buffered);
         this.#buffer.delete(this.#nextExpected);
         this.#nextExpected = seqNext(this.#nextExpected);
       }
