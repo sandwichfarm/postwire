@@ -37,7 +37,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. `createWindowEndpoint(win, expectedOrigin)` exists as a named export and rejects messages from non-matching origins in a unit test
 **Plans**: 4 plans
 Plans:
-- [ ] 01-01-PLAN.md — Toolchain scaffold (package.json, tsconfig, tsdown, biome, vitest, playwright, changesets, jsr.json)
+- [x] 01-01-PLAN.md — Toolchain scaffold (package.json, tsconfig, tsdown, biome, vitest, playwright, changesets, jsr.json)
 - [ ] 01-02-PLAN.md — Wire protocol framing (Frame types discriminated union, encode/decode, seq arithmetic + wraparound tests)
 - [ ] 01-03-PLAN.md — Transport endpoint adapters (PostMessageEndpoint interface, four adapters, origin validation)
 - [ ] 01-04-PLAN.md — CI workflows, final exports wiring, full Phase 1 gate check
