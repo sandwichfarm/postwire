@@ -65,8 +65,10 @@ export class BenchJsonReporter implements Reporter {
           if ("tasks" in task && Array.isArray(task.tasks)) {
             walkTasks(task.tasks);
           }
-          // Bench tasks have a result with the tinybench TaskResult shape
-          const result = (task as unknown as { result?: unknown }).result;
+          // In Vitest bench mode, the tinybench TaskResult is stored in task.meta.result
+          // (not task.result, which is the vitest runner result shape)
+          const meta = (task as unknown as { meta?: { benchmark?: boolean; result?: unknown } }).meta;
+          const result = meta?.benchmark === true ? meta.result : undefined;
           if (!isCompletedResult(result)) continue;
 
           const payloadBytes = extractPayloadBytes(task.name);

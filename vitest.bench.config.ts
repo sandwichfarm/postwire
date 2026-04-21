@@ -20,6 +20,7 @@
 //   benchmarks/helpers/worker-harness.browser.archived.ts
 
 import { defineConfig } from "vitest/config";
+import { BenchJsonReporter } from "./benchmarks/helpers/reporter.js";
 
 export default defineConfig({
   test: {
@@ -27,5 +28,6 @@ export default defineConfig({
     include: ["benchmarks/scenarios/**/*.bench.ts"],
     environment: "node",
     // benchmark options are set at the bench() call site (iterations/warmupIterations)
+    reporters: [new BenchJsonReporter()],
   },
 });

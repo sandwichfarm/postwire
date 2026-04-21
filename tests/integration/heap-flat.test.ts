@@ -165,16 +165,18 @@ describe("heap-flat slow-consumer (SESS-03)", { concurrent: false }, () => {
         ` delta=${heapDeltaMB.toFixed(2)} MB`,
     );
 
-    // Credit window bounds buffering — heap delta must stay under 20 MB.
+    // Credit window bounds buffering — heap delta must stay under 30 MB.
     // Rationale:
-    //   - 20 MB accommodates Vitest full-suite context (other test files loading modules
-    //     in the same V8 isolate during the 3-second measurement window can add ~12 MB).
+    //   - 30 MB accommodates Vitest full-suite context (other test files loading modules
+    //     in the same V8 isolate during the 3-second measurement window can add ~12 MB,
+    //     and occasional spikes to ~22 MB have been observed in CI under parallel test
+    //     workers — this is not related to credit-window correctness).
     //   - When run in isolation (vitest run tests/integration/heap-flat.test.ts),
     //     delta is typically negative (GC reclaims warm-up allocations).
     //   - If unbounded buffering occurred (no credit window), the sender would enqueue
     //     64 KB × (3000ms / write-latency) chunks. At 1 ms/write that's ~190 MB —
-    //     far above this threshold. The delta being <20 MB proves the credit window works.
-    expect(heapDeltaMB).toBeLessThan(20);
+    //     far above this threshold. The delta being <30 MB proves the credit window works.
+    expect(heapDeltaMB).toBeLessThan(30);
 
     // Clean up read loop
     streamDone = true;
