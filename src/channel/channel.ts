@@ -219,6 +219,10 @@ export class Channel {
   // Kept for backward compat; new callers should use channel.on('error', cb).
   #onErrorCb: ((err: StreamError) => void) | null = null;
 
+  // Phase 7: raw-frame hooks for relay bridge (TOPO-02, TOPO-03, TOPO-04)
+  readonly #rawDataHandlers: Set<(frame: DataFrame) => void> = new Set();
+  readonly #rawControlHandlers: Set<(frame: Frame) => void> = new Set();
+
   // Phase 4: typed emitter, disposers array, closed guard (LIFE-05, OBS-02)
   readonly #emitter = new ChannelEmitter();
   readonly #disposers: (() => void)[] = [];
@@ -333,6 +337,24 @@ export class Channel {
       if (frame.type === "CAPABILITY") {
         this.#handleCapability(frame as CapabilityFrame);
         return;
+      }
+
+      // Phase 7: fan-out to raw-frame handlers (relay bridge).
+      // Fires IN ADDITION to session delivery, not INSTEAD OF.
+      // DATA handlers receive typed DataFrame; control handlers receive all non-DATA frames.
+      if (frame.type === "DATA") {
+        if (this.#rawDataHandlers.size > 0) {
+          const df = frame as DataFrame;
+          for (const handler of this.#rawDataHandlers) {
+            handler(df);
+          }
+        }
+      } else {
+        if (this.#rawControlHandlers.size > 0) {
+          for (const handler of this.#rawControlHandlers) {
+            handler(frame);
+          }
+        }
       }
 
       // Responder path: if an OPEN frame arrives with no active session, create one.
@@ -528,6 +550,69 @@ export class Channel {
   ): this {
     this.#emitter.off(event, handler);
     return this;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Phase 7: raw-frame hooks for relay bridge (TOPO-02, TOPO-03, TOPO-04)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Subscribe to raw DATA frames as they arrive from the peer endpoint, BEFORE
+   * session-layer reassembly. Used by relay bridges to forward frames without
+   * reassembly. Fires once per inbound DATA frame, in addition to session delivery.
+   * Returns a disposer that removes the handler.
+   */
+  onRawDataFrame(cb: (frame: DataFrame) => void): () => void {
+    this.#rawDataHandlers.add(cb);
+    return () => {
+      this.#rawDataHandlers.delete(cb);
+    };
+  }
+
+  /**
+   * Subscribe to raw control frames (OPEN, OPEN_ACK, CREDIT, CANCEL, RESET, CLOSE)
+   * as they arrive from the peer endpoint. Used by relay bridges for credit
+   * forwarding and cancel/reset propagation. Fires in addition to session delivery.
+   * Returns a disposer that removes the handler.
+   */
+  onRawControlFrame(cb: (frame: Frame) => void): () => void {
+    this.#rawControlHandlers.add(cb);
+    return () => {
+      this.#rawControlHandlers.delete(cb);
+    };
+  }
+
+  /**
+   * Send a raw frame directly to the peer endpoint, bypassing the session layer.
+   * Used by relay bridges to forward frames without going through the local session FSM.
+   * Increments OBS-01 frame counters so channel.stats() remains accurate.
+   */
+  sendRawFrame(frame: Frame, transfer?: Transferable[]): void {
+    // Track outbound frame counts (OBS-01) — same as sendFrame() does
+    this.#frameCountsSent.set(frame.type, (this.#frameCountsSent.get(frame.type) ?? 0) + 1);
+    if (frame.type === "DATA") {
+      const df = frame as DataFrame;
+      if (df.chunkType === "BINARY_TRANSFER" && df.payload instanceof ArrayBuffer) {
+        this.#bytesSent += df.payload.byteLength;
+      }
+    }
+    // Emit trace event when tracing is enabled (OBS-03)
+    if (this.#options.trace) {
+      this.#emitter.emit("trace", {
+        timestamp: performance.now(),
+        direction: "out",
+        frameType: frame.type,
+        streamId: frame.streamId,
+        seq: frame.seqNum,
+        byteLength:
+          frame.type === "DATA" &&
+          (frame as DataFrame).chunkType === "BINARY_TRANSFER" &&
+          (frame as DataFrame).payload instanceof ArrayBuffer
+            ? ((frame as DataFrame).payload as ArrayBuffer).byteLength
+            : undefined,
+      });
+    }
+    this.#sendRaw(encode(frame), (transfer ?? []) as ArrayBuffer[]);
   }
 
   /**
