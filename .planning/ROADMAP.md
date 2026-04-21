@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 3: API Adapters + Single-Hop Integration** - Low-level, EventEmitter, and WHATWG Streams surfaces; first real-browser integration tests
 - [x] **Phase 4: Lifecycle Safety + Observability** - BFCache, SW recycling, endpoint teardown, metrics hooks, error events, trace hook (completed 2026-04-21)
 - [ ] **Phase 5: Benchmark Harness** - Vitest bench suite, throughput/latency/CPU metrics, CI regression baseline, WASM gate documentation
-- [ ] **Phase 6: SAB Fast Path** - SharedArrayBuffer + Atomics ring-buffer transport, feature-detected and gated by benchmark data
+- [x] **Phase 6: SAB Fast Path** - SharedArrayBuffer + Atomics ring-buffer transport, feature-detected and gated by benchmark data (completed 2026-04-21)
 - [ ] **Phase 7: Multi-Hop Relay** - RelayBridge routing table with credit-forwarding backpressure and bidirectional error propagation
 - [ ] **Phase 8: Multiplexing** - Opt-in MultiplexLayer with per-stream credit windows; no head-of-line blocking
 - [ ] **Phase 9: Cross-Browser E2E Test Suite** - Playwright matrix across Chromium + Firefox + WebKit; three-hop + strict-CSP scenarios
@@ -177,7 +177,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 3. API Adapters + Single-Hop Integration | 5/7 | In Progress|  |
 | 4. Lifecycle Safety + Observability | 6/6 | Complete   | 2026-04-21 |
 | 5. Benchmark Harness | 2/4 | In Progress|  |
-| 6. SAB Fast Path | 0/? | Not started | - |
+| 6. SAB Fast Path | 1/1 | Complete   | 2026-04-21 |
 | 7. Multi-Hop Relay | 0/? | Not started | - |
 | 8. Multiplexing | 0/? | Not started | - |
 | 9. Cross-Browser E2E Test Suite | 0/? | Not started | - |

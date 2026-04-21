@@ -36,7 +36,7 @@ All v1 requirements are hypotheses until shipped and validated. YOLO mode — sc
 - [x] **FAST-01**: Transferable `ArrayBuffer` / `TypedArray` path transfers ownership (zero-copy) when the caller provides typed binary; the post-transfer source is treated as detached, not read again
 - [x] **FAST-02**: Transferable `ReadableStream` path is used when feature-detected (modern Chrome/Firefox); falls back to library-native chunked delivery where unavailable (Safari stable as of v1 release is assumed absent)
 - [x] **FAST-03**: Structured-clone path handles arbitrary cloneable payloads and surfaces `DataCloneError` as a named, typed error — never swallowed
-- [ ] **FAST-04**: `SharedArrayBuffer` + `Atomics` fast path activates when cross-origin-isolated AND not cross-agent-cluster AND caller opts in; falls back transparently to the postMessage-transferable path otherwise
+- [x] **FAST-04**: `SharedArrayBuffer` + `Atomics` fast path activates when cross-origin-isolated AND not cross-agent-cluster AND caller opts in; falls back transparently to the postMessage-transferable path otherwise
 - [x] **FAST-05**: Feature detection runs once at channel open, not per chunk; the path stays fixed for the channel lifetime
 
 ### API surfaces
@@ -204,7 +204,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | BENCH-03 | Phase 5 | Complete |
 | BENCH-04 | Phase 5 | Complete |
 | BENCH-05 | Phase 5 | Complete |
-| FAST-04 | Phase 6 | Pending |
+| FAST-04 | Phase 6 | Complete |
 | TOPO-02 | Phase 7 | Pending |
 | TOPO-03 | Phase 7 | Pending |
 | TOPO-04 | Phase 7 | Pending |
