@@ -30,9 +30,7 @@ export interface ServiceWorkerEndpointMeta {
  *
  * ENDP-02, ENDP-04: ServiceWorker adapter implementation.
  */
-export function createServiceWorkerEndpoint(
-  sw: ServiceWorker,
-): ServiceWorkerEndpointMeta {
+export function createServiceWorkerEndpoint(sw: ServiceWorker): ServiceWorkerEndpointMeta {
   return {
     endpoint: sw as unknown as PostMessageEndpoint,
     sabCapable: false,

@@ -16,10 +16,7 @@ import type { PostMessageEndpoint } from "../endpoint.js";
  * Phase 1 does NOT implement removeEventListener teardown — that is LIFE-05 (Phase 4).
  * TODO Phase 4: add teardown via close() that calls win.removeEventListener('message', listener).
  */
-export function createWindowEndpoint(
-  win: Window,
-  expectedOrigin: string,
-): PostMessageEndpoint {
+export function createWindowEndpoint(win: Window, expectedOrigin: string): PostMessageEndpoint {
   if (expectedOrigin === "*") {
     throw new Error(
       '[iframebuffer] createWindowEndpoint: wildcard expectedOrigin "*" is not allowed. ' +

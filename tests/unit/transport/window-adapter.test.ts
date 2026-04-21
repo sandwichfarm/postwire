@@ -42,10 +42,7 @@ describe("createWindowEndpoint", () => {
 
   it("delegates postMessage with the expectedOrigin as targetOrigin", () => {
     const fakeWin = makeFakeWindow();
-    const endpoint = createWindowEndpoint(
-      fakeWin as unknown as Window,
-      "https://example.com",
-    );
+    const endpoint = createWindowEndpoint(fakeWin as unknown as Window, "https://example.com");
     const data = { hello: "world" };
     endpoint.postMessage(data, []);
     expect(fakeWin.sentMessages).toHaveLength(1);
@@ -55,10 +52,7 @@ describe("createWindowEndpoint", () => {
 
   it("forwards messages from the correct origin to onmessage", () => {
     const fakeWin = makeFakeWindow();
-    const endpoint = createWindowEndpoint(
-      fakeWin as unknown as Window,
-      "https://example.com",
-    );
+    const endpoint = createWindowEndpoint(fakeWin as unknown as Window, "https://example.com");
     const received: MessageEvent[] = [];
     endpoint.onmessage = (e) => received.push(e);
     fakeWin.dispatchMessage("https://example.com", { ping: true });
@@ -68,10 +62,7 @@ describe("createWindowEndpoint", () => {
 
   it("silently drops messages from a different origin", () => {
     const fakeWin = makeFakeWindow();
-    const endpoint = createWindowEndpoint(
-      fakeWin as unknown as Window,
-      "https://example.com",
-    );
+    const endpoint = createWindowEndpoint(fakeWin as unknown as Window, "https://example.com");
     const received: MessageEvent[] = [];
     endpoint.onmessage = (e) => received.push(e);
     fakeWin.dispatchMessage("https://attacker.example", { evil: true });
@@ -80,13 +71,8 @@ describe("createWindowEndpoint", () => {
 
   it("does not call onmessage when it is null", () => {
     const fakeWin = makeFakeWindow();
-    const endpoint = createWindowEndpoint(
-      fakeWin as unknown as Window,
-      "https://example.com",
-    );
-    // endpoint.onmessage is null by default — should not throw
-    expect(() =>
-      fakeWin.dispatchMessage("https://example.com", { data: true }),
-    ).not.toThrow();
+    const _endpoint = createWindowEndpoint(fakeWin as unknown as Window, "https://example.com");
+    // _endpoint.onmessage is null by default — should not throw
+    expect(() => fakeWin.dispatchMessage("https://example.com", { data: true })).not.toThrow();
   });
 });

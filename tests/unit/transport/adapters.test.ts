@@ -20,9 +20,7 @@ describe("createWorkerEndpoint", () => {
       postMessage: vi.fn(),
       onmessage: null as ((e: MessageEvent) => void) | null,
     };
-    const endpoint: PostMessageEndpoint = createWorkerEndpoint(
-      fakeWorker as unknown as Worker,
-    );
+    const endpoint: PostMessageEndpoint = createWorkerEndpoint(fakeWorker as unknown as Worker);
     expect(typeof endpoint.postMessage).toBe("function");
     expect(endpoint.onmessage).toBeNull();
   });
