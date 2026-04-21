@@ -9,6 +9,11 @@
 //
 // Pattern: RESEARCH.md Pattern 4 — Minimal EventEmitter ~40 LoC
 // Drain event: fires once when send credit window refills after having been exhausted.
+//
+// Role semantics:
+//   'initiator' (default): calls channel.openStream() to initiate the handshake.
+//   'responder': registers channel.onStream() and wires callbacks on stream arrival.
+//   In a two-party pair, one side must be initiator, one must be responder.
 
 import type { Channel } from "../channel/channel.js";
 import { StreamError } from "../types.js";
@@ -77,6 +82,14 @@ class TypedEmitter {
 // ---------------------------------------------------------------------------
 
 export interface EmitterOptions {
+  /**
+   * Stream role for this end of the connection.
+   * 'initiator' (default): calls channel.openStream() to start the handshake.
+   * 'responder': registers channel.onStream() and waits for the remote OPEN frame.
+   * Use 'initiator' for the side that initiates the connection;
+   * use 'responder' for the side that accepts it.
+   */
+  role?: "initiator" | "responder";
   /** Phase 4: hooks?: SessionHooks */
   hooks?: Record<string, never>;
 }
@@ -119,18 +132,47 @@ export interface EmitterStream {
  *
  * write() returns boolean: true if more can be written, false if buffering.
  * drain fires exactly when the credit window refills after being exhausted.
+ *
+ * @param channel - The Channel to wrap.
+ * @param options - Optional configuration, including role ('initiator' | 'responder').
  */
-export function createEmitterStream(channel: Channel, _options?: EmitterOptions): EmitterStream {
-  const stream = channel.openStream();
-  const session = stream.session;
+export function createEmitterStream(channel: Channel, options?: EmitterOptions): EmitterStream {
+  const role = options?.role ?? "initiator";
 
   // Track whether backpressure is currently active.
   // drain fires only when transitioning from backpressure → no-backpressure.
   let backpressureActive = false;
 
+  // Queued writes that arrived before the session was ready (responder role).
+  const pendingWrites: unknown[] = [];
+
   class EmitterStreamImpl extends TypedEmitter implements EmitterStream {
+    // Session is wired in once we have a StreamHandle (either immediately or on inbound OPEN).
+    #session: import("../session/index.js").Session | null = null;
+    // Channel reference kept for close()
+    #channel: Channel = channel;
+
     constructor() {
       super();
+
+      if (role === "initiator") {
+        // Initiator: call openStream() now — sends OPEN frame.
+        const streamHandle = channel.openStream();
+        this.#wireSession(streamHandle.session);
+      } else {
+        // Responder: wait for the remote OPEN frame.
+        channel.onStream((streamHandle) => {
+          this.#wireSession(streamHandle.session);
+          // Flush any writes queued before the session was ready.
+          for (const chunk of pendingWrites.splice(0)) {
+            streamHandle.session.sendData(chunk, "STRUCTURED_CLONE");
+          }
+        });
+      }
+    }
+
+    #wireSession(session: import("../session/index.js").Session): void {
+      this.#session = session;
 
       // Wire inbound chunks → 'data' event
       session.onChunk((chunk: unknown) => {
@@ -143,8 +185,7 @@ export function createEmitterStream(channel: Channel, _options?: EmitterOptions)
         this.emit("error", new StreamError(code, new Error(reason)));
       });
 
-      // Wire credit refill → 'drain' event
-      // Session calls this after draining #pendingSends on CREDIT/OPEN_ACK receipt.
+      // Wire credit refill → 'drain' event (API-02)
       session.onCreditRefill(() => {
         if (backpressureActive) {
           backpressureActive = false;
@@ -154,9 +195,15 @@ export function createEmitterStream(channel: Channel, _options?: EmitterOptions)
     }
 
     write(chunk: unknown): boolean {
-      session.sendData(chunk, "STRUCTURED_CLONE");
+      if (this.#session === null) {
+        // Session not yet ready (responder waiting for OPEN frame).
+        // Queue the write and return true (optimistic — we don't know credits yet).
+        pendingWrites.push(chunk);
+        return true;
+      }
+      this.#session.sendData(chunk, "STRUCTURED_CLONE");
       // desiredSize > 0 means send credit is available for more writes
-      const hasRoom = session.desiredSize > 0;
+      const hasRoom = this.#session.desiredSize > 0;
       if (!hasRoom) {
         backpressureActive = true;
       }
@@ -164,8 +211,8 @@ export function createEmitterStream(channel: Channel, _options?: EmitterOptions)
     }
 
     end(): void {
-      // Close the underlying channel (sends CLOSE frame)
-      channel.close();
+      // Close the underlying channel (sends CLOSE frame via session)
+      this.#channel.close();
 
       // Emit lifecycle events while listeners are still registered
       this.emit("end");
