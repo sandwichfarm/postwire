@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Scaffold + Wire Protocol Foundation** - Repo, tooling, frame types, transport layer, endpoint adapters, dual-publish wiring, CI smoke test
 - [ ] **Phase 2: Session Protocol Core** - Pure-TS session internals: FSM, reorder buffer, credit window, chunker, channel wiring, unit + fuzz tests
 - [ ] **Phase 3: API Adapters + Single-Hop Integration** - Low-level, EventEmitter, and WHATWG Streams surfaces; first real-browser integration tests
-- [ ] **Phase 4: Lifecycle Safety + Observability** - BFCache, SW recycling, endpoint teardown, metrics hooks, error events, trace hook
+- [x] **Phase 4: Lifecycle Safety + Observability** - BFCache, SW recycling, endpoint teardown, metrics hooks, error events, trace hook (completed 2026-04-21)
 - [ ] **Phase 5: Benchmark Harness** - Vitest bench suite, throughput/latency/CPU metrics, CI regression baseline, WASM gate documentation
 - [ ] **Phase 6: SAB Fast Path** - SharedArrayBuffer + Atomics ring-buffer transport, feature-detected and gated by benchmark data
 - [ ] **Phase 7: Multi-Hop Relay** - RelayBridge routing table with credit-forwarding backpressure and bidirectional error propagation
@@ -91,7 +91,7 @@ Plans:
 - [x] 04-02-PLAN.md — SW heartbeat: CAPABILITY-as-ping, fake-timer tests → CHANNEL_DEAD (LIFE-02)
 - [x] 04-03-PLAN.md — Teardown: port close → CHANNEL_CLOSED; onOriginRejected hook (LIFE-03, LIFE-04, LIFE-05)
 - [x] 04-04-PLAN.md — Error taxonomy: all OBS-02 codes through channel TypedEmitter; CREDIT_DEADLOCK rename
-- [ ] 04-05-PLAN.md — stats() snapshot + trace events (OBS-01, OBS-03)
+- [x] 04-05-PLAN.md — stats() snapshot + trace events (OBS-01, OBS-03)
 
 ### Phase 5: Benchmark Harness
 **Goal**: A reproducible benchmark suite runs in real browsers and publishes throughput, latency, and CPU data that drives all subsequent optimization decisions
@@ -170,7 +170,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 1. Scaffold + Wire Protocol Foundation | 4/4 | Complete | 2026-04-21 |
 | 2. Session Protocol Core | 5/6 | In Progress|  |
 | 3. API Adapters + Single-Hop Integration | 5/7 | In Progress|  |
-| 4. Lifecycle Safety + Observability | 4/6 | In Progress|  |
+| 4. Lifecycle Safety + Observability | 6/6 | Complete   | 2026-04-21 |
 | 5. Benchmark Harness | 0/? | Not started | - |
 | 6. SAB Fast Path | 0/? | Not started | - |
 | 7. Multi-Hop Relay | 0/? | Not started | - |

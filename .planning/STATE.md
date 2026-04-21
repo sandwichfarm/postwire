@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 04-lifecycle-safety-observability plan 04 (04-04-PLAN.md)
-last_updated: "2026-04-21T13:33:41.271Z"
+status: verifying
+stopped_at: Completed 04-lifecycle-safety-observability plan 05 (04-05-PLAN.md) — Phase 4 complete
+last_updated: "2026-04-21T13:42:21.095Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 10
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 23
-  completed_plans: 22
+  completed_plans: 23
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-21)
 
 Phase: 04 (Lifecycle Safety + Observability) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-21
 
 Progress: [░░░░░░░░░░] 0%
@@ -74,6 +74,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04-lifecycle-safety-observability P02 | 5min | 1 tasks | 2 files |
 | Phase 04-lifecycle-safety-observability P03 | 3 | 2 tasks | 3 files |
 | Phase 04-lifecycle-safety-observability P04 | 5min | 2 tasks | 5 files |
+| Phase 04 P05 | 7 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -133,6 +134,8 @@ Recent decisions affecting current work:
 - [Phase 04-lifecycle-safety-observability]: endpoint.onmessage=null in #disposers for LIFE-05; 'close' event listener via typeof guard for LIFE-03; #freezeAllStreams guards against OPENING/IDLE states; WindowEndpointOptions.onOriginRejected for OBS-02 boundary
 - [Phase 04-lifecycle-safety-observability]: session.onError wired in #createSession with mapSessionErrorCode() helper; both #emitter and #onErrorCb called for backward compat (OBS-02)
 - [Phase 04-lifecycle-safety-observability]: CONSUMER_STALL renamed to CREDIT_DEADLOCK in emitter.ts; CONSUMER_STALL kept in ErrorCode union for backward compat
+- [Phase 04]: channel.stats() combines per-stream Session getters (streamId, creditWindowAvailable, reorderBufferDepth, chunkerChunks) with Channel-level byte/frame counters into polling ChannelStats snapshot
+- [Phase 04]: Trace events: opt-in via options.trace=true; zero-overhead when disabled (single bool check per frame); CAPABILITY frames tracked separately in #sendCapability since they bypass sendFrame()
 
 ### Pending Todos
 
@@ -147,6 +150,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-21T13:33:41.269Z
-Stopped at: Completed 04-lifecycle-safety-observability plan 04 (04-04-PLAN.md)
+Last session: 2026-04-21T13:42:21.093Z
+Stopped at: Completed 04-lifecycle-safety-observability plan 05 (04-05-PLAN.md) — Phase 4 complete
 Resume file: None
