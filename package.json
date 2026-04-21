@@ -37,7 +37,9 @@
     "ci": "pnpm build && pnpm lint && pnpm test && pnpm test:e2e",
     "tree-shake:check": "node scripts/tree-shake-check.mjs",
     "version": "changeset version && node scripts/sync-jsr-version.mjs",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && changeset publish",
+    "pub:check": "node scripts/check-name-availability.mjs",
+    "pub:dry-run": "pnpm build && pnpm exec publint && npm publish --provenance --dry-run && pnpm exec jsr publish --dry-run"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.2",

@@ -30,6 +30,12 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium firefox webkit
 
+      - name: Check jsr.json version matches package.json
+        run: |
+          PKG=$(node -p "require('./package.json').version")
+          JSR=$(node -p "require('./jsr.json').version")
+          [ "$PKG" = "$JSR" ] || { echo "Version mismatch: package.json=$PKG jsr.json=$JSR"; exit 1; }
+
       - name: Build
         run: pnpm build
 

@@ -6,6 +6,39 @@ on:
       - 'v*'
 
 jobs:
+  dry-run:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Validate package exports
+        run: pnpm exec publint
+
+      - name: npm publish (dry-run)
+        run: npm publish --provenance --dry-run
+
+      - name: JSR publish (dry-run)
+        run: pnpm exec jsr publish --dry-run
+
   publish:
     runs-on: ubuntu-latest
     permissions:
