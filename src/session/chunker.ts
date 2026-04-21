@@ -42,10 +42,12 @@ export class Chunker {
 
   /**
    * Split a payload into one or more DataFrame chunks.
-   * For BINARY_TRANSFER: each chunk gets its own ArrayBuffer slice via ab.slice().
-   * The slice is a copy — the original `ab` is NOT in any transfer list, so it
-   * is never detached here. The caller (Transport) will transfer each slice
-   * individually via postMessage.
+   * For BINARY_TRANSFER single-chunk case: the ORIGINAL ArrayBuffer is used directly
+   * as payload and placed in the transfer list — this DETACHES the caller's buffer
+   * after postMessage (FAST-01: source.byteLength === 0 post-send). This is the
+   * zero-copy fast path for payloads that fit in a single frame.
+   * For BINARY_TRANSFER multi-chunk case: each chunk gets its own slice via ab.slice().
+   * Slices are necessary because the original must be read multiple times.
    */
   split(payload: unknown, chunkType: "BINARY_TRANSFER" | "STRUCTURED_CLONE"): ChunkResult[] {
     if (chunkType === "BINARY_TRANSFER") {
@@ -69,14 +71,16 @@ export class Chunker {
         const seq = this.#nextSeq;
         this.#nextSeq = seqNext(this.#nextSeq);
 
-        // STEP 3: Create a copy via slice — each chunk owns its own ArrayBuffer.
-        // The original `ab` is never placed in a transfer list; each slice can be
-        // transferred independently by the Transport layer.
-        const slice = ab.slice(offset, offset + chunkSize);
+        // STEP 3: Choose the buffer to use as payload.
+        // Single-chunk (offset=0, isFinal=true): use the ORIGINAL ab directly.
+        //   Placing it in the transfer list detaches the caller's buffer after
+        //   postMessage — this is the FAST-01 zero-copy proof (source.byteLength===0).
+        // Multi-chunk: use ab.slice() since we need to read ab multiple times.
+        //   Each slice is an independent ArrayBuffer transferred separately.
+        const bufToSend = offset === 0 && isFinal ? ab : ab.slice(offset, offset + chunkSize);
 
-        // STEP 4: Build frame with the slice as payload.
-        // All metadata fields (isFinal, seqNum, chunkType) were captured above —
-        // no metadata field reads the slice or original after this point.
+        // STEP 4: Build frame with the chosen buffer as payload.
+        // All metadata fields (isFinal, seqNum, chunkType) were captured above.
         const frame: DataFrame = {
           [FRAME_MARKER]: 1,
           channelId: this.#channelId,
@@ -84,12 +88,12 @@ export class Chunker {
           seqNum: seq,
           type: "DATA",
           chunkType: "BINARY_TRANSFER",
-          payload: slice,
+          payload: bufToSend,
           isFinal,
         };
 
-        // STEP 5: Transfer list contains the slice (not the original ab).
-        results.push({ frame, transfer: [slice] });
+        // STEP 5: Transfer list contains the buffer that will be sent.
+        results.push({ frame, transfer: [bufToSend] });
         offset += chunkSize;
       } while (offset < total);
 
